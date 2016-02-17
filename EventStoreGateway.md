@@ -1,0 +1,2 @@
+## EventStore Gateway for ServiceStack ##
+
