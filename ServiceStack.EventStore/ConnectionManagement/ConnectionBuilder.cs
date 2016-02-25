@@ -6,7 +6,7 @@
 
     public class ConnectionBuilder
     {
-        private Dictionary<string, object> settings = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> settings = new Dictionary<string, object>();
         private readonly Validator validator = new Validator();
 
         private string hostName = "";

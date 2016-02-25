@@ -1,4 +1,5 @@
 ﻿using EventStore.ClientAPI;
+using ServiceStack.Logging;
 
 namespace ServiceStack.EventStore.Dispatcher
 {
@@ -11,10 +12,12 @@ namespace ServiceStack.EventStore.Dispatcher
         // ReSharper disable once InconsistentNaming
         public Container container = ServiceStackHost.Instance.Container;
         private readonly HandlerMappings mappings;
+        private ILog log;
 
         public EventDispatcher(HandlerMappings mappings)
         {
             this.mappings = mappings;
+            log = LogManager.GetLogger(GetType());
         }
 
         public bool Dispatch(ResolvedEvent @event)
@@ -35,7 +38,7 @@ namespace ServiceStack.EventStore.Dispatcher
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                        log.Error($"{e.Message}");
                     }
                 }
                 return true;

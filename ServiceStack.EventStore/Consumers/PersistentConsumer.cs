@@ -47,7 +47,7 @@ namespace ServiceStack.EventStore.Consumers
 
         private void SubscriptionDropped(EventStorePersistentSubscriptionBase subscriptionBase, SubscriptionDropReason dropReason, Exception e)
         {
-            ConnectToSubscription(this.streamName, subscriptionGroup);
+            ConnectToSubscription(streamName, subscriptionGroup);
         }
 
         private void EventAppeared(EventStorePersistentSubscriptionBase @base, ResolvedEvent resolvedEvent)
