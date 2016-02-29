@@ -23,23 +23,16 @@ Add the following to your `AppHost`
 	    public override void Configure(Container container)
         {
             var mappings = new HandlerMappings()
-                                    .WithHandler<OrderCreatedHandler>()
+                                    .UseAssemblyScanning();
 
             var settings = new EventStoreSettings()
-                                    .ConsumerStream("event-stream")
-                                    .PublisherStream("another-event-stream")
-                                    .SubscriptionGroup("agroup")
-                                    .SubscriptionType(SubscriptionType.Persistent)
-                                    .InvalidMessageChannel("invalid-messages")
-                                    .DeadLetterChannel("dead-messages")
-                                    .StoreAndForward(StorageType.InMemory);
+                                .ConsumerStream("orders")
+                                .PublisherStream("order-acknowledgements");
 
             var connection = new ConnectionBuilder()
                                     .UserName("admin")
                                     .Password("changeit")
-                                    .Host("localhost:1113")
-                                    .HeartbeatTimeout(500)
-                                    .ReconnectionDelay(500);
+                                    .Host("localhost:1113");
 
             Plugins.Add(new EventStoreFeature(settings, mappings, connection));
         }
