@@ -18,7 +18,7 @@ namespace ServiceStack.EventStore
 
     public class EventStoreFeature: IPlugin
     {
-        private readonly EventStoreSettings settings;
+        private EventStoreSettings settings;
         private readonly HandlerMappings mappings;
         private Container container;
         private readonly ILog log;
@@ -55,11 +55,6 @@ namespace ServiceStack.EventStore
                     .Configure();
 
             container = appHost.GetContainer();
-
-            if (!mappings.HasMappings())
-            {
-                ScanForMappings();
-            }
 
             RegisterHandlerMappingsForIoc();
             RegisterTypesForIoc(connection);
@@ -98,34 +93,6 @@ namespace ServiceStack.EventStore
             }
         }
 
-        private void ScanForMappings()
-        {
-            var path = AppDomain.CurrentDomain.BaseDirectory;
-            var files = Directory.GetFiles(path, "*.dll");
-            var assemblies = new List<Assembly>(files.Length);
 
-            foreach (var file in files)
-            {
-                var assembly = Assembly.LoadFrom(file);
-                var matchingHandlers = GetMatchingHandlersForAssembly(assembly);
-
-                foreach (var handlerType in matchingHandlers)
-                {
-                    mappings.Add(handlerType);
-                }
-
-                if (matchingHandlers.Any())
-                {
-                    assemblies.Add(assembly);
-                }
-            }
-        }
-
-        private static Type[] GetMatchingHandlersForAssembly(Assembly assembly)
-        {
-            return assembly.GetExportedTypes()
-                        .Where(x => x.IsOrHasGenericInterfaceTypeOf(typeof(IHandle<>)))
-                        .Select(t => t).ToArray();
-        }
     }
 }

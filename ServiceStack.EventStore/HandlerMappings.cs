@@ -1,4 +1,7 @@
-﻿namespace ServiceStack.EventStore
+﻿using System.IO;
+using System.Reflection;
+
+namespace ServiceStack.EventStore
 {
     using System;
     using System.Collections.Generic;
@@ -10,6 +13,7 @@
     public class HandlerMappings
     {
         private readonly Dictionary<Type, List<Type>> mappings = new Dictionary<Type, List<Type>>();
+        private bool useAssemblyScanning;
 
         public HandlerMappings WithHandler<TEventHandler>() where TEventHandler: class
         {
@@ -58,6 +62,10 @@
 
         public IDictionary<Type, List<Type>> GetAllHandlers()
         {
+            if (useAssemblyScanning)
+            {
+                ScanForMappings();
+            }
             return mappings;
         }
 
@@ -75,6 +83,50 @@
         public bool HasMappings()
         {
              return mappings.Any();
-        } 
+        }
+
+        public HandlerMappings UseAssemblyScanning()
+        {
+            useAssemblyScanning = true;
+            return this;
+        }
+
+        private void ScanForMappings()
+        {
+            var path = AppDomain.CurrentDomain.BaseDirectory;
+            var files = Directory.GetFiles(path, "*.dll");
+            var assemblies = new List<Assembly>(files.Length);
+
+            foreach (var file in files)
+            {
+                var assembly = Assembly.LoadFrom(file);
+                var matchingHandlers = GetMatchingHandlersForAssembly(assembly);
+
+                foreach (var handlerType in matchingHandlers)
+                {
+                    Add(handlerType);
+                }
+
+                if (matchingHandlers.Any())
+                {
+                    assemblies.Add(assembly);
+                }
+            }
+        }
+
+        private static Type[] GetMatchingHandlersForAssembly(Assembly assembly)
+        {
+            return assembly.GetExportedTypes()
+                        .Where(x => x.IsOrHasGenericInterfaceTypeOf(typeof(IHandle<>)))
+                        .Select(t => t).ToArray();
+        }
+
+        public void Load()
+        {
+            if (useAssemblyScanning)
+            {
+                
+            }
+        }
     }
 }

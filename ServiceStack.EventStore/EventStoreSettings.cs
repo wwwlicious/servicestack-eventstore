@@ -6,12 +6,12 @@
     public class EventStoreSettings
     {
         private string deadLetterChannel = "dead-letters";
-        private string subscriptionGroup;
+        private string subscriptionGroup = "consumer-group";
         private string invalidMessageChannel = "invalid-messages";
         private string consumerStream;
         private string publisherStream;
-        private SubscriptionType subscriptionType;
-        private StorageType _storageType;
+        private SubscriptionType subscriptionType = Types.SubscriptionType.Persistent;
+        private StorageType storageType = StorageType.InMemory;
 
         private Validator validator = new Validator();
 
@@ -51,12 +51,12 @@
 
         public StorageType GetGuaranteedDeliveryType()
         {
-            return _storageType;
+            return storageType;
         }
 
         public EventStoreSettings StoreAndForward(StorageType type)
         {
-            _storageType = type;
+            storageType = type;
             return this;
         }
 
