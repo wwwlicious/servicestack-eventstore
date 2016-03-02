@@ -1,5 +1,5 @@
 ﻿using EventStore.ClientAPI;
-using ServiceStack.EventStore.GuaranteedDelivery;
+using ServiceStack.EventStore.Resilience;
 
 namespace ServiceStack.EventStore
 {
@@ -60,8 +60,6 @@ namespace ServiceStack.EventStore
             RegisterHandlerMappingsForIoc();
             RegisterTypesForIoc(connection);
 
-            var inMemoryStorage = new InMemoryStorage(appHost);
-
             try
             {
                 var subscriptionType = settings.GetSubscriptionType();
@@ -70,7 +68,7 @@ namespace ServiceStack.EventStore
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                log.Error(e);
             }
         }
 
@@ -79,6 +77,8 @@ namespace ServiceStack.EventStore
             container.RegisterAutoWired<PersistentConsumer>();
             container.RegisterAutoWired<CatchUpConsumer>();
             container.RegisterAutoWired<VolatileConsumer>();
+            container.Register<ICircuitBreakerSettings>(c => new CircuitBreakerSettings());
+            container.RegisterAutoWiredAs<CircuitBreaker, ICircuitBreaker>();
             container.RegisterAutoWiredAs<EventPublisher, IPublisher>();
             container.RegisterAutoWiredAs<EventDispatcher, IEventDispatcher>();
             container.Register(c => connection).ReusedWithin(ReuseScope.Default);

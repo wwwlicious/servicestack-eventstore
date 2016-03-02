@@ -1,17 +1,20 @@
-﻿namespace ServiceStack.EventStore.CircuitBreaker
+﻿namespace ServiceStack.EventStore.Resilience
 {
     using System;
     using Polly;
     using Polly.CircuitBreaker;
+    using Logging;
 
-    public class CircuitBreaker
+    public class CircuitBreaker : ICircuitBreaker
     {
         private readonly ICircuitBreakerSettings settings;
         private CircuitBreakerPolicy policy;
+        private readonly ILog log;
 
         public CircuitBreaker(ICircuitBreakerSettings settings)
         {
             this.settings = settings;
+            log = LogManager.GetLogger(GetType());
         }
 
         public CircuitState CircuitState()
@@ -39,23 +42,23 @@
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                log.Error(e);
             }
         }
 
         private void OnHalfOpen()
         {
-            Console.WriteLine("OnHalfOpen");
+            log.Info("OnHalfOpen");
         }
 
         private void OnReset()
         {
-            Console.WriteLine("OnReset");
+            log.Info("OnReset");
         }
 
         private void OnBreak(Exception arg1, TimeSpan arg2)
         {
-            Console.WriteLine("OnBreak");
+            log.Info("OnBreak");
         }
     }
 }

@@ -1,13 +1,14 @@
 ﻿using EventStore.ClientAPI;
-using ServiceStack.EventStore.Types;
 
 namespace ServiceStack.EventStore.Consumers
 {
-    public class InvalidMessage : EventStoreEvent
+    using Types;
+
+    public class InvalidMessage : Event
     {
         private readonly RecordedEvent originalEvent;
 
-        public InvalidMessage(RecordedEvent originalEvent)
+        public InvalidMessage(RecordedEvent originalEvent) : base("")
         {
             this.originalEvent = originalEvent;
         }

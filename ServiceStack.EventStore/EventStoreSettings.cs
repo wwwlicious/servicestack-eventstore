@@ -11,7 +11,6 @@
         private string consumerStream;
         private string publisherStream;
         private SubscriptionType subscriptionType = Types.SubscriptionType.Persistent;
-        private StorageType storageType = StorageType.InMemory;
 
         private Validator validator = new Validator();
 
@@ -49,17 +48,6 @@
             return subscriptionType;
         }
 
-        public StorageType GetGuaranteedDeliveryType()
-        {
-            return storageType;
-        }
-
-        public EventStoreSettings StoreAndForward(StorageType type)
-        {
-            storageType = type;
-            return this;
-        }
-
         public EventStoreSettings ConsumerStream(string streamName)
         {
             consumerStream = streamName;
@@ -72,10 +60,20 @@
             return this;
         }
 
+        public string GetInvalidMessageChannel()
+        {
+            return invalidMessageChannel;
+        }
+
         public EventStoreSettings InvalidMessageChannel(string channel)
         {
             invalidMessageChannel = channel;
             return this;
+        }
+
+        public string GetDeadLetterChannel()
+        {
+            return deadLetterChannel;
         }
 
         public EventStoreSettings DeadLetterChannel(string channel)
