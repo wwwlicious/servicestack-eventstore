@@ -1,14 +1,10 @@
 ﻿using EventStore.ClientAPI;
-using ServiceStack.EventStore.Resilience;
 
 namespace ServiceStack.EventStore
 {
     using ServiceStack;
     using System;
     using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
     using Funq;
     using Types;
     using Consumers;
@@ -16,6 +12,7 @@ namespace ServiceStack.EventStore
     using ConnectionManagement;
     using Dispatcher;
     using Publisher;
+    using Resilience;
 
     public class EventStoreFeature: IPlugin
     {

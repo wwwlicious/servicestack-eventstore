@@ -1,9 +1,10 @@
-﻿using System;
-using EventStore.ClientAPI;
-using ServiceStack.Logging;
+﻿using EventStore.ClientAPI;
 
 namespace ServiceStack.EventStore.ConnectionManagement
 {
+    using Logging;
+    using System;
+
     public class ConnectionMonitor
     {
         private readonly ILog log;

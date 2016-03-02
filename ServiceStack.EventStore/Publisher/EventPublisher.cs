@@ -4,9 +4,9 @@ namespace ServiceStack.EventStore.Publisher
 {
     using Types;
     using Logging;
-    using Maclean.DeterministicGuids;
     using Resilience;
     using System.Reflection;
+    using DeterministicIds;
 
     public class EventPublisher: IPublisher
     {
@@ -22,17 +22,17 @@ namespace ServiceStack.EventStore.Publisher
             log = LogManager.GetLogger(GetType());
         }
 
-        public void Publish(Event @event)
+        public void Publish<TId>(AggregateEvent<TId> @event) where TId : struct
         {
+            var streamId = $"{@event.StreamName}-{@event.AggregateId}";
             var json = @event.ToJson();
             var assembly = Assembly.GetExecutingAssembly();
-            var deterministicId = GuidUtility.Create(assembly.GetType().GUID, json);
-            var streamId = $"{@event.StreamName}-{deterministicId}";
+            var deterministicEventId = GuidUtility.Create(assembly.GetType().GUID, json);
 
             circuitBreaker.Execute(() =>
             {
                 connection.AppendToStreamAsync(streamId, ExpectedVersion.Any,
-                        new EventData(deterministicId, @event.GetType().Name, true, json.ToAsciiBytes(), new byte[] { }));
+                    new EventData(deterministicEventId, @event.GetType().Name, true, json.ToAsciiBytes(), new byte[] {}));
             });
 
             log.Info($"Logged event: {@event}");

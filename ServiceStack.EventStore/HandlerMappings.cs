@@ -1,12 +1,12 @@
-﻿using System.IO;
-using System.Reflection;
-
-namespace ServiceStack.EventStore
+﻿namespace ServiceStack.EventStore
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using Types;
+    using System.IO;
+    using System.Reflection;
+
     /// <summary>
     /// Contains a dictionary of mappings between event types and their handlers i.e. IHandle
     /// </summary>

@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace ServiceStack.EventStore.Resilience
+﻿namespace ServiceStack.EventStore.Resilience
 {
+    using System;
+
     public class CircuitBreakerSettings : ICircuitBreakerSettings
     {
         public CircuitBreakerSettings() : this(3, TimeSpan.FromSeconds(20)) {}

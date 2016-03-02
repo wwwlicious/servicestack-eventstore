@@ -1,10 +1,9 @@
-﻿
-using System;
-using System.Security.Cryptography;
-using System.Text;
-
-namespace Maclean.DeterministicGuids
+﻿namespace ServiceStack.EventStore.DeterministicIds
 {
+    using System;
+    using System.Security.Cryptography;
+    using System.Text;
+
     /// <summary>
     /// Helper methods for working with <see cref="Guid"/>.
     /// </summary>

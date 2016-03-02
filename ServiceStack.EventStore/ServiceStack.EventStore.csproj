@@ -94,8 +94,8 @@
     <Compile Include="EventStoreFeature.cs" />
     <Compile Include="HandlerMappings.cs" />
     <Compile Include="Dispatcher\IEventDispatcher.cs" />
-    <Compile Include="Types\Event.cs" />
-    <Compile Include="Types\IPublisher.cs" />
+    <Compile Include="Types\AggregateEvent.cs" />
+    <Compile Include="Publisher\IPublisher.cs" />
     <Compile Include="Types\IHandle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EventStoreSettings.cs" />

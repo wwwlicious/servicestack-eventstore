@@ -1,11 +1,11 @@
 ﻿using EventStore.ClientAPI;
-using ServiceStack.Logging;
 
 namespace ServiceStack.EventStore.Dispatcher
 {
     using System;
     using Funq;
     using Text;
+    using Logging;
 
     public class EventDispatcher : IEventDispatcher
     {

@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace ServiceStack.EventStore.Resilience
+﻿namespace ServiceStack.EventStore.Resilience
 {
+    using System;
+
     public interface ICircuitBreakerSettings
     {
         int BreakOnNumberOfExceptions { get; }
