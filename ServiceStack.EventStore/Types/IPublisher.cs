@@ -2,6 +2,7 @@
 {
     public interface IPublisher
     {
-        void Publish(EventStoreEvent @event);
+        void Publish<TEvent>(TEvent @event);
+
     }
 }

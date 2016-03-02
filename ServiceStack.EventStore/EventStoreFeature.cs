@@ -1,4 +1,5 @@
 ﻿using EventStore.ClientAPI;
+using ServiceStack.EventStore.GuaranteedDelivery;
 
 namespace ServiceStack.EventStore
 {
@@ -58,6 +59,8 @@ namespace ServiceStack.EventStore
 
             RegisterHandlerMappingsForIoc();
             RegisterTypesForIoc(connection);
+
+            var inMemoryStorage = new InMemoryStorage(appHost);
 
             try
             {
