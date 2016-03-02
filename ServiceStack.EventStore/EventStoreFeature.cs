@@ -1,4 +1,5 @@
 ﻿using EventStore.ClientAPI;
+using ServiceStack.EventStore.Mappings;
 
 namespace ServiceStack.EventStore
 {

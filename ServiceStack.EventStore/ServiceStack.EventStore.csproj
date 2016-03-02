@@ -86,13 +86,13 @@
     <Compile Include="Consumers\CatchUpConsumer.cs" />
     <Compile Include="Resilience\CircuitBreakerSettings.cs" />
     <Compile Include="Types\InvalidMessage.cs" />
-    <Compile Include="DeterministicIds\GuidUtility.cs" />
+    <Compile Include="Idempotency\GuidUtility.cs" />
     <Compile Include="Publisher\EventPublisher.cs" />
     <Compile Include="Consumers\IEventConsumer.cs" />
     <Compile Include="Consumers\PersistentConsumer.cs" />
     <Compile Include="Dispatcher\EventDispatcher.cs" />
     <Compile Include="EventStoreFeature.cs" />
-    <Compile Include="HandlerMappings.cs" />
+    <Compile Include="Mappings\HandlerMappings.cs" />
     <Compile Include="Dispatcher\IEventDispatcher.cs" />
     <Compile Include="Types\AggregateEvent.cs" />
     <Compile Include="Publisher\IPublisher.cs" />

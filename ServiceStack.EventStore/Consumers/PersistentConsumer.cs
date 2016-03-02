@@ -1,5 +1,4 @@
 ﻿using EventStore.ClientAPI;
-using ServiceStack.EventStore.Publisher;
 
 namespace ServiceStack.EventStore.Consumers
 {
@@ -8,6 +7,7 @@ namespace ServiceStack.EventStore.Consumers
     using Logging;
     using Dispatcher;
     using Types;
+    using Publisher;
 
     public class PersistentConsumer: IEventConsumer
     {

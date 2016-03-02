@@ -1,4 +1,4 @@
-﻿namespace ServiceStack.EventStore.DeterministicIds
+﻿namespace ServiceStack.EventStore.Idempotency
 {
     using System;
     using System.Security.Cryptography;

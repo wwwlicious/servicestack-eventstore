@@ -1,11 +1,11 @@
-﻿namespace ServiceStack.EventStore
+﻿namespace ServiceStack.EventStore.Mappings
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using Types;
     using System.IO;
+    using System.Linq;
     using System.Reflection;
+    using Types;
 
     /// <summary>
     /// Contains a dictionary of mappings between event types and their handlers i.e. IHandle
@@ -119,14 +119,6 @@
             return assembly.GetExportedTypes()
                         .Where(x => x.IsOrHasGenericInterfaceTypeOf(typeof(IHandle<>)))
                         .Select(t => t).ToArray();
-        }
-
-        public void Load()
-        {
-            if (useAssemblyScanning)
-            {
-                
-            }
         }
     }
 }

@@ -6,6 +6,7 @@ namespace ServiceStack.EventStore.Dispatcher
     using Funq;
     using Text;
     using Logging;
+    using ServiceStack.EventStore.Mappings;
 
     public class EventDispatcher : IEventDispatcher
     {

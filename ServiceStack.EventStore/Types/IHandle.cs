@@ -1,7 +1,7 @@
 ﻿namespace ServiceStack.EventStore.Types
 {
-    public interface IHandle<in TNotification>
+    public interface IHandle<in TEvent>
     {
-        void Handle(TNotification @event);
+        void Handle(TEvent @event);
     }
 }

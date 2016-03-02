@@ -6,7 +6,7 @@ namespace ServiceStack.EventStore.Publisher
     using Logging;
     using Resilience;
     using System.Reflection;
-    using DeterministicIds;
+    using Idempotency;
 
     public class EventPublisher: IPublisher
     {
