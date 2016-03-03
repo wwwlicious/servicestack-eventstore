@@ -1,5 +1,4 @@
 ﻿using EventStore.ClientAPI;
-using ServiceStack.EventStore.Mappings;
 
 namespace ServiceStack.EventStore
 {
@@ -14,6 +13,7 @@ namespace ServiceStack.EventStore
     using Dispatcher;
     using Publisher;
     using Resilience;
+    using Mappings;
 
     public class EventStoreFeature: IPlugin
     {
@@ -75,7 +75,6 @@ namespace ServiceStack.EventStore
             container.RegisterAutoWired<PersistentConsumer>();
             container.RegisterAutoWired<CatchUpConsumer>();
             container.RegisterAutoWired<VolatileConsumer>();
-            container.Register<ICircuitBreakerSettings>(c => new CircuitBreakerSettings());
             container.RegisterAutoWiredAs<CircuitBreaker, ICircuitBreaker>();
             container.RegisterAutoWiredAs<EventPublisher, IPublisher>();
             container.RegisterAutoWiredAs<EventDispatcher, IEventDispatcher>();

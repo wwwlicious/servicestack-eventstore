@@ -62,5 +62,12 @@
             settings["HeartbeatTimeout"] = timeout;
             return this;
         }
+
+        public ConnectionBuilder MaxReconnections(int reconnections)
+        {
+            settings["MaxReconnections"] = reconnections;
+            return this;
+        }
+
     }
 }

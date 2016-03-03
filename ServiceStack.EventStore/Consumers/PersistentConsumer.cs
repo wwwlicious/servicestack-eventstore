@@ -36,12 +36,11 @@ namespace ServiceStack.EventStore.Consumers
             {
                 connection.ConnectToPersistentSubscription(streamName, subscriptionGroup, EventAppeared, SubscriptionDropped);
             }
-            catch (AggregateException ex)
+            catch (AggregateException aggregate)
             {
-                if (ex.InnerException.GetType() != typeof(InvalidOperationException)
-                    && ex.InnerException?.Message != $"Subscription group {subscriptionGroup} on stream {streamName} already exists")
+                foreach (var exception in aggregate.InnerExceptions)
                 {
-                    throw;
+                    log.Error(exception);
                 }
             }
         }

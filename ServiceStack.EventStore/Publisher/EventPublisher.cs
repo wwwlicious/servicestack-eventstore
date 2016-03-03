@@ -5,8 +5,9 @@ namespace ServiceStack.EventStore.Publisher
     using Types;
     using Logging;
     using Resilience;
-    using System.Reflection;
     using Idempotency;
+    using System;
+    using System.Runtime.InteropServices;
 
     public class EventPublisher: IPublisher
     {
@@ -18,7 +19,6 @@ namespace ServiceStack.EventStore.Publisher
         {
             this.circuitBreaker = circuitBreaker;
             this.connection = connection;
-
             log = LogManager.GetLogger(GetType());
         }
 
@@ -26,16 +26,21 @@ namespace ServiceStack.EventStore.Publisher
         {
             var streamId = $"{@event.StreamName}-{@event.AggregateId}";
             var json = @event.ToJson();
-            var assembly = Assembly.GetExecutingAssembly();
-            var deterministicEventId = GuidUtility.Create(assembly.GetType().GUID, json);
+            var assemblyGuid = GetExecutingAssemblyGuid();
+            var deterministicEventId = GuidUtility.Create(assemblyGuid, json);
 
-            circuitBreaker.Execute(() =>
-            {
-                connection.AppendToStreamAsync(streamId, ExpectedVersion.Any,
+            connection.AppendToStreamAsync(streamId, ExpectedVersion.Any,
                     new EventData(deterministicEventId, @event.GetType().Name, true, json.ToAsciiBytes(), new byte[] {}));
-            });
 
             log.Info($"Logged event: {@event}");
+        }
+
+        private Guid GetExecutingAssemblyGuid()
+        {
+            var assembly = GetType().Assembly;
+            var attribute = (GuidAttribute) assembly.GetCustomAttributes(typeof (GuidAttribute), true)[0];
+            var assemblyGuid = new Guid(attribute.Value);
+            return assemblyGuid;
         }
     }
 }

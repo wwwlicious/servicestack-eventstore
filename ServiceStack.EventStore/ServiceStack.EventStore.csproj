@@ -80,11 +80,9 @@
   <ItemGroup>
     <Compile Include="Resilience\CircuitBreaker.cs" />
     <Compile Include="Resilience\ICircuitBreaker.cs" />
-    <Compile Include="Resilience\ICircuitBreakerSettings.cs" />
     <Compile Include="ConnectionManagement\ConnectionMonitor.cs" />
     <Compile Include="ConnectionManagement\ConnectionBuilder.cs" />
     <Compile Include="Consumers\CatchUpConsumer.cs" />
-    <Compile Include="Resilience\CircuitBreakerSettings.cs" />
     <Compile Include="Types\InvalidMessage.cs" />
     <Compile Include="Idempotency\GuidUtility.cs" />
     <Compile Include="Publisher\EventPublisher.cs" />

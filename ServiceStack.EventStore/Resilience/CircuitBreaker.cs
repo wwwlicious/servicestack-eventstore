@@ -7,13 +7,11 @@
 
     public class CircuitBreaker : ICircuitBreaker
     {
-        private readonly ICircuitBreakerSettings settings;
         private CircuitBreakerPolicy policy;
         private readonly ILog log;
 
-        public CircuitBreaker(ICircuitBreakerSettings settings)
+        public CircuitBreaker()
         {
-            this.settings = settings;
             log = LogManager.GetLogger(GetType());
         }
 
