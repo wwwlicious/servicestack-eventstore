@@ -11,13 +11,13 @@ namespace ServiceStack.EventStore
     using Logging;
     using ConnectionManagement;
     using Dispatcher;
-    using Publisher;
     using Resilience;
     using Mappings;
+    using Repository;
 
     public class EventStoreFeature: IPlugin
     {
-        private EventStoreSettings settings;
+        private readonly EventStoreSettings settings;
         private readonly HandlerMappings mappings;
         private Container container;
         private readonly ILog log;
@@ -50,7 +50,7 @@ namespace ServiceStack.EventStore
 
             await connection.ConnectAsync();
 
-            new ConnectionMonitor(connection)
+            new ConnectionMonitor(connection, builder.MonitorSettings)
                     .Configure();
 
             container = appHost.GetContainer();
@@ -62,7 +62,7 @@ namespace ServiceStack.EventStore
             {
                 var subscriptionType = settings.GetSubscriptionType();
                 var consumer = (IEventConsumer)container.TryResolve(consumers[subscriptionType]);
-                consumer.ConnectToSubscription(settings.GetConsumerStream(), settings.GetSubscriptionGroup());
+                //consumer.ConnectToSubscription(settings.GetSubscriptionGroup());
             }
             catch (Exception e)
             {
@@ -76,7 +76,7 @@ namespace ServiceStack.EventStore
             container.RegisterAutoWired<CatchUpConsumer>();
             container.RegisterAutoWired<VolatileConsumer>();
             container.RegisterAutoWiredAs<CircuitBreaker, ICircuitBreaker>();
-            container.RegisterAutoWiredAs<EventPublisher, IPublisher>();
+            container.RegisterAutoWiredAs<EventStore, IEventStore>();
             container.RegisterAutoWiredAs<EventDispatcher, IEventDispatcher>();
             container.Register(c => connection).ReusedWithin(ReuseScope.Default);
             container.Register(c => mappings).ReusedWithin(ReuseScope.Default);
@@ -92,7 +92,5 @@ namespace ServiceStack.EventStore
                 }
             }
         }
-
-
     }
 }

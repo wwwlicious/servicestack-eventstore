@@ -7,34 +7,34 @@ namespace ServiceStack.EventStore.Consumers
     using Logging;
     using Dispatcher;
     using Types;
-    using Publisher;
+    using Repository;
 
     public class PersistentConsumer: IEventConsumer
     {
         private readonly IEventDispatcher dispatcher;
         private readonly IEventStoreConnection connection;
-        private readonly IPublisher publisher;
+        private readonly IEventStore eventStore;
         private Policy policy;
         private readonly ILog log;
-        private string streamName;
+        private string aggregateStream;
         private string subscriptionGroup;
 
-        public PersistentConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IPublisher publisher)
+        public PersistentConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStore eventStore)
         {
             this.dispatcher = dispatcher;
             this.connection = connection;
-            this.publisher = publisher;
+            this.eventStore = eventStore;
             log = LogManager.GetLogger(GetType());
         }
 
-        public void ConnectToSubscription(string streamName, string subscriptionGroup)
+        public void ConnectToSubscription(string aggregateStream, string subscriptionGroup)
         {
-            this.streamName = streamName;
+            this.aggregateStream = aggregateStream;
             this.subscriptionGroup = subscriptionGroup;
 
             try
             {
-                connection.ConnectToPersistentSubscription(streamName, subscriptionGroup, EventAppeared, SubscriptionDropped);
+                connection.ConnectToPersistentSubscription(aggregateStream, subscriptionGroup, EventAppeared, SubscriptionDropped);
             }
             catch (AggregateException aggregate)
             {
@@ -47,14 +47,14 @@ namespace ServiceStack.EventStore.Consumers
 
         private void SubscriptionDropped(EventStorePersistentSubscriptionBase subscriptionBase, SubscriptionDropReason dropReason, Exception e)
         {
-            ConnectToSubscription(streamName, subscriptionGroup);
+            ConnectToSubscription(aggregateStream, subscriptionGroup);
         }
 
         private void EventAppeared(EventStorePersistentSubscriptionBase @base, ResolvedEvent resolvedEvent)
         {
-            if (!resolvedEvent.Event.IsJson || !dispatcher.Dispatch(resolvedEvent))
+            if (!dispatcher.Dispatch(resolvedEvent))
                 {
-                 publisher.Publish(new InvalidMessage(resolvedEvent.OriginalEvent));
+                 eventStore.Publish(new InvalidMessage(resolvedEvent.OriginalEvent));
                 }
             }
         }

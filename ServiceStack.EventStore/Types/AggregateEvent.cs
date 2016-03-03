@@ -1,14 +1,22 @@
-﻿namespace ServiceStack.EventStore.Types
+﻿using System.Runtime.Serialization;
+
+namespace ServiceStack.EventStore.Types
 {
     public abstract class AggregateEvent<TId> where TId: struct 
     {
-        public string StreamName { get;  }
+        [IgnoreDataMember]
+        public string AggregateStream { get;  }
 
         public TId AggregateId { get; }
 
-        protected AggregateEvent(string streamName, TId aggregateId)
+        protected AggregateEvent(string aggregateStream) : this(aggregateStream, default(TId))
         {
-            StreamName = streamName;
+            AggregateStream = aggregateStream;
+        }
+
+        protected AggregateEvent(string aggregateStream, TId aggregateId)
+        {
+            AggregateStream = aggregateStream;
             AggregateId = aggregateId;
         }
     }

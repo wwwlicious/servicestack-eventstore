@@ -1,16 +1,25 @@
-﻿using EventStore.ClientAPI;
+﻿using System;
+using EventStore.ClientAPI;
 
 namespace ServiceStack.EventStore.Types
 {
-    using System;
-
-    public class InvalidMessage : AggregateEvent<Guid>
+    public class InvalidMessage : Event
     {
-        private readonly RecordedEvent originalEvent;
-
-        public InvalidMessage(RecordedEvent originalEvent) : base("invalid-messages", Guid.NewGuid())
+        public InvalidMessage(RecordedEvent originalEvent) : base("invalidmessages")
         {
-            this.originalEvent = originalEvent;
+            OriginalEventId = originalEvent.EventId;
+            OriginalData = originalEvent.Data.FromAsciiBytes();
+            OriginalMetadata = originalEvent.Metadata.FromAsciiBytes();
+            OriginalEventStreamId = originalEvent.EventStreamId;
+            OriginalEventNumber = originalEvent.EventNumber;
         }
+
+        public string OriginalEventType { get; set; }
+        public string OriginalData { get; }
+        public string OriginalMetadata { get; }
+        public string OriginalEventStreamId { get;  }
+        public Guid OriginalEventId { get; }
+        public int OriginalEventNumber { get; }
+        public string InvalidityReason { get; }
     }
 }

@@ -5,11 +5,9 @@
 
     public class EventStoreSettings
     {
-        private string deadLetterChannel = "dead-letters";
+        private string deadLetterChannel = "deadletters";
         private string subscriptionGroup = "consumer-group";
-        private string invalidMessageChannel = "invalid-messages";
-        private string consumerStream;
-        private string publisherStream;
+        private string invalidMessageChannel = "invalidmessages";
         private SubscriptionType subscriptionType = Types.SubscriptionType.Persistent;
 
         private Validator validator = new Validator();
@@ -22,22 +20,6 @@
             }
         }
 
-        public string GetConsumerStream()
-        {
-            return consumerStream;
-        }
-
-        public string GetPublisherStream()
-        {
-            return publisherStream;
-        }
-
-        public EventStoreSettings PublisherStream(string streamName)
-        {
-            publisherStream = streamName;
-            return this;
-        }
-
         public string GetSubscriptionGroup()
         {
             return subscriptionGroup;
@@ -46,12 +28,6 @@
         public SubscriptionType GetSubscriptionType()
         {
             return subscriptionType;
-        }
-
-        public EventStoreSettings ConsumerStream(string streamName)
-        {
-            consumerStream = streamName;
-            return this;
         }
 
         public EventStoreSettings SubscriptionGroup(string @group)

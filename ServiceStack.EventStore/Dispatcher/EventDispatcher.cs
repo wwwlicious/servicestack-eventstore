@@ -24,8 +24,9 @@ namespace ServiceStack.EventStore.Dispatcher
         public bool Dispatch(ResolvedEvent @event)
         {
             Type type;
+            var clrEventType = @event.Event.Metadata.FromAsciiBytes();
 
-            if (mappings.TryResolveMapping(@event.Event.EventType, out type))
+            if (mappings.TryResolveMapping(clrEventType, out type))
             {
                 var serializer = new JsonStringSerializer();
                 var typedEvent = serializer.DeserializeFromString(@event.Event.Data.FromAsciiBytes(), type);

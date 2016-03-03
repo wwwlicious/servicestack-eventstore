@@ -6,12 +6,18 @@
 
     public class ConnectionBuilder
     {
+        public MonitorSettings MonitorSettings { get; set; }
         private readonly Dictionary<string, object> settings = new Dictionary<string, object>();
         private readonly Validator validator = new Validator();
 
         private string hostName = "";
         private string userName = "";
         private string password = "";
+
+        public ConnectionBuilder()
+        {
+            MonitorSettings = new MonitorSettings();
+        }
 
         private class Validator : AbstractValidator<ConnectionBuilder>
         {
@@ -68,6 +74,5 @@
             settings["MaxReconnections"] = reconnections;
             return this;
         }
-
     }
 }

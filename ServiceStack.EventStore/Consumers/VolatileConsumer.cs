@@ -2,7 +2,7 @@
 {
     public class VolatileConsumer: IEventConsumer
     {
-        public void ConnectToSubscription(string streamName, string subscriptionGroup)
+        public void ConnectToSubscription(string streamAggregate, string subscriptionGroup)
         {
             throw new System.NotImplementedException();
         }

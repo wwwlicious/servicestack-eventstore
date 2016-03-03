@@ -2,6 +2,6 @@
 {
     public interface IEventConsumer
     {
-        void ConnectToSubscription(string streamName, string subscriptionGroup);
+        void ConnectToSubscription(string streamAggregate, string subscriptionGroup);
     }
 }
