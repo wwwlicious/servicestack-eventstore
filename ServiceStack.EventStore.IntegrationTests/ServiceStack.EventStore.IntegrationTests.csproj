@@ -4,17 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4F92796A-4DB7-4DF7-BEAE-DECC5602ECB9}</ProjectGuid>
+    <ProjectGuid>{73AB4EDE-338C-4517-9732-5E5D551A6CC7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ServiceStack.EventStore</RootNamespace>
-    <AssemblyName>ServiceStack.EventStore</AssemblyName>
+    <RootNamespace>ServiceStack.EventStore.IntegrationTests</RootNamespace>
+    <AssemblyName>ServiceStack.EventStore.IntegrationTests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,16 +29,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EventStore.ClientAPI, Version=3.4.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\EventStore.Client.3.4.0\lib\net40\EventStore.ClientAPI.dll</HintPath>
+    <Reference Include="FluentAssertions, Version=4.2.2.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentAssertions.4.2.2\lib\net45\FluentAssertions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Polly, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\Sandbox\EventStoreListener\packages\Polly.4.0.0\lib\net45\Polly.dll</HintPath>
+    <Reference Include="FluentAssertions.Core, Version=4.2.2.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentAssertions.4.2.2\lib\net45\FluentAssertions.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="ServiceStack, Version=4.0.54.0, Culture=neutral, processorArchitecture=MSIL">
@@ -60,17 +54,12 @@
       <HintPath>..\packages\ServiceStack.Interfaces.4.0.54\lib\portable-wp80+sl5+net40+win8+monotouch+monoandroid+xamarin.ios10\ServiceStack.Interfaces.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="ServiceStack.OrmLite, Version=4.0.52.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\Sandbox\EventStoreListener\packages\ServiceStack.OrmLite.4.0.52\lib\net45\ServiceStack.OrmLite.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="ServiceStack.Text, Version=4.0.54.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ServiceStack.Text.4.0.54\lib\net40\ServiceStack.Text.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -95,44 +84,26 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConnectionManagement\MonitorSettings.cs" />
-    <Compile Include="ConnectionManagement\IMonitorSettings.cs" />
-    <Compile Include="EventStoreCheck.cs" />
-    <Compile Include="EventStoreHealthService.cs" />
-    <Compile Include="Exceptions\AggregateDeletedException.cs" />
-    <Compile Include="Exceptions\AggregateNotFoundException.cs" />
-    <Compile Include="Exceptions\AggregateVersionException.cs" />
-    <Compile Include="Repository\EventStoreRepository.cs" />
-    <Compile Include="Repository\IEventStoreRepository.cs" />
-    <Compile Include="Resilience\CircuitBreaker.cs" />
-    <Compile Include="Types\EventSourcedAggregate.cs" />
-    <Compile Include="Resilience\ICircuitBreaker.cs" />
-    <Compile Include="ConnectionManagement\ConnectionMonitor.cs" />
-    <Compile Include="ConnectionManagement\ConnectionBuilder.cs" />
-    <Compile Include="Consumers\CatchUpConsumer.cs" />
-    <Compile Include="Types\Event.cs" />
-    <Compile Include="Types\IDomainEvent.cs" />
-    <Compile Include="Types\IMemento.cs" />
-    <Compile Include="Types\InvalidMessage.cs" />
-    <Compile Include="Idempotency\GuidUtility.cs" />
-    <Compile Include="Consumers\IEventConsumer.cs" />
-    <Compile Include="Consumers\PersistentConsumer.cs" />
-    <Compile Include="Dispatcher\EventDispatcher.cs" />
-    <Compile Include="EventStoreFeature.cs" />
-    <Compile Include="Mappings\HandlerMappings.cs" />
-    <Compile Include="Dispatcher\IEventDispatcher.cs" />
-    <Compile Include="Types\AggregateEvent.cs" />
-    <Compile Include="Types\IHandle.cs" />
+    <Compile Include="TestDomain\EDTUpdated.cs" />
+    <Compile Include="TestDomain\Flight.cs" />
+    <Compile Include="TestDomain\FlightCreated.cs" />
+    <Compile Include="TestDomain\FlightNumberChanged.cs" />
+    <Compile Include="TestDomain\Passenger.cs" />
+    <Compile Include="TestDomain\PassengerAdded.cs" />
+    <Compile Include="Tests.cs" />
+    <Compile Include="TestAppHost.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="EventStoreSettings.cs" />
-    <Compile Include="Types\SubscriptionType.cs" />
-    <Compile Include="Consumers\VolatileConsumer.cs" />
+    <Compile Include="TestDomainService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <ProjectReference Include="..\ServiceStack.EventStore\ServiceStack.EventStore.csproj">
+      <Project>{4f92796a-4db7-4df7-beae-decc5602ecb9}</Project>
+      <Name>ServiceStack.EventStore</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

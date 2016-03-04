@@ -13,17 +13,17 @@ namespace ServiceStack.EventStore.Consumers
     {
         private readonly IEventDispatcher dispatcher;
         private readonly IEventStoreConnection connection;
-        private readonly IEventStore eventStore;
+        private readonly IEventStoreRepository _eventStoreRepository;
         private Policy policy;
         private readonly ILog log;
         private string aggregateStream;
         private string subscriptionGroup;
 
-        public PersistentConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStore eventStore)
+        public PersistentConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStoreRepository _eventStoreRepository)
         {
             this.dispatcher = dispatcher;
             this.connection = connection;
-            this.eventStore = eventStore;
+            this._eventStoreRepository = _eventStoreRepository;
             log = LogManager.GetLogger(GetType());
         }
 
@@ -54,7 +54,7 @@ namespace ServiceStack.EventStore.Consumers
         {
             if (!dispatcher.Dispatch(resolvedEvent))
                 {
-                 eventStore.Publish(new InvalidMessage(resolvedEvent.OriginalEvent));
+                 _eventStoreRepository.Publish(new InvalidMessage(resolvedEvent.OriginalEvent));
                 }
             }
         }

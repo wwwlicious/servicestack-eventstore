@@ -2,9 +2,9 @@
 {
     using Types;
 
-    public interface IEventStore
+    public interface IEventStoreRepository
     {
-        void Publish(IAggregate aggregate);
+        void Publish(EventSourcedAggregate eventSourcedAggregate);
 
         void Publish(Event @event);
     }

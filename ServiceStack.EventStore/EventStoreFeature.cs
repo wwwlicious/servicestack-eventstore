@@ -76,7 +76,7 @@ namespace ServiceStack.EventStore
             container.RegisterAutoWired<CatchUpConsumer>();
             container.RegisterAutoWired<VolatileConsumer>();
             container.RegisterAutoWiredAs<CircuitBreaker, ICircuitBreaker>();
-            container.RegisterAutoWiredAs<EventStore, IEventStore>();
+            container.RegisterAutoWiredAs<EventStoreRepository, IEventStoreRepository>();
             container.RegisterAutoWiredAs<EventDispatcher, IEventDispatcher>();
             container.Register(c => connection).ReusedWithin(ReuseScope.Default);
             container.Register(c => mappings).ReusedWithin(ReuseScope.Default);

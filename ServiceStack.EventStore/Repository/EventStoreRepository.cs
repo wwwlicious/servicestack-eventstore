@@ -12,19 +12,22 @@ namespace ServiceStack.EventStore.Repository
     using Exceptions;
     using Text;
 
-    public class EventStore : IEventStore
+    public delegate string GetStreamName(Type type, Guid guid);
+
+    public class EventStoreRepository : IEventStoreRepository
     {
         private const string EventClrTypeHeader = "EventClrTypeName";
         private const string AggregateClrTypeHeader = "AggregateClrTypeName";
         private const int WritePageSize = 500;
         private const int ReadPageSize = 500;
 
-        private readonly Func<Type, Guid, string> aggregateIdToStreamName;
+        private readonly GetStreamName getStreamName;
         private readonly IEventStoreConnection connection;
 
-        public EventStore(IEventStoreConnection connection)
+        public EventStoreRepository(IEventStoreConnection connection)
         {
             this.connection = connection;
+            getStreamName = (type, guid) => $"{type.Name}-{guid}"; //todo make this a delegate
         }
 
         public async void Publish(Event @event)
@@ -39,17 +42,17 @@ namespace ServiceStack.EventStore.Repository
             await connection.AppendToStreamAsync(streamName, ExpectedVersion.Any, ToEventData(@event, headers));
         }
 
-        public async void Publish(IAggregate aggregate)
+        public async void Publish(EventSourcedAggregate eventSourcedAggregate)
         {
             var headers = new Dictionary<string, object>
                 {
-                    {AggregateClrTypeHeader, aggregate.GetType().Name}
+                    {AggregateClrTypeHeader, eventSourcedAggregate.GetType().Name}
                 };
 
-            var streamName = aggregateIdToStreamName(aggregate.GetType(), aggregate.Id);
+            var streamName = getStreamName(eventSourcedAggregate.GetType(), eventSourcedAggregate.Id);
 
-            var newEvents = aggregate.GetUncommittedEvents().Cast<Event>().ToList();
-            var originalVersion = aggregate.Version - newEvents.Count;
+            var newEvents = eventSourcedAggregate.Changes.ToList();
+            var originalVersion = eventSourcedAggregate.Version - newEvents.Count;
             var expectedVersion = originalVersion == 0 
                                     ? ExpectedVersion.NoStream 
                                     : originalVersion - 1;
@@ -57,7 +60,14 @@ namespace ServiceStack.EventStore.Repository
 
             if (eventsToSave.Count < WritePageSize)
             {
-                await connection.AppendToStreamAsync(streamName, expectedVersion, eventsToSave);
+                try
+                {
+                    await connection.AppendToStreamAsync(streamName, expectedVersion, eventsToSave);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
             else
             {
@@ -67,7 +77,14 @@ namespace ServiceStack.EventStore.Repository
                 while (position < eventsToSave.Count)
                 {
                     var pageEvents = eventsToSave.Skip(position).Take(WritePageSize);
-                    await transaction.WriteAsync(pageEvents);
+                    try
+                    {
+                        await transaction.WriteAsync(pageEvents);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
                     position += WritePageSize;
                 }
 
@@ -75,12 +92,12 @@ namespace ServiceStack.EventStore.Repository
             }
         }
 
-        public async Task<TAggregate> GetById<TAggregate>(Guid id, int version) where TAggregate : class, IAggregate
+        public async Task<TAggregate> GetById<TAggregate>(Guid id, int version) where TAggregate : EventSourcedAggregate
         {
             if (version <= 0)
                 throw new InvalidOperationException("Cannot get version <= 0");
 
-            var streamName = aggregateIdToStreamName(typeof(TAggregate), id);
+            var streamName = getStreamName(typeof(TAggregate), id);
             var aggregate = ConstructAggregate<TAggregate>();
 
             var sliceStart = 1; //Ignores $StreamCreated
@@ -103,7 +120,7 @@ namespace ServiceStack.EventStore.Repository
                 sliceStart = currentSlice.NextEventNumber;
 
                 foreach (var evnt in currentSlice.Events)
-                    aggregate.ApplyEvent(DeserializeEvent(evnt.OriginalEvent.Metadata, evnt.OriginalEvent.Data));
+                    aggregate.ApplyEvent((IDomainEvent)DeserializeEvent(evnt.OriginalEvent.Metadata, evnt.OriginalEvent.Data));
 
             } while (version >= currentSlice.NextEventNumber && !currentSlice.IsEndOfStream);
 
