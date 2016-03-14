@@ -1,16 +1,14 @@
 ﻿using System;
 using ServiceStack.EventStore.Types;
 
-namespace ServiceStack.EventStore.IntegrationTests
+namespace ServiceStack.EventStore.IntegrationTests.TestDomain
 {
     public class FlightNumberChanged : IDomainEvent
     {
-        public Guid FlightId { get; }
         public string NewFlightNumber { get; }
 
-        public FlightNumberChanged(Guid flightId, string newFlightNumber)
+        public FlightNumberChanged(string newFlightNumber)
         {
-            FlightId = flightId;
             NewFlightNumber = newFlightNumber;
         }
     }

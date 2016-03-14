@@ -8,7 +8,7 @@ namespace ServiceStack.EventStore.Exceptions
         public readonly Type Type;
 
         public AggregateNotFoundException(Guid id, Type type)
-            : base(string.Format("Aggregate '{0}' (type {1}) was not found.", id, type.Name))
+            : base($"Aggregate '{id}' (type {type.Name}) was not found.")
         {
             Id = id;
             Type = type;

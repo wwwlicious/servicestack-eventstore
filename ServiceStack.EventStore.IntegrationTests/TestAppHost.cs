@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Funq;
+﻿using Funq;
 using ServiceStack.EventStore.ConnectionManagement;
 using ServiceStack.EventStore.Mappings;
-using ServiceStack.Host.HttpListener;
 using ServiceStack.Logging;
 
 namespace ServiceStack.EventStore.IntegrationTests
@@ -25,8 +17,7 @@ namespace ServiceStack.EventStore.IntegrationTests
         }
         public override void Configure(Container container)
         {
-            var mappings = new HandlerMappings()
-                                .UseAssemblyScanning();
+            var mappings = new HandlerMappings();
 
             var settings = new EventStoreSettings();
 
@@ -39,7 +30,5 @@ namespace ServiceStack.EventStore.IntegrationTests
 
             Plugins.Add(new EventStoreFeature(settings, mappings, connection));
         }
-
-
     }
 }

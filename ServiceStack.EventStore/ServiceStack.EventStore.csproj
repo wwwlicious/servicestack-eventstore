@@ -102,16 +102,18 @@
     <Compile Include="Exceptions\AggregateDeletedException.cs" />
     <Compile Include="Exceptions\AggregateNotFoundException.cs" />
     <Compile Include="Exceptions\AggregateVersionException.cs" />
+    <Compile Include="ReflectionUtils.cs" />
     <Compile Include="Repository\EventStoreRepository.cs" />
     <Compile Include="Repository\IEventStoreRepository.cs" />
     <Compile Include="Resilience\CircuitBreaker.cs" />
-    <Compile Include="Types\EventSourcedAggregate.cs" />
+    <Compile Include="Types\Aggregate.cs" />
     <Compile Include="Resilience\ICircuitBreaker.cs" />
     <Compile Include="ConnectionManagement\ConnectionMonitor.cs" />
     <Compile Include="ConnectionManagement\ConnectionBuilder.cs" />
     <Compile Include="Consumers\CatchUpConsumer.cs" />
     <Compile Include="Types\Event.cs" />
     <Compile Include="Types\IDomainEvent.cs" />
+    <Compile Include="Types\IHandleEvent.cs" />
     <Compile Include="Types\IMemento.cs" />
     <Compile Include="Types\InvalidMessage.cs" />
     <Compile Include="Idempotency\GuidUtility.cs" />
@@ -122,9 +124,12 @@
     <Compile Include="Mappings\HandlerMappings.cs" />
     <Compile Include="Dispatcher\IEventDispatcher.cs" />
     <Compile Include="Types\AggregateEvent.cs" />
-    <Compile Include="Types\IHandle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EventStoreSettings.cs" />
+    <Compile Include="Types\IState.cs" />
+    <Compile Include="Types\IStateMutator.cs" />
+    <Compile Include="Types\State.cs" />
+    <Compile Include="Types\StateMutator.cs" />
     <Compile Include="Types\SubscriptionType.cs" />
     <Compile Include="Consumers\VolatileConsumer.cs" />
   </ItemGroup>

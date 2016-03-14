@@ -1,4 +1,4 @@
-﻿namespace ServiceStack.EventStore.IntegrationTests
+﻿namespace ServiceStack.EventStore.IntegrationTests.TestDomain
 {
     public class PassengerAdded
     {

@@ -84,16 +84,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestDomain\DestinationChanged.cs" />
     <Compile Include="TestDomain\EDTUpdated.cs" />
     <Compile Include="TestDomain\Flight.cs" />
     <Compile Include="TestDomain\FlightCreated.cs" />
     <Compile Include="TestDomain\FlightNumberChanged.cs" />
+    <Compile Include="TestDomain\FlightState.cs" />
     <Compile Include="TestDomain\Passenger.cs" />
     <Compile Include="TestDomain\PassengerAdded.cs" />
     <Compile Include="Tests.cs" />
     <Compile Include="TestAppHost.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestDomainService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ServiceStack.EventStore\ServiceStack.EventStore.csproj">

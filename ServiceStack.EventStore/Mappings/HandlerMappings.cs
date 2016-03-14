@@ -20,7 +20,7 @@
             var eventType =
                 typeof(TEventHandler)
                     .GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandle<>))
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleEvent<>))
                     .SelectMany(i => i.GenericTypeArguments)
                     .FirstOrDefault();
 
@@ -43,7 +43,7 @@
         {
             var eventType =
               handler.GetInterfaces()
-                  .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandle<>))
+                  .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleEvent<>))
                   .SelectMany(i => i.GenericTypeArguments)
                   .FirstOrDefault();
 
@@ -117,7 +117,7 @@
         private static Type[] GetMatchingHandlersForAssembly(Assembly assembly)
         {
             return assembly.GetExportedTypes()
-                        .Where(x => x.IsOrHasGenericInterfaceTypeOf(typeof(IHandle<>)))
+                        .Where(x => x.IsOrHasGenericInterfaceTypeOf(typeof(IHandleEvent<>)))
                         .Select(t => t).ToArray();
         }
     }

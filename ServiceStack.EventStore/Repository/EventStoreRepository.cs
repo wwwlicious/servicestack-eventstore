@@ -11,6 +11,7 @@ namespace ServiceStack.EventStore.Repository
     using System.Threading.Tasks;
     using Exceptions;
     using Text;
+    using Logging;
 
     public delegate string GetStreamName(Type type, Guid guid);
 
@@ -23,11 +24,13 @@ namespace ServiceStack.EventStore.Repository
 
         private readonly GetStreamName getStreamName;
         private readonly IEventStoreConnection connection;
+        private readonly ILog log;
 
         public EventStoreRepository(IEventStoreConnection connection)
         {
             this.connection = connection;
             getStreamName = (type, guid) => $"{type.Name}-{guid}"; //todo make this a delegate
+            log = LogManager.GetLogger(GetType());
         }
 
         public async void Publish(Event @event)
@@ -42,20 +45,21 @@ namespace ServiceStack.EventStore.Repository
             await connection.AppendToStreamAsync(streamName, ExpectedVersion.Any, ToEventData(@event, headers));
         }
 
-        public async void Publish(EventSourcedAggregate eventSourcedAggregate)
+        public async Task Publish(Aggregate aggregate)
         {
             var headers = new Dictionary<string, object>
                 {
-                    {AggregateClrTypeHeader, eventSourcedAggregate.GetType().Name}
+                    {AggregateClrTypeHeader, aggregate.GetType().Name}
                 };
 
-            var streamName = getStreamName(eventSourcedAggregate.GetType(), eventSourcedAggregate.Id);
+            var streamName = getStreamName(aggregate.GetType(), aggregate.Id);
 
-            var newEvents = eventSourcedAggregate.Changes.ToList();
-            var originalVersion = eventSourcedAggregate.Version - newEvents.Count;
-            var expectedVersion = originalVersion == 0 
-                                    ? ExpectedVersion.NoStream 
+            var newEvents = aggregate.Changes.ToList();
+            var originalVersion = aggregate.State.Version - newEvents.Count;
+            var expectedVersion = originalVersion == 0
+                                    ? ExpectedVersion.NoStream
                                     : originalVersion - 1;
+
             var eventsToSave = newEvents.Select(@event => ToEventData(@event, headers)).ToList();
 
             if (eventsToSave.Count < WritePageSize)
@@ -66,7 +70,7 @@ namespace ServiceStack.EventStore.Repository
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    log.Error(e);
                 }
             }
             else
@@ -83,7 +87,7 @@ namespace ServiceStack.EventStore.Repository
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                        log.Error(e);
                     }
                     position += WritePageSize;
                 }
@@ -91,14 +95,19 @@ namespace ServiceStack.EventStore.Repository
                 await transaction.CommitAsync();
             }
         }
+        public async Task<TAggregate> GetById<TAggregate>(Guid id) where TAggregate : Aggregate
+        {
+            return await GetById<TAggregate>(id, int.MaxValue);
+        }
 
-        public async Task<TAggregate> GetById<TAggregate>(Guid id, int version) where TAggregate : EventSourcedAggregate
+        public async Task<TAggregate> GetById<TAggregate>(Guid id, int version) where TAggregate : Aggregate
         {
             if (version <= 0)
                 throw new InvalidOperationException("Cannot get version <= 0");
 
             var streamName = getStreamName(typeof(TAggregate), id);
-            var aggregate = ConstructAggregate<TAggregate>();
+
+            var aggregate = ConstructAggregate<TAggregate>(id);
 
             var sliceStart = 1; //Ignores $StreamCreated
             StreamEventsSlice currentSlice;
@@ -124,8 +133,8 @@ namespace ServiceStack.EventStore.Repository
 
             } while (version >= currentSlice.NextEventNumber && !currentSlice.IsEndOfStream);
 
-            if (aggregate.Version != version && version < int.MaxValue)
-                throw new AggregateVersionException(id, typeof(TAggregate), aggregate.Version, version);
+            if (aggregate.State.Version != version && version < int.MaxValue)
+                throw new AggregateVersionException(id, typeof(TAggregate), aggregate.State.Version, version);
 
             return aggregate;
         }
@@ -138,9 +147,9 @@ namespace ServiceStack.EventStore.Repository
             return serializer.DeserializeFromString(data.FromAsciiBytes(), Type.GetType(eventClrTypeName));
         }
 
-        private static TAggregate ConstructAggregate<TAggregate>()
+        private static TAggregate ConstructAggregate<TAggregate>(Guid id)
         {
-            return (TAggregate)Activator.CreateInstance(typeof(TAggregate), true);
+            return (TAggregate)Activator.CreateInstance(typeof(TAggregate), id);
         }
 
         private EventData ToEventData(object @event, IDictionary<string, object> headers)

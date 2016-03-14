@@ -1,6 +1,6 @@
 ﻿namespace ServiceStack.EventStore.Types
 {
-    public interface IHandle<in TEvent>
+    public interface IHandleEvent<in TEvent>
     {
         void Handle(TEvent @event);
     }
