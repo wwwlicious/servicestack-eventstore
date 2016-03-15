@@ -2,6 +2,7 @@
 {
     using System;
 
+    //todo: will expose the state of health of the plugin
     [Route("/healthcheck")]
     public class EventStoreHealthService: Service
     {

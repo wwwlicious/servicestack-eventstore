@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using ServiceStack.EventStore.Types;
 
-namespace ServiceStack.EventStore.Helpers
+namespace ServiceStack.EventStore
 {
     internal static class ReflectionUtils
     {

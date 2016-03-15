@@ -1,4 +1,6 @@
-﻿namespace ServiceStack.EventStore.Repository
+﻿using EventStore.ClientAPI;
+
+namespace ServiceStack.EventStore.Repository
 {
     using Types;
     using System;
@@ -7,12 +9,14 @@
 
     public interface IEventStoreRepository
     {
-        Task Publish(Aggregate aggregate);
+        Task Save(Aggregate aggregate);
 
         void Publish(Event @event);
 
         Task<TAggregate> GetById<TAggregate>(Guid id, int version) where TAggregate : Aggregate;
 
         Task<TAggregate> GetById<TAggregate>(Guid id) where TAggregate : Aggregate;
+
+        IEventStoreConnection Connection { get; }
     }
 }

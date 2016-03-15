@@ -15,6 +15,7 @@ namespace ServiceStack.EventStore.Repository
 
     public delegate string GetStreamName(Type type, Guid guid);
 
+    //todo: add ability to save and load snapshots
     public class EventStoreRepository : IEventStoreRepository
     {
         private const string EventClrTypeHeader = "EventClrTypeName";
@@ -23,15 +24,16 @@ namespace ServiceStack.EventStore.Repository
         private const int ReadPageSize = 500;
 
         private readonly GetStreamName getStreamName;
-        private readonly IEventStoreConnection connection;
         private readonly ILog log;
 
         public EventStoreRepository(IEventStoreConnection connection)
         {
-            this.connection = connection;
+            Connection = connection;
             getStreamName = (type, guid) => $"{type.Name}-{guid}"; //todo make this a delegate
             log = LogManager.GetLogger(GetType());
         }
+
+        public IEventStoreConnection Connection { get; }
 
         public async void Publish(Event @event)
         {
@@ -42,10 +44,10 @@ namespace ServiceStack.EventStore.Repository
                     {EventClrTypeHeader, @event.GetType().Name}
                 };
 
-            await connection.AppendToStreamAsync(streamName, ExpectedVersion.Any, ToEventData(@event, headers));
+            await Connection.AppendToStreamAsync(streamName, ExpectedVersion.Any, ToEventData(@event, headers));
         }
 
-        public async Task Publish(Aggregate aggregate)
+        public async Task Save(Aggregate aggregate)
         {
             var headers = new Dictionary<string, object>
                 {
@@ -66,16 +68,21 @@ namespace ServiceStack.EventStore.Repository
             {
                 try
                 {
-                    await connection.AppendToStreamAsync(streamName, expectedVersion, eventsToSave);
+                    await Connection.AppendToStreamAsync(streamName, expectedVersion, eventsToSave);
+                }
+                catch (Exception e) when (e.Message.Contains("WrongExpectedVersion"))
+                {
+                    log.Error(e);
+                    //todo: throw appropriate exception e.g. AggregateVersionException
                 }
                 catch (Exception e)
-                {
+                { 
                     log.Error(e);
                 }
             }
             else
             {
-                var transaction = await connection.StartTransactionAsync(streamName, expectedVersion);
+                var transaction = await Connection.StartTransactionAsync(streamName, expectedVersion);
                 var position = 0;
 
                 while (position < eventsToSave.Count)
@@ -84,6 +91,11 @@ namespace ServiceStack.EventStore.Repository
                     try
                     {
                         await transaction.WriteAsync(pageEvents);
+                    }
+                    catch (Exception e) when (e.Message.Contains("WrongExpectedVersion"))
+                    {
+                        log.Error(e);
+                        //todo: throw appropriate exception e.g. AggregateVersionException
                     }
                     catch (Exception e)
                     {
@@ -94,12 +106,16 @@ namespace ServiceStack.EventStore.Repository
 
                 await transaction.CommitAsync();
             }
+            aggregate.ClearCommittedEvents();
         }
         public async Task<TAggregate> GetById<TAggregate>(Guid id) where TAggregate : Aggregate
         {
             return await GetById<TAggregate>(id, int.MaxValue);
         }
 
+        //todo: there is a question about an AggregateCreated being raised when the aggregate is created for the first time
+        //todo: we would probably want to ignore it when rebuilding the state of an aggregate. However, if we start the slice at
+        //todo: position 1 then this would be a problem if no AggregateCreated event was raised
         public async Task<TAggregate> GetById<TAggregate>(Guid id, int version) where TAggregate : Aggregate
         {
             if (version <= 0)
@@ -109,7 +125,7 @@ namespace ServiceStack.EventStore.Repository
 
             var aggregate = ConstructAggregate<TAggregate>(id);
 
-            var sliceStart = 1; //Ignores $StreamCreated
+            var sliceStart = 0; 
             StreamEventsSlice currentSlice;
 
             do
@@ -118,23 +134,28 @@ namespace ServiceStack.EventStore.Repository
                                     ? ReadPageSize
                                     : version - sliceStart + 1;
 
-                currentSlice = await connection.ReadStreamEventsForwardAsync(streamName, sliceStart, sliceCount, false);
+                currentSlice = await Connection.ReadStreamEventsForwardAsync(streamName, sliceStart, sliceCount, false);
 
-                if (currentSlice.Status == SliceReadStatus.StreamNotFound)
-                    throw new AggregateNotFoundException(id, typeof(TAggregate));
-
-                if (currentSlice.Status == SliceReadStatus.StreamDeleted)
-                    throw new AggregateDeletedException(id, typeof(TAggregate));
+                switch (currentSlice.Status)
+                {
+                    case SliceReadStatus.StreamNotFound:
+                        throw new AggregateNotFoundException(id, typeof(TAggregate));
+                    case SliceReadStatus.StreamDeleted:
+                        throw new AggregateDeletedException(id, typeof(TAggregate));
+                    case SliceReadStatus.Success:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
 
                 sliceStart = currentSlice.NextEventNumber;
 
                 foreach (var evnt in currentSlice.Events)
-                    aggregate.ApplyEvent((IDomainEvent)DeserializeEvent(evnt.OriginalEvent.Metadata, evnt.OriginalEvent.Data));
-
+                    aggregate.ApplyEvent((IDomainEvent) DeserializeEvent(evnt.OriginalEvent.Metadata, evnt.OriginalEvent.Data));
             } while (version >= currentSlice.NextEventNumber && !currentSlice.IsEndOfStream);
 
             if (aggregate.State.Version != version && version < int.MaxValue)
-                throw new AggregateVersionException(id, typeof(TAggregate), aggregate.State.Version, version);
+                throw new AggregateVersionException(id, typeof (TAggregate), aggregate.State.Version, version);
 
             return aggregate;
         }
@@ -149,7 +170,7 @@ namespace ServiceStack.EventStore.Repository
 
         private static TAggregate ConstructAggregate<TAggregate>(Guid id)
         {
-            return (TAggregate)Activator.CreateInstance(typeof(TAggregate), id);
+            return (TAggregate) Activator.CreateInstance(typeof (TAggregate), id);
         }
 
         private EventData ToEventData(object @event, IDictionary<string, object> headers)
@@ -171,10 +192,11 @@ namespace ServiceStack.EventStore.Repository
             return new EventData(deterministicEventId, typeName, true, data, metadata);
         }
 
+        //todo: this will be changed to stop using the assembly guid
         private Guid GetExecutingAssemblyGuid()
         {
             var assembly = GetType().Assembly;
-            var attribute = (GuidAttribute)assembly.GetCustomAttributes(typeof(GuidAttribute), true)[0];
+            var attribute = (GuidAttribute) assembly.GetCustomAttributes(typeof (GuidAttribute), true)[0];
             var assemblyGuid = new Guid(attribute.Value);
             return assemblyGuid;
         }

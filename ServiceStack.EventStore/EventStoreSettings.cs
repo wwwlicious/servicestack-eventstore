@@ -1,7 +1,6 @@
 ﻿namespace ServiceStack.EventStore
 {
     using Types;
-    using FluentValidation;
 
     public class EventStoreSettings
     {
@@ -9,17 +8,7 @@
         private string subscriptionGroup = "consumer-group";
         private string invalidMessageChannel = "invalidmessages";
         private SubscriptionType subscriptionType = Types.SubscriptionType.Persistent;
-
-        private Validator validator = new Validator();
-
-        private class Validator : AbstractValidator<EventStoreSettings>
-        {
-            public Validator()
-            {
-                
-            }
-        }
-
+   
         public string GetSubscriptionGroup()
         {
             return subscriptionGroup;

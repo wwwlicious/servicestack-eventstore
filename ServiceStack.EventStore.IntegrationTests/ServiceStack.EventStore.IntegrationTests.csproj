@@ -30,6 +30,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EventStore.ClientAPI, Version=3.4.0.0, Culture=neutral, PublicKeyToken=null" />
     <Reference Include="FluentAssertions, Version=4.2.2.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentAssertions.4.2.2\lib\net45\FluentAssertions.dll</HintPath>
       <Private>True</Private>
@@ -84,6 +85,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestClasses\ServiceStackHostFixture.cs" />
+    <Compile Include="TestDomain\BaggageAdded.cs" />
     <Compile Include="TestDomain\DestinationChanged.cs" />
     <Compile Include="TestDomain\EDTUpdated.cs" />
     <Compile Include="TestDomain\Flight.cs" />
@@ -92,7 +95,7 @@
     <Compile Include="TestDomain\FlightState.cs" />
     <Compile Include="TestDomain\Passenger.cs" />
     <Compile Include="TestDomain\PassengerAdded.cs" />
-    <Compile Include="Tests.cs" />
+    <Compile Include="TestClasses\AggregateTests.cs" />
     <Compile Include="TestAppHost.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

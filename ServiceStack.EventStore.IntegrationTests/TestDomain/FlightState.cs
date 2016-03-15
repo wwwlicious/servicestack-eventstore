@@ -1,19 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using ServiceStack.EventStore.Types;
-
-namespace ServiceStack.EventStore.IntegrationTests.TestDomain
+﻿namespace ServiceStack.EventStore.IntegrationTests.TestDomain
 {
+    using System;
+    using System.Collections.Generic;
+    using Types;
+
     public class FlightState : State
     {
         public string FlightNumber { get; private set; }
-        public IList<Passenger> Passengers { get; }
+        public IList<Passenger> Passengers { get; private set; }
         public string Destination { get; private set; }
+        public int NoOfBagsInHold { get; private set; }
+        public string Carrier { get; private set; }
+        public DateTime ScheduledDepartureTime { get; private set; }
+        public DateTime EstimatedDepartureTime { get; private set; }
 
-        private int noOfBagsInHold;
-        private string carrier;
-        private DateTime scheduledDepartureTime;
-        private DateTime estimatedDepartureTime;
+        public void On(FlightCreated @event)
+        {
+            
+        }
 
         public void On(FlightNumberChanged @event)
         {
@@ -32,7 +36,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestDomain
 
         public void On(EDTUpdated @event)
         {
-            estimatedDepartureTime = @event.DepartureTime;
+            EstimatedDepartureTime = @event.DepartureTime;
         }
     }
 }

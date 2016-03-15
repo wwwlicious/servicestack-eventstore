@@ -8,7 +8,7 @@
     using Types;
 
     /// <summary>
-    /// Contains a dictionary of mappings between event types and their handlers i.e. IHandle
+    /// Contains a dictionary of mappings between event types and their handlers i.e. IHandleEvent
     /// </summary>
     public class HandlerMappings
     {
@@ -41,6 +41,7 @@
 
         public void Add(Type handler)  
         {
+            //Get a list of all event classes that are handled by methods that implement IHandleEvent<TEvent>
             var eventType =
               handler.GetInterfaces()
                   .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleEvent<>))

@@ -5,7 +5,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestDomain
 {
     public class EDTUpdated : IDomainEvent
     {
-        public DateTime DepartureTime { get; }
+        public DateTime DepartureTime { get; set;  }
 
         public EDTUpdated(DateTime departureTime)
         {

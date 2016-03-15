@@ -6,7 +6,7 @@ namespace ServiceStack.EventStore.Dispatcher
     using Funq;
     using Text;
     using Logging;
-    using ServiceStack.EventStore.Mappings;
+    using Mappings;
 
     public class EventDispatcher : IEventDispatcher
     {
@@ -40,7 +40,7 @@ namespace ServiceStack.EventStore.Dispatcher
                     }
                     catch (Exception e)
                     {
-                        log.Error($"{e.Message}");
+                        log.Error(e.Message);
                     }
                 }
                 return true;

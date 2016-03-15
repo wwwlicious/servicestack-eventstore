@@ -3,7 +3,6 @@
     public interface IState
     {
         int Version { get; }
-
         void Apply(IDomainEvent @event);
     }
 }

@@ -5,7 +5,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestDomain
 {
     public class FlightNumberChanged : IDomainEvent
     {
-        public string NewFlightNumber { get; }
+        public string NewFlightNumber { get; set; }
 
         public FlightNumberChanged(string newFlightNumber)
         {

@@ -5,11 +5,13 @@
 
     public class Flight : Aggregate<FlightState>
     {
-        public Flight(Guid id): base(id, new FlightState()) { }
+        public Flight(Guid id) : base(id, new FlightState()) {}
 
         public static Flight CreateNew()
         {
-            return new Flight(Guid.NewGuid());
+            var flight = new Flight(Guid.NewGuid());
+            flight.Causes(new FlightCreated(flight.Id));
+            return flight;
         }
 
         public void ChangeFlightNumber(string newFlightNumber)
@@ -25,6 +27,11 @@
         public void SetEstimatedDepartureTime(DateTime dateTime)
         {
             Causes(new EDTUpdated(dateTime));
+        }
+
+        public void AddBaggageToHold(int noOfBags)
+        {
+            Causes(new BaggageAdded(noOfBags));
         }
     }
 }

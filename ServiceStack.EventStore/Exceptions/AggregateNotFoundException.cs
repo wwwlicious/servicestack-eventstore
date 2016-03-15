@@ -1,7 +1,7 @@
-using System;
-
 namespace ServiceStack.EventStore.Exceptions
 {
+    using System;
+
     public class AggregateNotFoundException : Exception
     {
         public readonly Guid Id;

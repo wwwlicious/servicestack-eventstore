@@ -3,8 +3,10 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using Helpers;
 
+    /// <summary>
+    /// Factory for StateMutator objects
+    /// </summary>
     internal static class StateMutator
     {
         static readonly ConcurrentDictionary<Type, IStateMutator> mutators;
@@ -14,6 +16,11 @@
             mutators = new ConcurrentDictionary<Type, IStateMutator>();
         }
 
+        /// <summary>
+        /// Specifies the State object to be mutated.
+        /// </summary>
+        /// <param name="stateType"></param>
+        /// <returns></returns>
         public static IStateMutator For(Type stateType)
         {
             return mutators.GetOrAdd(stateType, t => CreateMutator(stateType));
@@ -28,6 +35,10 @@
         }
     }
 
+    /// <summary>
+    /// Mediator class responsible for mutating aggregate State classes.
+    /// </summary>
+    /// <typeparam name="TState"></typeparam>
     internal class StateMutator<TState> : IStateMutator where TState : IState
     {
         readonly Dictionary<string, Action<TState, object>> eventMutators;
@@ -37,6 +48,11 @@
             eventMutators = ReflectionUtils.GetStateEventMutators<TState>();
         }
 
+        /// <summary>
+        /// Mutates the State class of an Aggregate in response to a DomainEvent.
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="event"></param>
         public void Mutate(IState state, IDomainEvent @event)
         {
             Action<TState, object> eventMutator;

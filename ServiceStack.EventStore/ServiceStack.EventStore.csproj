@@ -115,6 +115,7 @@
     <Compile Include="Types\IDomainEvent.cs" />
     <Compile Include="Types\IHandleEvent.cs" />
     <Compile Include="Types\IMemento.cs" />
+    <Compile Include="Types\ImmutableEvent.cs" />
     <Compile Include="Types\InvalidMessage.cs" />
     <Compile Include="Idempotency\GuidUtility.cs" />
     <Compile Include="Consumers\IEventConsumer.cs" />

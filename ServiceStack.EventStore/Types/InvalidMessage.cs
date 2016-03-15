@@ -3,6 +3,9 @@ using EventStore.ClientAPI;
 
 namespace ServiceStack.EventStore.Types
 {
+    /// <summary>
+    /// Represents a message that cannot be deserialized.
+    /// </summary>
     public class InvalidMessage : Event
     {
         public InvalidMessage(RecordedEvent originalEvent) : base("invalidmessages")

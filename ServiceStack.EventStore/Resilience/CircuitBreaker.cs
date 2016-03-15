@@ -5,6 +5,7 @@
     using Polly.CircuitBreaker;
     using Logging;
 
+    //NOTE: this currently not used by any operations
     public class CircuitBreaker : ICircuitBreaker
     {
         private CircuitBreakerPolicy policy;

@@ -10,6 +10,6 @@ namespace ServiceStack.EventStore.IntegrationTests.TestDomain
             FlightId = id;
         }
 
-        public Guid FlightId { get; }
+        public Guid FlightId { get; set;  }
     }
 }

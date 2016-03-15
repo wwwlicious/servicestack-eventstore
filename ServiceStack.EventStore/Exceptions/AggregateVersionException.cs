@@ -1,7 +1,7 @@
-using System;
-
 namespace ServiceStack.EventStore.Exceptions
 {
+    using System;
+
     public class AggregateVersionException : Exception
     {
         public readonly Guid Id;
