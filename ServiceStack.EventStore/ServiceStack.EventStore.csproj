@@ -102,7 +102,7 @@
     <Compile Include="Exceptions\AggregateDeletedException.cs" />
     <Compile Include="Exceptions\AggregateNotFoundException.cs" />
     <Compile Include="Exceptions\AggregateVersionException.cs" />
-    <Compile Include="ReflectionUtils.cs" />
+    <Compile Include="HelperClasses\ReflectionUtils.cs" />
     <Compile Include="Repository\EventStoreRepository.cs" />
     <Compile Include="Repository\IEventStoreRepository.cs" />
     <Compile Include="Resilience\CircuitBreaker.cs" />
@@ -114,8 +114,6 @@
     <Compile Include="Types\Event.cs" />
     <Compile Include="Types\IDomainEvent.cs" />
     <Compile Include="Types\IHandleEvent.cs" />
-    <Compile Include="Types\IMemento.cs" />
-    <Compile Include="Types\ImmutableEvent.cs" />
     <Compile Include="Types\InvalidMessage.cs" />
     <Compile Include="Idempotency\GuidUtility.cs" />
     <Compile Include="Consumers\IEventConsumer.cs" />
@@ -124,7 +122,6 @@
     <Compile Include="EventStoreFeature.cs" />
     <Compile Include="Mappings\HandlerMappings.cs" />
     <Compile Include="Dispatcher\IEventDispatcher.cs" />
-    <Compile Include="Types\AggregateEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EventStoreSettings.cs" />
     <Compile Include="Types\IState.cs" />

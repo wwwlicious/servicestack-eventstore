@@ -1,4 +1,7 @@
-﻿using EventStore.ClientAPI;
+﻿using System.Diagnostics;
+using EventStore.ClientAPI;
+using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 {
@@ -15,16 +18,18 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
     public class AggregateTests : IClassFixture<ServiceStackHostFixture>
     {
         private readonly IEventStoreRepository eventStore;
+        private readonly ITestOutputHelper testOutput;
 
-        public AggregateTests(ServiceStackHostFixture fixture)
+        public AggregateTests(ServiceStackHostFixture fixture, ITestOutputHelper output)
         {
             eventStore = fixture.AppHost.Container.Resolve<IEventStoreRepository>();
+            testOutput = output;
         }
 
         [Fact]
         public void AnAggregateCanBeSavedAndRehydrated()
         {
-            var flightToBePersisted = Flight.CreateNew();
+            var flightToBePersisted = new Flight();
 
             //Act
             flightToBePersisted.ChangeFlightNumber("CQH8821");
@@ -39,7 +44,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
         [Fact]
         public void AggregateVersionIsCorrectAfterAddingEvents()
         {
-            var flight = Flight.CreateNew();
+            var flight = new Flight();
 
             //Act
             flight.ChangeDestination("Malaga");
@@ -61,7 +66,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             const string testDestination = "Malaga";
             const string testFlightNumber = "BA1987";
 
-            var flight = Flight.CreateNew();
+            var flight = new Flight();
 
             //Act
             flight.ChangeDestination(testDestination);
@@ -73,6 +78,39 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
         }
 
         [Fact]
+        public void CanSaveAndRehydrateLargeNumberOfEvents()
+        {
+            const int noOfEvents = 1000;
+
+            var newFlight = new Flight();
+
+            do
+            {
+                newFlight.SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(1));
+            }
+            while (newFlight.State.Version < noOfEvents);
+
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            eventStore.Save(newFlight).Wait();
+
+            var timeToSave = stopWatch.Elapsed;
+            testOutput.WriteLine($"{noOfEvents} events written in {timeToSave}");
+
+            stopWatch.Start();
+            var rehydratedFlight = eventStore.GetById<Flight>(newFlight.Id).Result;
+
+            var timeToRehydrate = stopWatch.Elapsed;
+            testOutput.WriteLine($"{noOfEvents} events loaded and applied in {timeToRehydrate}");
+
+            var expectedVersion = noOfEvents;
+
+            newFlight.State.Version.Should().Be(expectedVersion);
+            rehydratedFlight.State.Version.Should().Be(expectedVersion);
+        }
+
+        [Fact]
         public void AggregateStateIsCorrectAfterRehydration()
         {
             const string originalDestination = "Hong Kong";
@@ -80,7 +118,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             const string newDestination = "Barra";
             const string newFlightNumber = "BA1986";
 
-            var newFlight = Flight.CreateNew();
+            var newFlight = new Flight();
 
             //Act
             newFlight.ChangeDestination(originalDestination);
@@ -105,7 +143,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
         [Fact]
         public void RaisingAnAggregateEventThatIsNotHandledThrowsCorrectException()
         {
-            var flight = Flight.CreateNew();
+            var flight = new Flight();
 
             Assert.Throws<NotImplementedException>(() => flight.AddBaggageToHold(3));
         }
@@ -119,7 +157,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
         [Fact]
         public void ThrowsCorrectExceptionWhenLoadingSoftDeletedAggregate()
         {
-            var flight = Flight.CreateNew();
+            var flight = new Flight();
             var streamName = StreamName(flight);
 
             //Act
@@ -134,7 +172,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
         public void ThrowsCorrectExceptionWhenLoadingHardDeletedAggregate()
         {
             const bool hardDelete = true;
-            var flight = Flight.CreateNew();
+            var flight = new Flight();
             var streamName = StreamName(flight);
 
             //Act
@@ -148,7 +186,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
         [Fact]
         public void CorrectlyRetrievesSpecificVersion()
         {
-            var flightToBePersisted = Flight.CreateNew();
+            var flightToBePersisted = new Flight();
 
             //Act
             for (var i = 1; i <= 10; i++)
@@ -163,13 +201,12 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 
             //Assert
             rehydratedFlight.State.Version.Should().Be(5);
-            rehydratedFlight.State.Destination.Should().Be("Destination No: 3");
         }
 
         [Fact]
         public void CanRepeatedlyPersistAggregate()
         {
-            var flightToBePersisted = Flight.CreateNew();
+            var flightToBePersisted = new Flight();
 
             //Act
             for (var i = 1; i <= 10; i++)

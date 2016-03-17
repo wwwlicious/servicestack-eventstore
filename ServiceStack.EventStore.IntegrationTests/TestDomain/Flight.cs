@@ -5,13 +5,14 @@
 
     public class Flight : Aggregate<FlightState>
     {
-        public Flight(Guid id) : base(id, new FlightState()) {}
-
-        public static Flight CreateNew()
+        public Flight(Guid id) : base(id)
         {
-            var flight = new Flight(Guid.NewGuid());
-            flight.Causes(new FlightCreated(flight.Id));
-            return flight;
+
+        }
+
+        public Flight(): base(Guid.NewGuid())
+        {
+            Causes(new FlightCreated(Id));
         }
 
         public void ChangeFlightNumber(string newFlightNumber)

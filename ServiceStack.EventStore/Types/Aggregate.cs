@@ -45,9 +45,9 @@
 
     public class Aggregate<TState> : Aggregate where TState : IState
     {
-        protected Aggregate(Guid id, TState state): base(id, state)
+        protected Aggregate(Guid id): base(id, Activator.CreateInstance<TState>())
         {
-            State = state;
+            State = (TState) base.State;
         }
 
         public new TState State { get; }

@@ -22,6 +22,7 @@ namespace ServiceStack.EventStore.Repository
         private const string AggregateClrTypeHeader = "AggregateClrTypeName";
         private const int WritePageSize = 500;
         private const int ReadPageSize = 500;
+        private const int InitialVersion = 0;
 
         private readonly GetStreamName getStreamName;
         private readonly ILog log;
@@ -58,7 +59,7 @@ namespace ServiceStack.EventStore.Repository
 
             var newEvents = aggregate.Changes.ToList();
             var originalVersion = aggregate.State.Version - newEvents.Count;
-            var expectedVersion = originalVersion == 0
+            var expectedVersion = originalVersion == InitialVersion
                                     ? ExpectedVersion.NoStream
                                     : originalVersion - 1;
 
@@ -82,29 +83,37 @@ namespace ServiceStack.EventStore.Repository
             }
             else
             {
-                var transaction = await Connection.StartTransactionAsync(streamName, expectedVersion);
-                var position = 0;
-
-                while (position < eventsToSave.Count)
+                try
                 {
-                    var pageEvents = eventsToSave.Skip(position).Take(WritePageSize);
-                    try
+                    using (var transaction = Connection.StartTransactionAsync(streamName, expectedVersion).Result)
                     {
-                        await transaction.WriteAsync(pageEvents);
-                    }
-                    catch (Exception e) when (e.Message.Contains("WrongExpectedVersion"))
-                    {
-                        log.Error(e);
-                        //todo: throw appropriate exception e.g. AggregateVersionException
-                    }
-                    catch (Exception e)
-                    {
-                        log.Error(e);
-                    }
-                    position += WritePageSize;
-                }
+                        var position = 0;
 
-                await transaction.CommitAsync();
+                        while (position < eventsToSave.Count)
+                        {
+                            var pageEvents = eventsToSave.Skip(position).Take(WritePageSize);
+                            try
+                            {
+                                transaction.WriteAsync(pageEvents).Wait();
+                            }
+                            catch (Exception e) when (e.Message.Contains("WrongExpectedVersion"))
+                            {
+                                log.Error(e);
+                                //todo: throw appropriate exception e.g. AggregateVersionException
+                            }
+                            catch (Exception e)
+                            {
+                                log.Error(e);
+                            }
+                            position += WritePageSize;
+                        }
+                        transaction.CommitAsync().Wait();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
             aggregate.ClearCommittedEvents();
         }
@@ -113,13 +122,10 @@ namespace ServiceStack.EventStore.Repository
             return await GetById<TAggregate>(id, int.MaxValue);
         }
 
-        //todo: there is a question about an AggregateCreated being raised when the aggregate is created for the first time
-        //todo: we would probably want to ignore it when rebuilding the state of an aggregate. However, if we start the slice at
-        //todo: position 1 then this would be a problem if no AggregateCreated event was raised
         public async Task<TAggregate> GetById<TAggregate>(Guid id, int version) where TAggregate : Aggregate
         {
-            if (version <= 0)
-                throw new InvalidOperationException("Cannot get version <= 0");
+            if (version < InitialVersion)
+                throw new InvalidOperationException("Cannot get version < 0");
 
             var streamName = getStreamName(typeof(TAggregate), id);
 
@@ -132,7 +138,7 @@ namespace ServiceStack.EventStore.Repository
             {
                 var sliceCount = sliceStart + ReadPageSize <= version
                                     ? ReadPageSize
-                                    : version - sliceStart + 1;
+                                    : version - sliceStart;
 
                 currentSlice = await Connection.ReadStreamEventsForwardAsync(streamName, sliceStart, sliceCount, false);
 
@@ -152,7 +158,8 @@ namespace ServiceStack.EventStore.Repository
 
                 foreach (var evnt in currentSlice.Events)
                     aggregate.ApplyEvent((IDomainEvent) DeserializeEvent(evnt.OriginalEvent.Metadata, evnt.OriginalEvent.Data));
-            } while (version >= currentSlice.NextEventNumber && !currentSlice.IsEndOfStream);
+
+            } while (version > currentSlice.NextEventNumber && !currentSlice.IsEndOfStream);
 
             if (aggregate.State.Version != version && version < int.MaxValue)
                 throw new AggregateVersionException(id, typeof (TAggregate), aggregate.State.Version, version);
