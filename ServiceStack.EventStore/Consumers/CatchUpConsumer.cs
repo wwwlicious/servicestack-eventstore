@@ -2,7 +2,7 @@
 {
     public class CatchUpConsumer: IEventConsumer
     {
-        public void ConnectToSubscription(string streamAggregate, string subscriptionGroup)
+        public void ConnectToSubscription(string streamName, string subscriptionGroup)
         {
             throw new System.NotImplementedException();
         }

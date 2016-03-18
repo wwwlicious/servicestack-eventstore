@@ -1,8 +1,4 @@
-﻿using System.Diagnostics;
-using EventStore.ClientAPI;
-using ServiceStack.EventStore.Extensions;
-using Xunit.Abstractions;
-using Xunit.Sdk;
+﻿using EventStore.ClientAPI;
 
 namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 {
@@ -13,10 +9,13 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
     using Xunit;
     using Exceptions;
     using Types;
+    using Extensions;
+    using Xunit.Abstractions;
+    using System.Diagnostics;
 
     //NOTE: These integration tests require EventStore to be running locally!
-    [Collection("AggregateTests")]
-    public class AggregateTests : IClassFixture<ServiceStackHostFixture>
+    [Collection("ServiceStackHostCollection")]
+    public class AggregateTests
     {
         private readonly IEventStoreRepository eventStore;
         private readonly ITestOutputHelper testOutput;
@@ -57,8 +56,6 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             //Assert
             flight.State.Version.Should().Be(3);
         }
-
-
 
         [Fact]
         public void AggregateStateIsCorrectAfterApplyingEvents()
@@ -124,14 +121,17 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
         public void CanAddHeadersToAggregateEvents()
         {
             var flight = new Flight();
+
             flight.UpdateDestination("La Palma");
             flight.UpdateFlightNumber("LT7987");
             flight.SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(67));
+
             eventStore.Save(flight, headers =>
             {
                 headers.Add("User", "Lil'Joey Brown");
                 headers.Add("Other", "SomeImportantInfo");
-            }).Wait();
+            })
+            .Wait();
 
             eventStore.GetById<Flight>(flight.Id).Wait();
         }

@@ -1,6 +1,8 @@
 ﻿using Funq;
 using ServiceStack.EventStore.ConnectionManagement;
+using ServiceStack.EventStore.IntegrationTests.TestClasses;
 using ServiceStack.EventStore.Mappings;
+using ServiceStack.EventStore.Types;
 using ServiceStack.Logging;
 
 namespace ServiceStack.EventStore.IntegrationTests
@@ -17,9 +19,14 @@ namespace ServiceStack.EventStore.IntegrationTests
         }
         public override void Configure(Container container)
         {
-            var mappings = new HandlerMappings();
+            var mappings = new HandlerMappings()
+                                    .WithHandler<EventHandlerTests>();
 
-            var settings = new EventStoreSettings();
+            var settings = new EventStoreSettings()
+                                .SubscribeToStreams(streams =>
+                                {
+                                    streams.Add("alien-landings", new ConsumerStream(SubscriptionType.Volatile, "mygroup"));
+                                });
 
             var connection = new ConnectionBuilder()
                                 .UserName("admin")

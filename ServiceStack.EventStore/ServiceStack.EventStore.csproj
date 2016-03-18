@@ -112,6 +112,7 @@
     <Compile Include="ConnectionManagement\ConnectionMonitor.cs" />
     <Compile Include="ConnectionManagement\ConnectionBuilder.cs" />
     <Compile Include="Consumers\CatchUpConsumer.cs" />
+    <Compile Include="Types\ConsumerStream.cs" />
     <Compile Include="Types\Event.cs" />
     <Compile Include="Types\IDomainEvent.cs" />
     <Compile Include="Types\IHandleEvent.cs" />

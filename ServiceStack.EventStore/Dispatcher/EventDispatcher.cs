@@ -24,7 +24,7 @@ namespace ServiceStack.EventStore.Dispatcher
         public bool Dispatch(ResolvedEvent @event)
         {
             Type type;
-            var clrEventType = @event.Event.Metadata.FromAsciiBytes();
+            var clrEventType = @event.Event.EventType;
 
             if (mappings.TryResolveMapping(clrEventType, out type))
             {

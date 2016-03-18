@@ -15,7 +15,7 @@
         private readonly Dictionary<Type, List<Type>> mappings = new Dictionary<Type, List<Type>>();
         private bool useAssemblyScanning;
 
-        public HandlerMappings WithHandler<TEventHandler>() where TEventHandler: class
+        public HandlerMappings WithHandler<TEventHandler>() where TEventHandler: class, IHandleEvent
         {
             var eventType =
                 typeof(TEventHandler)

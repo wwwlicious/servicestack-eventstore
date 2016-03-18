@@ -9,20 +9,6 @@ namespace ServiceStack.EventStore
 {
     internal static class ReflectionUtils
     {
-        public static Func<Guid, TState, TAggregate> BuildCreateAggregateFromStateFunc<TAggregate, TState>()
-            where TState : IState
-        {
-            var idParam = Expression.Parameter(typeof(string), "id");
-            var stateParam = Expression.Parameter(typeof(TState), "state");
-
-            var ctor = typeof(TAggregate).GetConstructor(new Type[] { typeof(Guid), typeof(TState) });
-
-            var body = Expression.New(ctor, idParam, stateParam);
-            var lambda = Expression.Lambda<Func<Guid, TState, TAggregate>>(body, idParam, stateParam);
-
-            return lambda.Compile();
-        }
-
         public static Dictionary<string, Action<TState, object>> GetStateEventMutators<TState>()
             where TState : IState
         {
@@ -49,14 +35,10 @@ namespace ServiceStack.EventStore
             var stateParam = Expression.Parameter(typeof(TState), "state");
             var eventParam = Expression.Parameter(typeof(object), "ev");
 
-            // state.On((TEvent)ev)
-            var methodCallExpr = Expression.Call(stateParam,
-                                                 method,
-                                                 Expression.Convert(eventParam, eventType));
-
+            var methodCallExpr = Expression.Call(stateParam, method, Expression.Convert(eventParam, eventType));
             var lambda = Expression.Lambda<Action<TState, object>>(methodCallExpr, stateParam, eventParam);
+
             return lambda.Compile();
         }
-        
     }
 }

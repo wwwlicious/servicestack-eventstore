@@ -37,24 +37,27 @@ namespace ServiceStack.EventStore.Repository
 
         public IEventStoreConnection Connection { get; }
 
-        public async void Publish(Event @event)
+        public async Task Publish(Event @event, Action<IDictionary<string, object>> updateHeaders = null)
         {
             var streamName = @event.StreamName;
 
-            var headers = new Dictionary<string, object>
-                {
-                    {EventClrTypeHeader, @event.GetType().Name}
-                };
+            var headers = new Dictionary<string, object>();
 
-            await Connection.AppendToStreamAsync(streamName, ExpectedVersion.Any, ToEventData(@event, headers));
+            updateHeaders?.Invoke(headers);
+
+            try
+            {
+                await Connection.AppendToStreamAsync(streamName, ExpectedVersion.Any, ToEventData(@event, headers));
+            }
+            catch (Exception e)
+            {
+                log.Error(e);
+            }
         }
 
         public async Task Save(Aggregate aggregate, Action<IDictionary<string, object>> updateHeaders = null)
         {
-            var headers = new Dictionary<string, object>
-                {
-                    {AggregateClrTypeHeader, aggregate.GetType().Name}
-                };
+            var headers = new Dictionary<string, object>();
 
             updateHeaders?.Invoke(headers);
 

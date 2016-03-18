@@ -1,22 +1,30 @@
-﻿namespace ServiceStack.EventStore
+﻿using System.Collections;
+
+namespace ServiceStack.EventStore
 {
     using Types;
+    using System;
+    using System.Collections.Generic;
 
     public class EventStoreSettings
     {
         private string deadLetterChannel = "deadletters";
         private string subscriptionGroup = "consumer-group";
         private string invalidMessageChannel = "invalidmessages";
-        private SubscriptionType subscriptionType = Types.SubscriptionType.Persistent;
-   
+
+        private IDictionary<string, ConsumerStream> streams { get; } = new Dictionary<string, ConsumerStream>();
+
         public string GetSubscriptionGroup()
         {
             return subscriptionGroup;
         }
 
-        public SubscriptionType GetSubscriptionType()
+        public IReadOnlyDictionary<string, ConsumerStream> Streams => streams as IReadOnlyDictionary<string, ConsumerStream>;
+
+        public EventStoreSettings SubscribeToStreams(Action<IDictionary<string, ConsumerStream>> updateStreams = null)
         {
-            return subscriptionType;
+            updateStreams?.Invoke(streams);
+            return this;
         }
 
         public EventStoreSettings SubscriptionGroup(string @group)
@@ -44,12 +52,6 @@
         public EventStoreSettings DeadLetterChannel(string channel)
         {
             deadLetterChannel = channel;
-            return this;
-        }
-
-        public EventStoreSettings SubscriptionType(SubscriptionType type)
-        {
-            subscriptionType = type;
             return this;
         }
     }

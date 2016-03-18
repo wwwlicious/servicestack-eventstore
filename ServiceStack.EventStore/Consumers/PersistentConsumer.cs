@@ -16,7 +16,7 @@ namespace ServiceStack.EventStore.Consumers
         private readonly IEventStoreRepository _eventStoreRepository;
         private Policy policy;
         private readonly ILog log;
-        private string aggregateStream;
+        private string streamName;
         private string subscriptionGroup;
 
         public PersistentConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStoreRepository _eventStoreRepository)
@@ -27,14 +27,14 @@ namespace ServiceStack.EventStore.Consumers
             log = LogManager.GetLogger(GetType());
         }
 
-        public void ConnectToSubscription(string aggregateStream, string subscriptionGroup)
+        public void ConnectToSubscription(string streamName, string subscriptionGroup)
         {
-            this.aggregateStream = aggregateStream;
+            this.streamName = streamName;
             this.subscriptionGroup = subscriptionGroup;
 
             try
             {
-                connection.ConnectToPersistentSubscription(aggregateStream, subscriptionGroup, EventAppeared, SubscriptionDropped);
+                connection.ConnectToPersistentSubscription(streamName, subscriptionGroup, EventAppeared, SubscriptionDropped);
             }
             catch (AggregateException aggregate)
             {
@@ -47,7 +47,7 @@ namespace ServiceStack.EventStore.Consumers
 
         private void SubscriptionDropped(EventStorePersistentSubscriptionBase subscriptionBase, SubscriptionDropReason dropReason, Exception e)
         {
-            ConnectToSubscription(aggregateStream, subscriptionGroup);
+            ConnectToSubscription(streamName, subscriptionGroup);
         }
 
         private void EventAppeared(EventStorePersistentSubscriptionBase @base, ResolvedEvent resolvedEvent)

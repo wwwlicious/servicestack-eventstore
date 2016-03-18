@@ -60,10 +60,11 @@ namespace ServiceStack.EventStore
 
             try
             {
-                var subscriptionType = settings.GetSubscriptionType();
-                var consumer = (IEventConsumer)container.TryResolve(consumers[subscriptionType]);
-                //todo: reinstate this - commented out while writing integration tests
-                //consumer.ConnectToSubscription(settings.GetSubscriptionGroup());
+                foreach (var stream in settings.Streams)
+                {
+                    var consumer = (IEventConsumer)container.TryResolve(consumers[stream.Value.SubscriptionType]);      
+                    consumer.ConnectToSubscription(stream.Key, stream.Value.SubscriptionGroup);
+                }
             }
             catch (Exception e)
             {

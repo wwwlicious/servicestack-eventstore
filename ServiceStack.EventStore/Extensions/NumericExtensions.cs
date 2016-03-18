@@ -19,7 +19,7 @@
 
         public static int DivideBy(this int dividend, int divisor)
         {
-            return dividend/divisor;
+            return dividend / divisor;
         }
     }
 }

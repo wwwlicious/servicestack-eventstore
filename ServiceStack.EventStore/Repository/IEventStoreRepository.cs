@@ -12,7 +12,7 @@ namespace ServiceStack.EventStore.Repository
     {
         Task Save(Aggregate aggregate, Action<IDictionary<string, object>> updateHeaders = null);
 
-        void Publish(Event @event);
+        Task Publish(Event @event, Action<IDictionary<string, object>> updateHeaders = null);
 
         Task<TAggregate> GetById<TAggregate>(Guid id, int version) where TAggregate : Aggregate;
 
