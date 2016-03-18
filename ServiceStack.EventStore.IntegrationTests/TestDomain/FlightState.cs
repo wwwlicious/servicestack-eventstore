@@ -19,7 +19,7 @@
             
         }
 
-        public void On(FlightNumberChanged @event)
+        public void On(FlightNumberUpdated @event)
         {
             FlightNumber = @event.NewFlightNumber;
         }

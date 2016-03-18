@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using EventStore.ClientAPI;
+using ServiceStack.EventStore.Extensions;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
@@ -32,7 +33,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             var flightToBePersisted = new Flight();
 
             //Act
-            flightToBePersisted.ChangeFlightNumber("CQH8821");
+            flightToBePersisted.UpdateFlightNumber("CQH8821");
             flightToBePersisted.SetEstimatedDepartureTime(DateTime.UtcNow.AddHours(1));
             eventStore.Save(flightToBePersisted).Wait();
             var flightToBeRehydrated = eventStore.GetById<Flight>(flightToBePersisted.Id).Result;
@@ -47,12 +48,12 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             var flight = new Flight();
 
             //Act
-            flight.ChangeDestination("Malaga");
+            flight.UpdateDestination("Malaga");
             //Assert
             flight.State.Version.Should().Be(2);
 
             //Act
-            flight.ChangeFlightNumber("BA1987");
+            flight.UpdateFlightNumber("BA1987");
             //Assert
             flight.State.Version.Should().Be(3);
         }
@@ -69,8 +70,8 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             var flight = new Flight();
 
             //Act
-            flight.ChangeDestination(testDestination);
-            flight.ChangeFlightNumber(testFlightNumber);
+            flight.UpdateDestination(testDestination);
+            flight.UpdateFlightNumber(testFlightNumber);
 
             //Assert
             flight.State.Destination.Should().Be(testDestination);
@@ -78,9 +79,67 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
         }
 
         [Fact]
+        public void GetsEventsFromCorrectStreams()
+        {
+            var firstFlight = new Flight();
+            var secondFlight = new Flight();
+
+            const string firstFlightNumber = "BA7651";
+            const string secondlightNumber = "BA7652";
+
+            firstFlight.UpdateFlightNumber(firstFlightNumber);
+            secondFlight.UpdateFlightNumber(secondlightNumber);
+
+            testOutput.WriteLine($"First Flight Id: {firstFlight.Id}");
+            testOutput.WriteLine($"Second Flight Id: {secondFlight.Id}");
+
+            eventStore.Save(firstFlight).Wait();
+            eventStore.Save(secondFlight).Wait();
+
+            var firstSaved = eventStore.GetById<Flight>(firstFlight.Id).Result;
+            var secondSaved = eventStore.GetById<Flight>(secondFlight.Id).Result;
+
+            firstSaved.State.FlightNumber.Should().Be(firstFlightNumber);
+            secondSaved.State.FlightNumber.Should().Be(secondlightNumber);
+        }
+
+        [Fact]
+        public void ThrowsOnRequestingSpecificVersionHigherThanExists()
+        {
+            var flightToBePersisted = new Flight();
+            flightToBePersisted.UpdateDestination("Grimthorpe");
+            flightToBePersisted.UpdateFlightNumber("XY6876");
+            flightToBePersisted.SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(134));
+
+            eventStore.Save(flightToBePersisted);
+
+            var correctVersion = flightToBePersisted.State.Version;
+            var incorrectVersion = correctVersion.Add(1);
+
+            Assert.ThrowsAsync<AggregateVersionException>(() => eventStore.GetById<Flight>(flightToBePersisted.Id, incorrectVersion));
+        }
+
+        //todo: currently no way of reading additional headers (other than CLR type) from events
+        [Fact]
+        public void CanAddHeadersToAggregateEvents()
+        {
+            var flight = new Flight();
+            flight.UpdateDestination("La Palma");
+            flight.UpdateFlightNumber("LT7987");
+            flight.SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(67));
+            eventStore.Save(flight, headers =>
+            {
+                headers.Add("User", "Lil'Joey Brown");
+                headers.Add("Other", "SomeImportantInfo");
+            }).Wait();
+
+            eventStore.GetById<Flight>(flight.Id).Wait();
+        }
+
+        [Fact]
         public void CanSaveAndRehydrateLargeNumberOfEvents()
         {
-            const int noOfEvents = 1000;
+            const int noOfEvents = 5000;
 
             var newFlight = new Flight();
 
@@ -121,15 +180,15 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             var newFlight = new Flight();
 
             //Act
-            newFlight.ChangeDestination(originalDestination);
-            newFlight.ChangeFlightNumber(originalFlightNumber);
+            newFlight.UpdateDestination(originalDestination);
+            newFlight.UpdateFlightNumber(originalFlightNumber);
 
             eventStore.Save(newFlight).Wait();
 
             var firstRehydration = eventStore.GetById<Flight>(newFlight.Id).Result;
 
-            firstRehydration.ChangeDestination(newDestination);
-            firstRehydration.ChangeFlightNumber(newFlightNumber);
+            firstRehydration.UpdateDestination(newDestination);
+            firstRehydration.UpdateFlightNumber(newFlightNumber);
 
             eventStore.Save(firstRehydration).Wait();
 
@@ -191,7 +250,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             //Act
             for (var i = 1; i <= 10; i++)
             {
-                flightToBePersisted.ChangeDestination($"Destination No: {i}");
+                flightToBePersisted.UpdateDestination($"Destination No: {i}");
                 flightToBePersisted.SetEstimatedDepartureTime(DateTime.UtcNow.AddHours(i));
             }
 
@@ -211,7 +270,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             //Act
             for (var i = 1; i <= 10; i++)
             {
-                flightToBePersisted.ChangeDestination($"Destination No: {i}");
+                flightToBePersisted.UpdateDestination($"Destination No: {i}");
                 flightToBePersisted.SetEstimatedDepartureTime(DateTime.UtcNow.AddHours(i));
             }
 
@@ -219,7 +278,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 
             for (var i = 11; i <= 20; i++)
             {
-                flightToBePersisted.ChangeDestination($"Destination No: {i}");
+                flightToBePersisted.UpdateDestination($"Destination No: {i}");
                 flightToBePersisted.SetEstimatedDepartureTime(DateTime.UtcNow.AddHours(i));
             }
 

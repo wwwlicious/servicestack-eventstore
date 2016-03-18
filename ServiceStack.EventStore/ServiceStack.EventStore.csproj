@@ -102,6 +102,7 @@
     <Compile Include="Exceptions\AggregateDeletedException.cs" />
     <Compile Include="Exceptions\AggregateNotFoundException.cs" />
     <Compile Include="Exceptions\AggregateVersionException.cs" />
+    <Compile Include="Extensions\NumericExtensions.cs" />
     <Compile Include="HelperClasses\ReflectionUtils.cs" />
     <Compile Include="Repository\EventStoreRepository.cs" />
     <Compile Include="Repository\IEventStoreRepository.cs" />

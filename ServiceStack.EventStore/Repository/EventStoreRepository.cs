@@ -12,6 +12,7 @@ namespace ServiceStack.EventStore.Repository
     using Exceptions;
     using Text;
     using Logging;
+    using Extensions;
 
     public delegate string GetStreamName(Type type, Guid guid);
 
@@ -48,12 +49,14 @@ namespace ServiceStack.EventStore.Repository
             await Connection.AppendToStreamAsync(streamName, ExpectedVersion.Any, ToEventData(@event, headers));
         }
 
-        public async Task Save(Aggregate aggregate)
+        public async Task Save(Aggregate aggregate, Action<IDictionary<string, object>> updateHeaders = null)
         {
             var headers = new Dictionary<string, object>
                 {
                     {AggregateClrTypeHeader, aggregate.GetType().Name}
                 };
+
+            updateHeaders?.Invoke(headers);
 
             var streamName = getStreamName(aggregate.GetType(), aggregate.Id);
 
@@ -61,7 +64,7 @@ namespace ServiceStack.EventStore.Repository
             var originalVersion = aggregate.State.Version - newEvents.Count;
             var expectedVersion = originalVersion == InitialVersion
                                     ? ExpectedVersion.NoStream
-                                    : originalVersion - 1;
+                                    : originalVersion.Subtract(1);
 
             var eventsToSave = newEvents.Select(@event => ToEventData(@event, headers)).ToList();
 

@@ -15,12 +15,12 @@
             Causes(new FlightCreated(Id));
         }
 
-        public void ChangeFlightNumber(string newFlightNumber)
+        public void UpdateFlightNumber(string newFlightNumber)
         {
-            Causes(new FlightNumberChanged(newFlightNumber));
+            Causes(new FlightNumberUpdated(newFlightNumber));
         }
 
-        public void ChangeDestination(string destination)
+        public void UpdateDestination(string destination)
         {
             Causes(new DestinationChanged(destination));
         }

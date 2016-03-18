@@ -1,4 +1,5 @@
-﻿using EventStore.ClientAPI;
+﻿using System.Collections.Generic;
+using EventStore.ClientAPI;
 
 namespace ServiceStack.EventStore.Repository
 {
@@ -9,7 +10,7 @@ namespace ServiceStack.EventStore.Repository
 
     public interface IEventStoreRepository
     {
-        Task Save(Aggregate aggregate);
+        Task Save(Aggregate aggregate, Action<IDictionary<string, object>> updateHeaders = null);
 
         void Publish(Event @event);
 
