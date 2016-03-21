@@ -103,6 +103,7 @@
     <Compile Include="Exceptions\AggregateNotFoundException.cs" />
     <Compile Include="Exceptions\AggregateVersionException.cs" />
     <Compile Include="Extensions\NumericExtensions.cs" />
+    <Compile Include="HelperClasses\IEnumerableExtensions.cs" />
     <Compile Include="HelperClasses\ReflectionUtils.cs" />
     <Compile Include="Repository\EventStoreRepository.cs" />
     <Compile Include="Repository\IEventStoreRepository.cs" />
@@ -115,14 +116,13 @@
     <Compile Include="Types\ConsumerStream.cs" />
     <Compile Include="Types\Event.cs" />
     <Compile Include="Types\IDomainEvent.cs" />
-    <Compile Include="Types\IHandleEvent.cs" />
     <Compile Include="Types\InvalidMessage.cs" />
     <Compile Include="Idempotency\GuidUtility.cs" />
     <Compile Include="Consumers\IEventConsumer.cs" />
     <Compile Include="Consumers\PersistentConsumer.cs" />
     <Compile Include="Dispatcher\EventDispatcher.cs" />
     <Compile Include="EventStoreFeature.cs" />
-    <Compile Include="Mappings\HandlerMappings.cs" />
+    <Compile Include="EventTypes\EventTypes.cs" />
     <Compile Include="Dispatcher\IEventDispatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EventStoreSettings.cs" />

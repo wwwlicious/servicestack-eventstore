@@ -3,7 +3,7 @@ using ServiceStack.EventStore.Types;
 
 namespace ServiceStack.EventStore.IntegrationTests.TestDomain
 {
-    public class FlightCreated : IDomainEvent
+    public class FlightCreated : IAggregateEvent
     {
         public FlightCreated(Guid id)
         {

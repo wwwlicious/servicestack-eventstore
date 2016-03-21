@@ -2,7 +2,7 @@
 
 namespace ServiceStack.EventStore.IntegrationTests.TestDomain
 {
-    public class DestinationChanged : IDomainEvent
+    public class DestinationChanged : IAggregateEvent
     {
         public string Destination { get; set;  }
 

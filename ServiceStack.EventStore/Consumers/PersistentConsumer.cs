@@ -36,12 +36,9 @@ namespace ServiceStack.EventStore.Consumers
             {
                 connection.ConnectToPersistentSubscription(streamName, subscriptionGroup, EventAppeared, SubscriptionDropped);
             }
-            catch (AggregateException aggregate)
+            catch (Exception e)
             {
-                foreach (var exception in aggregate.InnerExceptions)
-                {
-                    log.Error(exception);
-                }
+                log.Error(e);
             }
         }
 

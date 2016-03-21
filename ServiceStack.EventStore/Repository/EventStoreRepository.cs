@@ -20,7 +20,6 @@ namespace ServiceStack.EventStore.Repository
     public class EventStoreRepository : IEventStoreRepository
     {
         private const string EventClrTypeHeader = "EventClrTypeName";
-        private const string AggregateClrTypeHeader = "AggregateClrTypeName";
         private const int WritePageSize = 500;
         private const int ReadPageSize = 500;
         private const int InitialVersion = 0;
@@ -118,7 +117,7 @@ namespace ServiceStack.EventStore.Repository
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    log.Error(e);
                 }
             }
             aggregate.ClearCommittedEvents();
@@ -163,7 +162,7 @@ namespace ServiceStack.EventStore.Repository
                 sliceStart = currentSlice.NextEventNumber;
 
                 foreach (var evnt in currentSlice.Events)
-                    aggregate.ApplyEvent((IDomainEvent) DeserializeEvent(evnt.OriginalEvent.Metadata, evnt.OriginalEvent.Data));
+                    aggregate.ApplyEvent((IAggregateEvent) DeserializeEvent(evnt.OriginalEvent.Metadata, evnt.OriginalEvent.Data));
 
             } while (version > currentSlice.NextEventNumber && !currentSlice.IsEndOfStream);
 

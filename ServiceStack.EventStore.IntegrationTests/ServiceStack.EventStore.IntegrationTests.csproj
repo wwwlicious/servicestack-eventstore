@@ -90,6 +90,7 @@
     <Compile Include="TestClasses\ServiceHasReachedWarningState.cs" />
     <Compile Include="TestClasses\ServiceStackHostFixture.cs" />
     <Compile Include="TestClasses\ServiceStackHostCollection.cs" />
+    <Compile Include="TestClasses\WeeGreenManService.cs" />
     <Compile Include="TestClasses\WeeGreenMenLanded.cs" />
     <Compile Include="TestDomain\BaggageAdded.cs" />
     <Compile Include="TestDomain\DestinationChanged.cs" />

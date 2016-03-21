@@ -34,11 +34,11 @@ namespace ServiceStack.EventStore.Consumers
 
             try
             {
-                await connection.SubscribeToStreamAsync(streamName, false, EventAppeared, SubscriptionDropped);
+                await connection.SubscribeToStreamAsync(streamName, true, EventAppeared, SubscriptionDropped);
             }
             catch (AggregateException aggregate)
             {
-                foreach (var exception in aggregate.InnerExceptions)
+                foreach (var exception in aggregate.Flatten().InnerExceptions)
                 {
                     log.Error(exception);
                 }

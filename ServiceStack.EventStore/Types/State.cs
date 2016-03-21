@@ -16,7 +16,7 @@
 
         public int Version { get; private set; }
 
-        public void Apply(IDomainEvent @event)
+        public void Apply(IAggregateEvent @event)
         {
             mutator.Mutate(this, @event);
             Version++;

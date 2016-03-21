@@ -2,7 +2,7 @@
 
 namespace ServiceStack.EventStore.IntegrationTests.TestDomain
 {
-    public class BaggageAdded : IDomainEvent
+    public class BaggageAdded : IAggregateEvent
     {
         public int NoOfBags { get; }
 

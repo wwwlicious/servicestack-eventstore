@@ -34,7 +34,9 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             //Act
             flightToBePersisted.UpdateFlightNumber("CQH8821");
             flightToBePersisted.SetEstimatedDepartureTime(DateTime.UtcNow.AddHours(1));
+
             eventStore.SaveAsync(flightToBePersisted).Wait();
+
             var flightToBeRehydrated = eventStore.GetByIdAsync<Flight>(flightToBePersisted.Id).Result;
 
             //Assert
@@ -163,7 +165,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             var timeToRehydrate = stopWatch.Elapsed;
             testOutput.WriteLine($"{noOfEvents} events loaded and applied in {timeToRehydrate}");
 
-            var expectedVersion = noOfEvents;
+            const int expectedVersion = noOfEvents;
 
             newFlight.State.Version.Should().Be(expectedVersion);
             rehydratedFlight.State.Version.Should().Be(expectedVersion);
@@ -222,6 +224,8 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             //Act
             flight.SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(23));
             eventStore.SaveAsync(flight).Wait();
+
+            //use the eventstore connection directly
             eventStore.Connection.DeleteStreamAsync(streamName, ExpectedVersion.Any).Wait();
 
             Assert.ThrowsAsync<AggregateNotFoundException>(() => eventStore.GetByIdAsync<Flight>(flight.Id)).Wait();
@@ -283,12 +287,11 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             }
 
             eventStore.SaveAsync(flightToBePersisted).Wait();
-
         }
 
         private static string StreamName(Aggregate flight)
         {
-            var streamName = $"{typeof (Flight).Name}-{flight.Id}";
+            var streamName = $"{typeof(Flight).Name}-{flight.Id}";
             return streamName;
         }
     }

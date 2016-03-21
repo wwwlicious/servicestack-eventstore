@@ -3,7 +3,9 @@ using ServiceStack.EventStore.ConnectionManagement;
 using ServiceStack.EventStore.IntegrationTests.TestClasses;
 using ServiceStack.EventStore.Mappings;
 using ServiceStack.EventStore.Types;
+using ServiceStack.Host;
 using ServiceStack.Logging;
+using ServiceStack.Web;
 
 namespace ServiceStack.EventStore.IntegrationTests
 {
@@ -17,11 +19,15 @@ namespace ServiceStack.EventStore.IntegrationTests
         {
 
         }
+
+        //public override IServiceRunner<TRequest> CreateServiceRunner<TRequest>(ActionContext actionContext)
+        //{
+        //    //Cached per Service Action
+        //    return new EventStoreServiceRunner<TRequest>(this, actionContext);
+        //}
+
         public override void Configure(Container container)
         {
-            var mappings = new HandlerMappings()
-                                    .WithHandler<EventHandlerTests>();
-
             var settings = new EventStoreSettings()
                                 .SubscribeToStreams(streams =>
                                 {
@@ -35,7 +41,8 @@ namespace ServiceStack.EventStore.IntegrationTests
 
             LogManager.LogFactory = new ConsoleLogFactory();
 
-            Plugins.Add(new EventStoreFeature(settings, mappings, connection));
+            Plugins.Add(new MetadataFeature());
+            Plugins.Add(new EventStoreFeature(settings, connection));
         }
     }
 }

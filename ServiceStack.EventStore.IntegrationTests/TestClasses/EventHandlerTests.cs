@@ -10,7 +10,7 @@ using Funq;
 namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 {
     [Collection("ServiceStackHostCollection")]
-    public class EventHandlerTests : IHandleEvent<WeeGreenMenLanded>
+    public class EventHandlerTests 
     {
         private readonly IEventStoreRepository eventStore;
         private readonly ITestOutputHelper testOutput;
@@ -24,12 +24,13 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             fixture.AppHost.Container.Register(c => this).ReusedWithin(ReuseScope.Default);
         }
 
+        [Fact]
         //todo: how best to test handling events and streams?
         public void ConsumesEvent()
         {
             var weeGreenMenLanded = new WeeGreenMenLanded(14);
             eventStore.PublishAsync(weeGreenMenLanded).Wait();
-            Thread.Sleep(4000);
+            Thread.Sleep(10000);
             eventFired.Should().BeTrue();
         }
 

@@ -12,36 +12,36 @@ namespace ServiceStack.EventStore.Dispatcher
     {
         // ReSharper disable once InconsistentNaming
         public Container container = ServiceStackHost.Instance.Container;
-        private readonly HandlerMappings mappings;
+        private readonly EventTypes eventTypes;
+        private const string EventClrTypeHeader = "EventClrTypeName";
+
         private ILog log;
 
-        public EventDispatcher(HandlerMappings mappings)
+        public EventDispatcher(EventTypes eventTypes)
         {
-            this.mappings = mappings;
+            this.eventTypes = eventTypes;
             log = LogManager.GetLogger(GetType());
         }
 
         public bool Dispatch(ResolvedEvent @event)
         {
-            Type type;
-            var clrEventType = @event.Event.EventType;
+            var jsonObj = JsonObject.Parse(@event.Event.Metadata.FromAsciiBytes());
+            var clrEventType = jsonObj.Get(EventClrTypeHeader);
 
-            if (mappings.TryResolveMapping(clrEventType, out type))
+            Type type;
+
+            if (eventTypes.TryResolveMapping(clrEventType, out type))
             {
                 var serializer = new JsonStringSerializer();
                 var typedEvent = serializer.DeserializeFromString(@event.Event.Data.FromAsciiBytes(), type);
 
-                foreach (var handlerType in mappings.GetHandlersForEvent(type))
+                try
                 {
-                    try
-                    {
-                        dynamic handler = container.TryResolve(handlerType);
-                        handler.Handle((dynamic) typedEvent);
-                    }
-                    catch (Exception e)
-                    {
-                        log.Error(e.Message);
-                    }
+                    HostContext.ServiceController.Execute(typedEvent);
+                }
+                catch (Exception e)
+                {
+                    log.Error(e);
                 }
                 return true;
             }

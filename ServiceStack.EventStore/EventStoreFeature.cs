@@ -1,4 +1,5 @@
-﻿using EventStore.ClientAPI;
+﻿using System.Net;
+using EventStore.ClientAPI;
 
 namespace ServiceStack.EventStore
 {
@@ -18,7 +19,7 @@ namespace ServiceStack.EventStore
     public class EventStoreFeature: IPlugin
     {
         private readonly EventStoreSettings settings;
-        private readonly HandlerMappings mappings;
+        private readonly Mappings.EventTypes _eventTypes;
         private Container container;
         private readonly ILog log;
         private readonly ConnectionBuilder builder;
@@ -34,14 +35,9 @@ namespace ServiceStack.EventStore
         public EventStoreFeature(EventStoreSettings settings, ConnectionBuilder builder)
         {
             this.settings = settings;
-            mappings = new HandlerMappings();
+            _eventTypes = new Mappings.EventTypes();
             log = LogManager.GetLogger(GetType());
             this.builder = builder;
-        }
-
-        public EventStoreFeature(EventStoreSettings settings, HandlerMappings mappings, ConnectionBuilder builder) : this(settings, builder)
-        {
-            this.mappings = mappings;
         }
 
         public async void Register(IAppHost appHost)
@@ -55,8 +51,9 @@ namespace ServiceStack.EventStore
 
             container = appHost.GetContainer();
 
-            RegisterHandlerMappingsForIoc();
             RegisterTypesForIoc(connection);
+
+            appHost.GetPlugin<MetadataFeature>()?.AddPluginLink("http://127.0.0.1:2113/", "EventStore");
 
             try
             {
@@ -81,18 +78,7 @@ namespace ServiceStack.EventStore
             container.RegisterAutoWiredAs<EventStoreRepository, IEventStoreRepository>();
             container.RegisterAutoWiredAs<EventDispatcher, IEventDispatcher>();
             container.Register(c => connection).ReusedWithin(ReuseScope.Default);
-            container.Register(c => mappings).ReusedWithin(ReuseScope.Default);
-        }
-
-        private void RegisterHandlerMappingsForIoc()
-        {
-            foreach (var mapping in mappings.GetAllHandlers())
-            {
-                foreach (var handle in mapping.Value)
-                {
-                    container.RegisterAutoWiredType(handle);
-                }
-            }
+            container.Register(c => _eventTypes).ReusedWithin(ReuseScope.Default);
         }
     }
 }

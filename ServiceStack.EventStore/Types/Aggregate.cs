@@ -8,16 +8,16 @@
     /// </summary>
     public abstract class Aggregate
     {
-        protected List<IDomainEvent> changes;
+        protected List<IAggregateEvent> changes;
 
         protected Aggregate(Guid id, IState state)
         {
             Id = id;
             State = state;
-            changes = new List<IDomainEvent>();
+            changes = new List<IAggregateEvent>();
         }
 
-        protected void Causes(IDomainEvent @event)
+        protected void Causes(IAggregateEvent @event)
         {
             changes.Add(@event);
             ApplyEvent(@event);
@@ -30,7 +30,7 @@
 
         public IState State { get; }
 
-        public IReadOnlyList<IDomainEvent> Changes => changes.AsReadOnly();
+        public IReadOnlyList<IAggregateEvent> Changes => changes.AsReadOnly();
 
         /// <summary>
         /// Clears committed domain events. Used after persisting an aggregate.
@@ -40,7 +40,7 @@
             changes.Clear();
         }
 
-        public abstract void ApplyEvent(IDomainEvent @event);
+        public abstract void ApplyEvent(IAggregateEvent @event);
     }
 
     public class Aggregate<TState> : Aggregate where TState : IState
@@ -52,7 +52,7 @@
 
         public new TState State { get; }
 
-        public override void ApplyEvent(IDomainEvent @event)
+        public override void ApplyEvent(IAggregateEvent @event)
         {
             State.Apply(@event);
         }

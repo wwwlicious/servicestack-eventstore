@@ -3,7 +3,7 @@ using ServiceStack.EventStore.Types;
 
 namespace ServiceStack.EventStore.IntegrationTests.TestDomain
 {
-    public class EDTUpdated : IDomainEvent
+    public class EDTUpdated : IAggregateEvent
     {
         public DateTime DepartureTime { get; set;  }
 

@@ -53,7 +53,7 @@
         /// </summary>
         /// <param name="state"></param>
         /// <param name="event"></param>
-        public void Mutate(IState state, IDomainEvent @event)
+        public void Mutate(IState state, IAggregateEvent @event)
         {
             Action<TState, object> eventMutator;
             eventMutators.TryGetValue(@event.GetType().Name, out eventMutator);

@@ -1,6 +1,6 @@
 ﻿namespace ServiceStack.EventStore.Types
 {
-    public interface IDomainEvent
+    public interface IAggregateEvent
     {
 
     }
