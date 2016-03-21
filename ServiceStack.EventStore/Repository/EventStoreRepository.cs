@@ -37,7 +37,7 @@ namespace ServiceStack.EventStore.Repository
 
         public IEventStoreConnection Connection { get; }
 
-        public async Task Publish(Event @event, Action<IDictionary<string, object>> updateHeaders = null)
+        public async Task PublishAsync(Event @event, Action<IDictionary<string, object>> updateHeaders = null)
         {
             var streamName = @event.StreamName;
 
@@ -55,7 +55,7 @@ namespace ServiceStack.EventStore.Repository
             }
         }
 
-        public async Task Save(Aggregate aggregate, Action<IDictionary<string, object>> updateHeaders = null)
+        public async Task SaveAsync(Aggregate aggregate, Action<IDictionary<string, object>> updateHeaders = null)
         {
             var headers = new Dictionary<string, object>();
 
@@ -123,12 +123,12 @@ namespace ServiceStack.EventStore.Repository
             }
             aggregate.ClearCommittedEvents();
         }
-        public async Task<TAggregate> GetById<TAggregate>(Guid id) where TAggregate : Aggregate
+        public async Task<TAggregate> GetByIdAsync<TAggregate>(Guid id) where TAggregate : Aggregate
         {
-            return await GetById<TAggregate>(id, int.MaxValue);
+            return await GetByIdAsync<TAggregate>(id, int.MaxValue);
         }
 
-        public async Task<TAggregate> GetById<TAggregate>(Guid id, int version) where TAggregate : Aggregate
+        public async Task<TAggregate> GetByIdAsync<TAggregate>(Guid id, int version) where TAggregate : Aggregate
         {
             if (version < InitialVersion)
                 throw new InvalidOperationException("Cannot get version < 0");

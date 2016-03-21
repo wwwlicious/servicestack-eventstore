@@ -28,7 +28,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
         public void ConsumesEvent()
         {
             var weeGreenMenLanded = new WeeGreenMenLanded(14);
-            eventStore.Publish(weeGreenMenLanded).Wait();
+            eventStore.PublishAsync(weeGreenMenLanded).Wait();
             Thread.Sleep(4000);
             eventFired.Should().BeTrue();
         }

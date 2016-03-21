@@ -54,7 +54,7 @@ namespace ServiceStack.EventStore.Consumers
         {
             if (!dispatcher.Dispatch(resolvedEvent))
                 {
-                 _eventStoreRepository.Publish(new InvalidMessage(resolvedEvent.OriginalEvent));
+                 _eventStoreRepository.PublishAsync(new InvalidMessage(resolvedEvent.OriginalEvent));
                 }
             }
         }

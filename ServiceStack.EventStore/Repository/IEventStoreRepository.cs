@@ -10,13 +10,13 @@ namespace ServiceStack.EventStore.Repository
 
     public interface IEventStoreRepository
     {
-        Task Save(Aggregate aggregate, Action<IDictionary<string, object>> updateHeaders = null);
+        Task SaveAsync(Aggregate aggregate, Action<IDictionary<string, object>> updateHeaders = null);
 
-        Task Publish(Event @event, Action<IDictionary<string, object>> updateHeaders = null);
+        Task PublishAsync(Event @event, Action<IDictionary<string, object>> updateHeaders = null);
 
-        Task<TAggregate> GetById<TAggregate>(Guid id, int version) where TAggregate : Aggregate;
+        Task<TAggregate> GetByIdAsync<TAggregate>(Guid id, int version) where TAggregate : Aggregate;
 
-        Task<TAggregate> GetById<TAggregate>(Guid id) where TAggregate : Aggregate;
+        Task<TAggregate> GetByIdAsync<TAggregate>(Guid id) where TAggregate : Aggregate;
 
         IEventStoreConnection Connection { get; }
     }
