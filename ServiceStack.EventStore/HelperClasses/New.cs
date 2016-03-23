@@ -62,9 +62,7 @@
             if (!cache.TryGetValue(cacheKey, out instanceCreator))
             {
                 var genericType = genericTypeDefinition.MakeGenericType(genericParameter);
-
                 instanceCreator = Expression.Lambda<Func<object>>(Expression.New(genericType)).Compile();
-
                 cache[cacheKey] = instanceCreator;
             }
 
