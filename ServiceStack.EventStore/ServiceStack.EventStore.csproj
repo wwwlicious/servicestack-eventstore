@@ -104,6 +104,7 @@
     <Compile Include="Exceptions\AggregateVersionException.cs" />
     <Compile Include="Extensions\NumericExtensions.cs" />
     <Compile Include="HelperClasses\IEnumerableExtensions.cs" />
+    <Compile Include="HelperClasses\New.cs" />
     <Compile Include="HelperClasses\ReflectionUtils.cs" />
     <Compile Include="Repository\EventStoreRepository.cs" />
     <Compile Include="Repository\IEventStoreRepository.cs" />

@@ -1,4 +1,6 @@
-﻿namespace ServiceStack.EventStore.Types
+﻿using ServiceStack.EventStore.HelperClasses;
+
+namespace ServiceStack.EventStore.Types
 {
     using System;
     using System.Collections.Concurrent;
@@ -28,10 +30,7 @@
 
         private static IStateMutator CreateMutator(Type stateType)
         {
-            var mutatorType = typeof(StateMutator<>).MakeGenericType(stateType);
-            var mutator = Activator.CreateInstance(mutatorType);
-
-            return mutator as IStateMutator;
+            return New.CreateGenericInstance(typeof(StateMutator<>), stateType) as IStateMutator;
         }
     }
 
@@ -39,7 +38,7 @@
     /// Mediator class responsible for mutating aggregate State classes.
     /// </summary>
     /// <typeparam name="TState"></typeparam>
-    internal class StateMutator<TState> : IStateMutator where TState : IState
+    internal class StateMutator<TState> : IStateMutator where TState : IState, new()
     {
         readonly Dictionary<string, Action<TState, object>> eventMutators;
 

@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using ServiceStack.EventStore.Types;
-
-namespace ServiceStack.EventStore
+﻿namespace ServiceStack.EventStore.HelperClasses
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Linq.Expressions;
+    using System.Reflection;
+    using Types;
+
     internal static class ReflectionUtils
     {
         public static Dictionary<string, Action<TState, object>> GetStateEventMutators<TState>()

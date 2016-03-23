@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using HelperClasses;
 
     /// <summary>
     /// Represents an event-sourced aggregate
@@ -43,9 +44,9 @@
         public abstract void ApplyEvent(IAggregateEvent @event);
     }
 
-    public class Aggregate<TState> : Aggregate where TState : IState
+    public class Aggregate<TState> : Aggregate where TState : State, new()
     {
-        protected Aggregate(Guid id): base(id, Activator.CreateInstance<TState>())
+        protected Aggregate(Guid id): base(id, New<TState>.Instance())
         {
             State = (TState) base.State;
         }

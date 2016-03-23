@@ -1,4 +1,5 @@
 ﻿using EventStore.ClientAPI;
+using ServiceStack.EventStore.HelperClasses;
 
 namespace ServiceStack.EventStore.Repository
 {
@@ -54,7 +55,7 @@ namespace ServiceStack.EventStore.Repository
             }
         }
 
-        public async Task SaveAsync(Aggregate aggregate, Action<IDictionary<string, object>> updateHeaders = null)
+        public async Task SaveAsync(Aggregate aggregate, Action<IDictionary<string, object>> updateHeaders = null) 
         {
             var headers = new Dictionary<string, object>();
 
@@ -180,9 +181,9 @@ namespace ServiceStack.EventStore.Repository
             return serializer.DeserializeFromString(data.FromAsciiBytes(), Type.GetType(eventClrTypeName));
         }
 
-        private static TAggregate ConstructAggregate<TAggregate>(Guid id)
+        private static TAggregate ConstructAggregate<TAggregate>(Guid id) where TAggregate : Aggregate
         {
-            return (TAggregate) Activator.CreateInstance(typeof (TAggregate), id);
+            return New<TAggregate, Guid>.Instance(id);
         }
 
         private EventData ToEventData(object @event, IDictionary<string, object> headers)
