@@ -8,13 +8,36 @@
     /// Instantiates TClass using a compiled lambda expression and caches it. This assumes a parameterless constructor.
     /// </summary>
     /// <typeparam name="TClass">The type of the class to be instantiated.</typeparam>
-    public static class New<TClass> where TClass : class, new()
+    public static class New<TClass> where TClass : class
     {
         public static readonly Func<TClass> Instance = Expression.Lambda<Func<TClass>>(Expression.New(typeof(TClass))).Compile();
 
         public static Func<TClass> GetInstance(TClass type)
         {
             return Instance;
+        }
+
+        public static class WithCtorParam<TParam>
+        {
+            private static readonly Dictionary<Type, Func<TParam, TClass>> cache = new Dictionary<Type, Func<TParam, TClass>>();
+
+            public static TClass Instance(TParam arg) 
+            {
+                Func<TParam, TClass> cachedFunc;
+
+                if (cache.TryGetValue(typeof(TClass), out cachedFunc))
+                {
+                    return cachedFunc(arg);
+                }
+
+                var constructor = typeof(TClass).GetConstructor(new[] { typeof(TParam) });
+                var paramExpression = Expression.Parameter(typeof(TParam));
+
+                var func = Expression.Lambda<Func<TParam, TClass>>(Expression.New(constructor, paramExpression), paramExpression).Compile();
+                cache.Add(typeof(TClass), func);
+
+                return func(arg);
+            }
         }
     }
 
@@ -25,25 +48,6 @@
     /// <typeparam name="TParam">The type of the constructor parameter.</typeparam>
     public static class New<TClass, TParam> where TClass: class
     {
-        private static readonly Dictionary<Type, Func<TParam, TClass>> cache = new Dictionary<Type, Func<TParam, TClass>>();
-
-        public static TClass Instance(TParam arg)
-        {
-            Func<TParam, TClass> cachedFunc;
-
-            if (cache.TryGetValue(typeof(TClass), out cachedFunc))
-            {
-                return cachedFunc(arg);
-            }
-
-            var constructor = typeof(TClass).GetConstructor(new[] { typeof(TParam) });
-            var paramExpression = Expression.Parameter(typeof(TParam));
-
-            var func = Expression.Lambda<Func<TParam, TClass>>(Expression.New(constructor, paramExpression), paramExpression).Compile();
-            cache.Add(typeof(TClass), func);
-
-            return func(arg);
-        }
     }
 
     /// <summary>

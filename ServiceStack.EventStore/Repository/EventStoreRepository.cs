@@ -183,7 +183,7 @@ namespace ServiceStack.EventStore.Repository
 
         private static TAggregate ConstructAggregate<TAggregate>(Guid id) where TAggregate : Aggregate
         {
-            return New<TAggregate, Guid>.Instance(id);
+            return New<TAggregate>.WithCtorParam<Guid>.Instance(id);
         }
 
         private EventData ToEventData(object @event, IDictionary<string, object> headers)
