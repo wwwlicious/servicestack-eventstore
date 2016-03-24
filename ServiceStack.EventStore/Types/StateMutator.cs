@@ -1,10 +1,9 @@
-﻿using ServiceStack.EventStore.HelperClasses;
-
-namespace ServiceStack.EventStore.Types
+﻿namespace ServiceStack.EventStore.Types
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using HelperClasses;
 
     /// <summary>
     /// Factory for StateMutator objects
@@ -37,7 +36,7 @@ namespace ServiceStack.EventStore.Types
     /// <summary>
     /// Mediator class responsible for mutating aggregate State classes.
     /// </summary>
-    /// <typeparam name="TState"></typeparam>
+    /// <typeparam name="TState">An object representing the state of an aggregate.</typeparam>
     internal class StateMutator<TState> : IStateMutator where TState : IState, new()
     {
         readonly Dictionary<string, Action<TState, object>> eventMutators;
@@ -50,8 +49,8 @@ namespace ServiceStack.EventStore.Types
         /// <summary>
         /// Mutates the State class of an Aggregate in response to a DomainEvent.
         /// </summary>
-        /// <param name="state"></param>
-        /// <param name="event"></param>
+        /// <param name="state">The current state of the aggregate.</param>
+        /// <param name="event">The event to be applied to the state.</param>
         public void Mutate(IState state, IAggregateEvent @event)
         {
             Action<TState, object> eventMutator;

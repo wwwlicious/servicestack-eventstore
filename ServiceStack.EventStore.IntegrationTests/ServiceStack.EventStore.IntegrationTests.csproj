@@ -85,6 +85,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\AssertExtensions.cs" />
+    <Compile Include="TestClasses\ConformityTests.cs" />
     <Compile Include="TestClasses\EventHandlerTests.cs" />
     <Compile Include="TestClasses\PublisherTests.cs" />
     <Compile Include="TestClasses\ServiceHasReachedWarningState.cs" />

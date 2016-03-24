@@ -1,7 +1,4 @@
-﻿using EventStore.ClientAPI;
-using ServiceStack.EventStore.HelperClasses;
-
-namespace ServiceStack.EventStore.Repository
+﻿namespace ServiceStack.EventStore.Repository
 {
     using Types;
     using System;
@@ -14,6 +11,8 @@ namespace ServiceStack.EventStore.Repository
     using Text;
     using Logging;
     using Extensions;
+    using HelperClasses;
+    using global::EventStore.ClientAPI;
 
     public delegate string GetStreamName(Type type, Guid guid);
 
@@ -49,9 +48,12 @@ namespace ServiceStack.EventStore.Repository
             {
                 await Connection.AppendToStreamAsync(streamName, ExpectedVersion.Any, ToEventData(@event, headers));
             }
-            catch (Exception e)
+            catch (AggregateException aggregate)
             {
-                log.Error(e);
+                foreach (var exception in aggregate.Flatten().InnerExceptions)
+                {
+                    log.Error(exception);
+                }
             }
         }
 
@@ -77,10 +79,12 @@ namespace ServiceStack.EventStore.Repository
                 {
                     await Connection.AppendToStreamAsync(streamName, expectedVersion, eventsToSave);
                 }
-                catch (Exception e) when (e.Message.Contains("WrongExpectedVersion"))
+                catch (AggregateException aggregateException)
                 {
-                    log.Error(e);
-                    //todo: throw appropriate exception e.g. AggregateVersionException
+                    foreach (var exception in aggregateException.Flatten().InnerExceptions)
+                    {
+                        log.Error(exception);
+                    }
                 }
                 catch (Exception e)
                 { 
@@ -131,7 +135,7 @@ namespace ServiceStack.EventStore.Repository
         public async Task<TAggregate> GetByIdAsync<TAggregate>(Guid id, int version) where TAggregate : Aggregate
         {
             if (version < InitialVersion)
-                throw new InvalidOperationException("Cannot get version < 0");
+                throw new InvalidOperationException($"Cannot get version < {InitialVersion}");
 
             var streamName = getStreamName(typeof(TAggregate), id);
 
@@ -146,7 +150,8 @@ namespace ServiceStack.EventStore.Repository
                                     ? ReadPageSize
                                     : version - sliceStart;
 
-                currentSlice = await Connection.ReadStreamEventsForwardAsync(streamName, sliceStart, sliceCount, false);
+                currentSlice = await Connection.ReadStreamEventsForwardAsync(streamName, sliceStart, sliceCount, false)
+                                               .ConfigureAwait(false);
 
                 switch (currentSlice.Status)
                 {
@@ -176,9 +181,8 @@ namespace ServiceStack.EventStore.Repository
         private static object DeserializeEvent(byte[] metadata, byte[] data)
         {
             var eventClrTypeName = JsonObject.Parse(metadata.FromAsciiBytes()).GetUnescaped(EventClrTypeHeader);
-            var serializer = new JsonStringSerializer();
 
-            return serializer.DeserializeFromString(data.FromAsciiBytes(), Type.GetType(eventClrTypeName));
+            return JsonSerializer.DeserializeFromString(data.FromAsciiBytes(), Type.GetType(eventClrTypeName));
         }
 
         private static TAggregate ConstructAggregate<TAggregate>(Guid id) where TAggregate : Aggregate

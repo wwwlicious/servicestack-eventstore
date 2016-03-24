@@ -1,6 +1,4 @@
-﻿using EventStore.ClientAPI;
-
-namespace ServiceStack.EventStore.Consumers
+﻿namespace ServiceStack.EventStore.Consumers
 {
     using System;
     using Polly;
@@ -8,50 +6,57 @@ namespace ServiceStack.EventStore.Consumers
     using Dispatcher;
     using Types;
     using Repository;
+    using System.Threading.Tasks;
+    using global::EventStore.ClientAPI;
 
     public class PersistentConsumer: IEventConsumer
     {
         private readonly IEventDispatcher dispatcher;
         private readonly IEventStoreConnection connection;
-        private readonly IEventStoreRepository _eventStoreRepository;
+        private readonly IEventStoreRepository eventStoreRepository;
         private Policy policy;
         private readonly ILog log;
         private string streamName;
         private string subscriptionGroup;
 
-        public PersistentConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStoreRepository _eventStoreRepository)
+        public PersistentConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStoreRepository eventStoreRepository)
         {
             this.dispatcher = dispatcher;
             this.connection = connection;
-            this._eventStoreRepository = _eventStoreRepository;
+            this.eventStoreRepository = eventStoreRepository;
             log = LogManager.GetLogger(GetType());
         }
 
-        public void ConnectToSubscription(string streamName, string subscriptionGroup)
+        public async Task ConnectToSubscription(string streamName, string subscriptionGroup)
         {
             this.streamName = streamName;
             this.subscriptionGroup = subscriptionGroup;
 
             try
             {
-                connection.ConnectToPersistentSubscription(streamName, subscriptionGroup, EventAppeared, SubscriptionDropped);
+                await Task.Run(() => connection.ConnectToPersistentSubscription(streamName, subscriptionGroup,
+                     async (@base, @event) => await EventAppeared(@base, @event), 
+                     async (@base, reason, exception) => await SubscriptionDropped(@base, reason, exception)));
             }
-            catch (Exception e)
+            catch (AggregateException aggregate)
             {
-                log.Error(e);
+                foreach (var exception in aggregate.Flatten().InnerExceptions)
+                {
+                    log.Error(exception);
+                }
             }
         }
 
-        private void SubscriptionDropped(EventStorePersistentSubscriptionBase subscriptionBase, SubscriptionDropReason dropReason, Exception e)
+        private async Task SubscriptionDropped(EventStorePersistentSubscriptionBase subscriptionBase, SubscriptionDropReason dropReason, Exception e)
         {
-            ConnectToSubscription(streamName, subscriptionGroup);
+            await ConnectToSubscription(streamName, subscriptionGroup);
         }
 
-        private void EventAppeared(EventStorePersistentSubscriptionBase @base, ResolvedEvent resolvedEvent)
+        private async Task EventAppeared(EventStorePersistentSubscriptionBase @base, ResolvedEvent resolvedEvent)
         {
             if (!dispatcher.Dispatch(resolvedEvent))
                 {
-                 _eventStoreRepository.PublishAsync(new InvalidMessage(resolvedEvent.OriginalEvent));
+                 await eventStoreRepository.PublishAsync(new InvalidMessage(resolvedEvent.OriginalEvent));
                 }
             }
         }

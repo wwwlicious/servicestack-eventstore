@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-namespace ServiceStack.EventStore
+﻿namespace ServiceStack.EventStore
 {
     using Types;
     using System;

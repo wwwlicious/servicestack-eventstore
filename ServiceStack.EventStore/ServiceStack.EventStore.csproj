@@ -112,7 +112,7 @@
     <Compile Include="Types\Aggregate.cs" />
     <Compile Include="Resilience\ICircuitBreaker.cs" />
     <Compile Include="ConnectionManagement\ConnectionMonitor.cs" />
-    <Compile Include="ConnectionManagement\ConnectionBuilder.cs" />
+    <Compile Include="ConnectionManagement\ConnectionSettings.cs" />
     <Compile Include="Consumers\CatchUpConsumer.cs" />
     <Compile Include="Types\ConsumerStream.cs" />
     <Compile Include="Types\Event.cs" />

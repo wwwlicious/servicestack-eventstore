@@ -1,23 +1,21 @@
-﻿using EventStore.ClientAPI;
-
-namespace ServiceStack.EventStore.Dispatcher
+﻿namespace ServiceStack.EventStore.Dispatcher
 {
     using System;
     using Funq;
     using Text;
     using Logging;
-    using Mappings;
+    using global::EventStore.ClientAPI;
 
     public class EventDispatcher : IEventDispatcher
     {
         // ReSharper disable once InconsistentNaming
         public Container container = ServiceStackHost.Instance.Container;
-        private readonly EventTypes eventTypes;
+        private readonly EventTypes.EventTypes eventTypes;
         private const string EventClrTypeHeader = "EventClrTypeName";
 
         private ILog log;
 
-        public EventDispatcher(EventTypes eventTypes)
+        public EventDispatcher(EventTypes.EventTypes eventTypes)
         {
             this.eventTypes = eventTypes;
             log = LogManager.GetLogger(GetType());
@@ -32,8 +30,7 @@ namespace ServiceStack.EventStore.Dispatcher
 
             if (eventTypes.TryResolveMapping(clrEventType, out type))
             {
-                var serializer = new JsonStringSerializer();
-                var typedEvent = serializer.DeserializeFromString(@event.Event.Data.FromAsciiBytes(), type);
+                var typedEvent = JsonSerializer.DeserializeFromString(@event.Event.Data.FromAsciiBytes(), type);
 
                 try
                 {

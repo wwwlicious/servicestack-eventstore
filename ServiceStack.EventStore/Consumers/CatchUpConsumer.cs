@@ -1,12 +1,12 @@
-﻿using EventStore.ClientAPI;
-
-namespace ServiceStack.EventStore.Consumers
+﻿namespace ServiceStack.EventStore.Consumers
 {
     using System;
     using Dispatcher;
     using Repository;
     using Types;
     using Logging;
+    using System.Threading.Tasks;
+    using global::EventStore.ClientAPI;
 
     public class CatchUpConsumer : IEventConsumer
     {
@@ -26,14 +26,17 @@ namespace ServiceStack.EventStore.Consumers
         }
 
 
-        public void ConnectToSubscription(string streamName, string subscriptionGroup)
+        public async Task ConnectToSubscription(string streamName, string subscriptionGroup)
         {
             this.streamName = streamName;
             this.subscriptionGroup = subscriptionGroup;
 
             try
             {
-                connection.SubscribeToStreamFrom(streamName, StreamPosition.Start, true, EventAppeared, LiveProcessingStarted, SubscriptionDropped);
+                await Task.Run(() => connection.SubscribeToStreamFrom(streamName, StreamPosition.Start, true,
+                             async (subscription, @event) => await EventAppeared(subscription, @event),
+                             async (subscription) => await LiveProcessingStarted(subscription),
+                             async (subscription, reason, exception) => await SubscriptionDropped(subscription, reason, exception)));
             }
             catch (AggregateException aggregate)
             {
@@ -44,23 +47,24 @@ namespace ServiceStack.EventStore.Consumers
             }
         }
 
-        private void SubscriptionDropped(EventStoreCatchUpSubscription eventStoreCatchUpSubscription, SubscriptionDropReason subscriptionDropReason, Exception arg3)
+        private async Task SubscriptionDropped(EventStoreCatchUpSubscription eventStoreCatchUpSubscription, SubscriptionDropReason subscriptionDropReason, Exception ex)
         {
-            ConnectToSubscription(streamName, subscriptionGroup);
+            log.Error($"Subscription to {streamName} dropped. Message: {ex.Message}");
+            await ConnectToSubscription(streamName, subscriptionGroup);
         }
 
-        private void LiveProcessingStarted(EventStoreCatchUpSubscription caughtUp)
+        private async Task LiveProcessingStarted(EventStoreCatchUpSubscription @event)
         {
-            Console.WriteLine("I have caught up");
+            await Task.Run(() => log.Info($"Caught up on {@event.StreamId} at {DateTime.UtcNow}"));
         }
 
-        private void EventAppeared(EventStoreCatchUpSubscription eventStoreCatchUpSubscription, ResolvedEvent resolvedEvent)
+        private async Task EventAppeared(EventStoreCatchUpSubscription eventStoreCatchUpSubscription, ResolvedEvent resolvedEvent)
         {
             if (resolvedEvent.Event != null)
             {
                 if (!dispatcher.Dispatch(resolvedEvent))
                 {
-                    eventStoreRepository.PublishAsync(new InvalidMessage(resolvedEvent.OriginalEvent));
+                    await eventStoreRepository.PublishAsync(new InvalidMessage(resolvedEvent.OriginalEvent));
                 }
             }
         }

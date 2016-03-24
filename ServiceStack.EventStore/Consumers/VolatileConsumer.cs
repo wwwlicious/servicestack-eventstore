@@ -1,13 +1,14 @@
-﻿using System;
-using EventStore.ClientAPI;
-using Polly;
-using ServiceStack.EventStore.Dispatcher;
-using ServiceStack.EventStore.Repository;
-using ServiceStack.EventStore.Types;
-using ServiceStack.Logging;
-
-namespace ServiceStack.EventStore.Consumers
+﻿namespace ServiceStack.EventStore.Consumers
 {
+    using System;
+    using System.Threading.Tasks;
+    using global::EventStore.ClientAPI;
+    using Polly;
+    using Dispatcher;
+    using Repository;
+    using Types;
+    using Logging;
+
     public class VolatileConsumer: IEventConsumer
     {
 
@@ -27,14 +28,16 @@ namespace ServiceStack.EventStore.Consumers
             log = LogManager.GetLogger(GetType());
         }
 
-        public async void ConnectToSubscription(string streamName, string subscriptionGroup)
+        public async Task ConnectToSubscription(string streamName, string subscriptionGroup)
         {
             this.streamName = streamName;
             this.subscriptionGroup = subscriptionGroup;
 
             try
             {
-                await connection.SubscribeToStreamAsync(streamName, true, EventAppeared, SubscriptionDropped);
+                await connection.SubscribeToStreamAsync(streamName, true,
+                    async (subscription, @event) => await EventAppeared(subscription, @event),
+                    async (subscription, reason, exception) => await SubscriptionDropped(subscription, reason, exception));
             }
             catch (AggregateException aggregate)
             {
@@ -45,16 +48,16 @@ namespace ServiceStack.EventStore.Consumers
             }
         }
 
-        private void SubscriptionDropped(EventStoreSubscription eventStoreSubscription, SubscriptionDropReason subscriptionDropReason, Exception arg3)
+        private async Task SubscriptionDropped(EventStoreSubscription eventStoreSubscription, SubscriptionDropReason subscriptionDropReason, Exception ex)
         {
-            ConnectToSubscription(streamName, subscriptionGroup);
+            await ConnectToSubscription(streamName, subscriptionGroup);
         }
 
-        private void EventAppeared(EventStoreSubscription eventStoreSubscription, ResolvedEvent resolvedEvent)
+        private async Task EventAppeared(EventStoreSubscription eventStoreSubscription, ResolvedEvent resolvedEvent)
         {
             if (!dispatcher.Dispatch(resolvedEvent))
             {
-                eventStoreRepository.PublishAsync(new InvalidMessage(resolvedEvent.OriginalEvent));
+                await eventStoreRepository.PublishAsync(new InvalidMessage(resolvedEvent.OriginalEvent));
             }
         }
     }

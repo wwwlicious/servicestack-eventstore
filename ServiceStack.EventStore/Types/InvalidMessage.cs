@@ -1,8 +1,8 @@
-﻿using System;
-using EventStore.ClientAPI;
-
-namespace ServiceStack.EventStore.Types
+﻿namespace ServiceStack.EventStore.Types
 {
+    using System;
+    using global::EventStore.ClientAPI;
+
     /// <summary>
     /// Represents a message that cannot be deserialized.
     /// </summary>

@@ -1,4 +1,4 @@
-﻿namespace ServiceStack.EventStore.Mappings
+﻿namespace ServiceStack.EventStore.EventTypes
 {
     using System;
     using System.Collections.Generic;

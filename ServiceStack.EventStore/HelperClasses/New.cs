@@ -42,15 +42,6 @@
     }
 
     /// <summary>
-    /// Instantiates TClass using a compiled lambda expression and caches it. This assumes a constructor with type TParam.
-    /// </summary>
-    /// <typeparam name="TClass">The type of the class to be instantiated.</typeparam>
-    /// <typeparam name="TParam">The type of the constructor parameter.</typeparam>
-    public static class New<TClass, TParam> where TClass: class
-    {
-    }
-
-    /// <summary>
     /// Instantiates a class using generic parameters passed in at runtime.
     /// </summary>
     public static class New

@@ -1,9 +1,8 @@
-﻿using EventStore.ClientAPI;
-
-namespace ServiceStack.EventStore.ConnectionManagement
+﻿namespace ServiceStack.EventStore.ConnectionManagement
 {
     using Logging;
     using System;
+    using global::EventStore.ClientAPI;
 
     public delegate void OnDisconnectedDelegate(object sender, ClientConnectionEventArgs args);
     public delegate void OnConnectedDelegate(object sender, ClientConnectionEventArgs args);
@@ -25,7 +24,7 @@ namespace ServiceStack.EventStore.ConnectionManagement
             log = LogManager.GetLogger(GetType());
         }
 
-        public void Configure()
+        public void AddHandlers()
         {
             connection.Connected += new EventHandler<ClientConnectionEventArgs>(settings.OnConnected ?? DefaultOnConnected);
             connection.Disconnected += new EventHandler<ClientConnectionEventArgs>(settings.OnDisconnected ?? DefaultOnDisconnected);

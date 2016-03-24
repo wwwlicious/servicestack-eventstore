@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using EventStore.ClientAPI;
-
-namespace ServiceStack.EventStore.Repository
+﻿namespace ServiceStack.EventStore.Repository
 {
     using Types;
     using System;
     using System.Threading.Tasks;
-
+    using System.Collections.Generic;
+    using global::EventStore.ClientAPI;
 
     public interface IEventStoreRepository
     {

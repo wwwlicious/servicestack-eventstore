@@ -1,7 +1,9 @@
 ﻿namespace ServiceStack.EventStore.Consumers
 {
+    using System.Threading.Tasks;
+
     public interface IEventConsumer
     {
-        void ConnectToSubscription(string streamName, string subscriptionGroup);
+        Task ConnectToSubscription(string streamName, string subscriptionGroup);
     }
 }

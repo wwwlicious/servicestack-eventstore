@@ -4,28 +4,29 @@
     using System.Text;
     using FluentValidation;
 
-    public class ConnectionBuilder
+    public class ConnectionSettings
     {
         public MonitorSettings MonitorSettings { get; set; }
         private readonly Dictionary<string, object> settings = new Dictionary<string, object>();
         private readonly Validator validator = new Validator();
 
-        private string hostName = "";
+        private string httpAddress;
+        private string tcpAddress;
         private string userName = "";
         private string password = "";
 
-        public ConnectionBuilder()
+        public ConnectionSettings()
         {
             MonitorSettings = new MonitorSettings();
         }
 
-        private class Validator : AbstractValidator<ConnectionBuilder>
+        private class Validator : AbstractValidator<ConnectionSettings>
         {
             public Validator()
             {
                 RuleFor(cb => cb.userName).NotEmpty();
                 RuleFor(cb => cb.password).NotEmpty();
-                RuleFor(cb => cb.hostName).NotEmpty();
+                RuleFor(cb => cb.httpAddress).NotEmpty();
             }
         }
 
@@ -34,42 +35,58 @@
             validator.ValidateAndThrow(this);
 
             var connectionString = new StringBuilder();
-            connectionString.Append($"ConnectTo=tcp://{userName}:{password}@{hostName}; ");
+            connectionString.Append($"ConnectTo=tcp://{userName}:{password}@{httpAddress}; ");
             settings.Each(s => connectionString.Append($"{s.Key}={s.Value}; "));
             return connectionString.ToString();
         }
 
-        public ConnectionBuilder Host(string host)
+        public string GetHttpEndpoint()
         {
-            hostName = host;
+            return httpAddress;
+        }
+
+        public ConnectionSettings HttpAddress(string address)
+        {
+            httpAddress = address;
             return this;
         }
 
-        public ConnectionBuilder UserName(string name)
+        public string GetTcpEndpoint()
+        {
+            return tcpAddress;
+        }
+
+        public ConnectionSettings TcpEndpoint(string address)
+        {
+            tcpAddress = address;
+            return this;
+        }
+
+        public ConnectionSettings UserName(string name)
         {
             userName = name;
             return this;
         }
 
-        public ConnectionBuilder Password(string pwd)
+        public ConnectionSettings Password(string pwd)
         {
             password = pwd;
             return this;
         }
 
-        public ConnectionBuilder ReconnectionDelay(int delay)
+        public ConnectionSettings ReconnectionDelay(int delay)
         {
             settings["ReconnectionDelay"] = delay;
             return this;
         }
 
-        public ConnectionBuilder HeartbeatTimeout(int timeout)
+        public ConnectionSettings HeartbeatTimeout(int timeout)
         {
             settings["HeartbeatTimeout"] = timeout;
             return this;
         }
 
-        public ConnectionBuilder MaxReconnections(int reconnections)
+        public ConnectionSettings MaxReconnections(int reconnections)
         {
             settings["MaxReconnections"] = reconnections;
             return this;

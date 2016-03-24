@@ -1,7 +1,7 @@
-﻿using Funq;
+﻿using System.Net;
+using Funq;
 using ServiceStack.EventStore.ConnectionManagement;
 using ServiceStack.EventStore.IntegrationTests.TestClasses;
-using ServiceStack.EventStore.Mappings;
 using ServiceStack.EventStore.Types;
 using ServiceStack.Host;
 using ServiceStack.Logging;
@@ -34,10 +34,10 @@ namespace ServiceStack.EventStore.IntegrationTests
                                     streams.Add("alien-landings", new ConsumerStream(SubscriptionType.Volatile, "mygroup"));
                                 });
 
-            var connection = new ConnectionBuilder()
+            var connection = new ConnectionSettings()
                                 .UserName("admin")
                                 .Password("changeit")
-                                .Host("localhost:1113");
+                                .HttpAddress("localhost:1113");
 
             LogManager.LogFactory = new ConsoleLogFactory();
 

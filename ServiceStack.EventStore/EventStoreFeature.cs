@@ -1,7 +1,4 @@
-﻿using System.Net;
-using EventStore.ClientAPI;
-
-namespace ServiceStack.EventStore
+﻿namespace ServiceStack.EventStore
 {
     using ServiceStack;
     using System;
@@ -13,17 +10,17 @@ namespace ServiceStack.EventStore
     using ConnectionManagement;
     using Dispatcher;
     using Resilience;
-    using Mappings;
     using Repository;
+    using global::EventStore.ClientAPI;
 
     public class EventStoreFeature: IPlugin
     {
         private readonly EventStoreSettings settings;
-        private readonly Mappings.EventTypes _eventTypes;
+        private readonly EventTypes.EventTypes eventTypes;
         private Container container;
         private readonly ILog log;
-        private readonly ConnectionBuilder builder;
-        private ConnectionMonitor _connectionMonitor;
+        private readonly ConnectionManagement.ConnectionSettings connectionSettings;
+        private ConnectionMonitor connectionMonitor;
 
         private readonly Dictionary<SubscriptionType, Type> consumers = new Dictionary<SubscriptionType, Type>()
         {
@@ -32,35 +29,35 @@ namespace ServiceStack.EventStore
            [SubscriptionType.Volatile] = typeof(VolatileConsumer)
         };
 
-        public EventStoreFeature(EventStoreSettings settings, ConnectionBuilder builder)
+        public EventStoreFeature(EventStoreSettings settings, ConnectionManagement.ConnectionSettings connectionSettings)
         {
             this.settings = settings;
-            _eventTypes = new Mappings.EventTypes();
+            eventTypes = new EventTypes.EventTypes();
             log = LogManager.GetLogger(GetType());
-            this.builder = builder;
+            this.connectionSettings = connectionSettings;
         }
 
         public async void Register(IAppHost appHost)
         {
-            var connection = EventStoreConnection.Create(builder.GetConnectionString());
+            var connection = EventStoreConnection.Create(connectionSettings.GetConnectionString());
 
-            await connection.ConnectAsync();
+            await connection.ConnectAsync().ConfigureAwait(false); //no need for the initial synchronisation context 
+                                                                   //to be reused when executing the rest of the method
 
-            new ConnectionMonitor(connection, builder.MonitorSettings)
-                    .Configure();
+            new ConnectionMonitor(connection, connectionSettings.MonitorSettings).AddHandlers();
 
             container = appHost.GetContainer();
 
             RegisterTypesForIoc(connection);
 
-            appHost.GetPlugin<MetadataFeature>()?.AddPluginLink("http://127.0.0.1:2113/", "EventStore");
+            appHost.GetPlugin<MetadataFeature>()?.AddPluginLink($"http://{connectionSettings.GetHttpEndpoint()}/", "EventStore");
 
             try
             {
                 foreach (var stream in settings.Streams)
                 {
-                    var consumer = (IEventConsumer)container.TryResolve(consumers[stream.Value.SubscriptionType]);      
-                    consumer.ConnectToSubscription(stream.Key, stream.Value.SubscriptionGroup);
+                    var consumer = (IEventConsumer)container.TryResolve(consumers[stream.Value.SubscriptionType]);
+                    await consumer.ConnectToSubscription(stream.Key, stream.Value.SubscriptionGroup);
                 }
             }
             catch (Exception e)
@@ -76,9 +73,9 @@ namespace ServiceStack.EventStore
             container.RegisterAutoWired<VolatileConsumer>();
             container.RegisterAutoWiredAs<CircuitBreaker, ICircuitBreaker>();
             container.RegisterAutoWiredAs<EventStoreRepository, IEventStoreRepository>();
-            container.RegisterAutoWiredAs<EventDispatcher, IEventDispatcher>();
+            container.RegisterAutoWiredAs<EventDispatcher, IEventDispatcher>().ReusedWithin(ReuseScope.Default);
             container.Register(c => connection).ReusedWithin(ReuseScope.Default);
-            container.Register(c => _eventTypes).ReusedWithin(ReuseScope.Default);
+            container.Register(c => eventTypes).ReusedWithin(ReuseScope.Default);
         }
     }
 }

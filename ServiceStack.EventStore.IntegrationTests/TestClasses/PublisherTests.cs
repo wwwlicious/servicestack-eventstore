@@ -1,11 +1,13 @@
-﻿using System;
-using ServiceStack.EventStore.Repository;
-using Xunit;
-using Xunit.Abstractions;
-
-namespace ServiceStack.EventStore.IntegrationTests.TestClasses
+﻿namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 {
+    using System;
+    using Repository;
+    using Xunit;
+    using Xunit.Abstractions;
+    using System.Threading.Tasks;
+
     [Collection("ServiceStackHostCollection")]
+    [Trait("Category", "Integration")]
     public class PublisherTests
     {
 
@@ -19,21 +21,20 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
         }
 
         [Fact]
-        public void CanPublishEvent()
+        public async Task CanPublishEvent()
         {
-            eventStore.PublishAsync(new ServiceHasReachedWarningState(DateTime.UtcNow)).Wait();
+            await eventStore.PublishAsync(new ServiceHasReachedWarningState(DateTime.UtcNow));
         }
 
         [Fact]
-        public void CanPublishEventWithHeaders()
+        public async Task CanPublishEventWithHeaders()
         {
-            eventStore.PublishAsync(new ServiceHasReachedWarningState(DateTime.UtcNow), headers =>
+            await eventStore.PublishAsync(new ServiceHasReachedWarningState(DateTime.UtcNow), headers =>
             {
                 headers.Add("User", "Fortescue Bryantworth (the Second)");    
                 headers.Add("Titbit", "In truth, the World reposes on the back of a somewhat indignant turtle.");
                 headers.Add("CorrelationId", Guid.NewGuid());
-            })
-            .Wait();
+            });
         }
     }
 }

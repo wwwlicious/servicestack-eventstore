@@ -6,12 +6,12 @@
     public abstract class State : IState
     {
         private readonly IStateMutator mutator;
-        private const int initialVersion = 0;
+        private const int InitialVersion = 0;
 
         protected State()
         {
             mutator = StateMutator.For(GetType());
-            Version = initialVersion;
+            Version = InitialVersion;
         }
 
         public int Version { get; private set; }

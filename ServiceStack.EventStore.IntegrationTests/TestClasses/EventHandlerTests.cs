@@ -1,15 +1,14 @@
-﻿using System;
-using FluentAssertions;
-using ServiceStack.EventStore.Repository;
-using ServiceStack.EventStore.Types;
-using Xunit;
-using Xunit.Abstractions;
-using System.Threading;
-using Funq;
-
-namespace ServiceStack.EventStore.IntegrationTests.TestClasses
+﻿namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 {
+    using FluentAssertions;
+    using Repository;
+    using Xunit;
+    using Xunit.Abstractions;
+    using System.Threading.Tasks;
+    using Funq;
+
     [Collection("ServiceStackHostCollection")]
+    [Trait("Category", "Integration")]
     public class EventHandlerTests 
     {
         private readonly IEventStoreRepository eventStore;
@@ -26,11 +25,13 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 
         [Fact]
         //todo: how best to test handling events and streams?
-        public void ConsumesEvent()
+        public async Task ConsumesEvent()
         {
             var weeGreenMenLanded = new WeeGreenMenLanded(14);
-            eventStore.PublishAsync(weeGreenMenLanded).Wait();
-            Thread.Sleep(10000);
+
+            await eventStore.PublishAsync(weeGreenMenLanded);
+            await Task.Delay(10000);
+
             eventFired.Should().BeTrue();
         }
 
