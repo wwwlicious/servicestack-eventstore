@@ -10,14 +10,13 @@
     using Subscriptions;
     using Resilience;
 
-    public class VolatileConsumer: IEventConsumer
+    public class VolatileConsumer: StreamConsumer
     {
 
         private readonly IEventDispatcher dispatcher;
         private readonly IEventStoreConnection connection;
         private readonly IEventStoreRepository eventStoreRepository;
         private readonly ILog log;
-        private RetryPolicy retryPolicy;
 
         public VolatileConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStoreRepository eventStoreRepository)
         {
@@ -27,7 +26,7 @@
             log = LogManager.GetLogger(GetType());
         }
 
-        public async Task ConnectToSubscription(string streamId, string subscriptionGroup)
+        public override async Task ConnectToSubscription(string streamId, string subscriptionGroup)
         {
             try
             {
@@ -48,9 +47,9 @@
 
         private async Task SubscriptionDropped(EventStoreSubscription subscription, SubscriptionDropReason dropReason, Exception exception)
         {
-            var subscriptionDropped = new StreamSubscriptionDropped(subscription.StreamId, exception.Message, dropReason, retryPolicy);
+            var subscriptionDropped = new DroppedSubscription(subscription.StreamId, exception.Message, dropReason, retryPolicy);
 
-            await SubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscription(subscription.StreamId, string.Empty));
+            await DroppedSubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscription(subscription.StreamId, string.Empty));
         }
 
         private async Task EventAppeared(EventStoreSubscription subscription, ResolvedEvent resolvedEvent)

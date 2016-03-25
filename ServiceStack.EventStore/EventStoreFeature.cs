@@ -57,7 +57,7 @@
             {
                 foreach (var subscription in settings.Subscriptions)
                 {
-                    var consumer = (IEventConsumer) container.TryResolve(consumers[subscription.GetType().Name]);
+                    var consumer = (StreamConsumer) container.TryResolve(consumers[subscription.GetType().Name]);
                     consumer.SetRetryPolicy(subscription.RetryPolicy);
                     await consumer.ConnectToSubscription(subscription.StreamId, subscription.SubscriptionGroup);
                 }

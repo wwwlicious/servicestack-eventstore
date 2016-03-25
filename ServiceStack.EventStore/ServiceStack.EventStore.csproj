@@ -101,7 +101,7 @@
     <Compile Include="Resilience\RetryType.cs" />
     <Compile Include="Resilience\Retries.cs" />
     <Compile Include="Resilience\RetryPolicy.cs" />
-    <Compile Include="Subscriptions\SubscriptionPolicy.cs" />
+    <Compile Include="Resilience\DroppedSubscriptionPolicy.cs" />
     <Compile Include="EventStoreCheck.cs" />
     <Compile Include="EventStoreHealthService.cs" />
     <Compile Include="Exceptions\AggregateDeletedException.cs" />
@@ -126,7 +126,7 @@
     <Compile Include="Types\IAggregateEvent.cs" />
     <Compile Include="Types\InvalidMessage.cs" />
     <Compile Include="Idempotency\GuidUtility.cs" />
-    <Compile Include="Consumers\IEventConsumer.cs" />
+    <Compile Include="Consumers\StreamConsumer.cs" />
     <Compile Include="Consumers\PersistentConsumer.cs" />
     <Compile Include="Dispatcher\EventDispatcher.cs" />
     <Compile Include="EventStoreFeature.cs" />
@@ -140,7 +140,7 @@
     <Compile Include="Types\StateMutator.cs" />
     <Compile Include="Subscriptions\Subscription.cs" />
     <Compile Include="Consumers\VolatileConsumer.cs" />
-    <Compile Include="Types\StreamSubscriptionDropped.cs" />
+    <Compile Include="Types\DroppedSubscription.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -3,9 +3,10 @@
     using global::EventStore.ClientAPI;
     using Resilience;
 
-    public class StreamSubscriptionDropped
+    public class DroppedSubscription
     {
-        public StreamSubscriptionDropped(string streamId, string exceptionMessage, SubscriptionDropReason dropReason, RetryPolicy retryPolicy)
+        public DroppedSubscription(string streamId, string exceptionMessage, 
+                                   SubscriptionDropReason dropReason, RetryPolicy retryPolicy)
         {
             StreamId = streamId;
             ExceptionMessage = exceptionMessage;

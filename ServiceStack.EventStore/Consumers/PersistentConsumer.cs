@@ -10,7 +10,7 @@
     using Subscriptions;
     using Resilience;
 
-    public class PersistentConsumer: IEventConsumer
+    public class PersistentConsumer: StreamConsumer
     {
         private readonly IEventDispatcher dispatcher;
         private readonly IEventStoreConnection connection;
@@ -28,7 +28,7 @@
             log = LogManager.GetLogger(GetType());
         }
 
-        public async Task ConnectToSubscription(string streamId, string subscriptionGroup)
+        public override async Task ConnectToSubscription(string streamId, string subscriptionGroup)
         {
             this.streamId = streamId;
             this.subscriptionGroup = subscriptionGroup;
@@ -45,16 +45,11 @@
             }
         }
 
-        public void SetRetryPolicy(RetryPolicy policy)
-        {
-            retryPolicy = policy;
-        }
-
         private async Task SubscriptionDropped(EventStorePersistentSubscriptionBase subscriptionBase, SubscriptionDropReason dropReason, Exception exception)
         {
-            var subscriptionDropped = new StreamSubscriptionDropped(streamId, exception.Message, dropReason, retryPolicy);
+            var subscriptionDropped = new DroppedSubscription(streamId, exception.Message, dropReason, retryPolicy);
 
-            await SubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscription(streamId, subscriptionGroup));
+            await DroppedSubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscription(streamId, subscriptionGroup));
         }
 
         private async Task EventAppeared(EventStorePersistentSubscriptionBase @base, ResolvedEvent resolvedEvent)

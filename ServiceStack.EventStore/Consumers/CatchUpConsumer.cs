@@ -10,13 +10,12 @@
     using Subscriptions;
     using Resilience;
 
-    public class CatchUpConsumer : IEventConsumer
+    public class CatchUpConsumer : StreamConsumer
     {
         private readonly IEventDispatcher dispatcher;
         private readonly IEventStoreConnection connection;
         private readonly IEventStoreRepository eventStoreRepository;
         private readonly ILog log;
-        private RetryPolicy retryPolicy;
 
         public CatchUpConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStoreRepository eventStoreRepository)
         {
@@ -27,7 +26,7 @@
         }
 
 
-        public async Task ConnectToSubscription(string streamId, string subscriptionGroup)
+        public override async Task ConnectToSubscription(string streamId, string subscriptionGroup)
         {
             try
             {
@@ -42,16 +41,11 @@
             }
         }
 
-        public void SetRetryPolicy(RetryPolicy policy)
-        {
-            retryPolicy = policy;
-        }
-
         private async Task SubscriptionDropped(EventStoreCatchUpSubscription subscription, SubscriptionDropReason dropReason, Exception exception)
         {
-            var subscriptionDropped = new StreamSubscriptionDropped(subscription.StreamId, exception.Message, dropReason, retryPolicy);    
+            var subscriptionDropped = new DroppedSubscription(subscription.StreamId, exception.Message, dropReason, retryPolicy);    
 
-            await SubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscription(subscription.StreamId, string.Empty));
+            await DroppedSubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscription(subscription.StreamId, string.Empty));
         }
 
         private async Task LiveProcessingStarted(EventStoreCatchUpSubscription @event)
