@@ -1,10 +1,10 @@
-﻿namespace ServiceStack.EventStore.Subscription
-{
-    using System;
-    using System.Threading.Tasks;
-    using global::EventStore.ClientAPI;
-    using Logging;
+﻿using System;
+using System.Threading.Tasks;
+using EventStore.ClientAPI;
+using ServiceStack.Logging;
 
+namespace ServiceStack.EventStore.Subscriptions
+{
     /// <summary>
     /// Defines the policy for dealing with dropped subscriptions
     /// </summary>

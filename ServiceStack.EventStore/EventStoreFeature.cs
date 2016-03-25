@@ -1,10 +1,11 @@
-﻿namespace ServiceStack.EventStore
+﻿using System.Collections.Generic;
+using ServiceStack.EventStore.Subscriptions;
+
+namespace ServiceStack.EventStore
 {
     using ServiceStack;
     using System;
-    using System.Collections.Generic;
     using Funq;
-    using Types;
     using Consumers;
     using Logging;
     using ConnectionManagement;
@@ -15,21 +16,21 @@
 
     public class EventStoreFeature: IPlugin
     {
-        private readonly EventStoreSettings settings;
+        private readonly SubscriptionSettings settings;
         private readonly EventTypes.EventTypes eventTypes;
         private Container container;
         private readonly ILog log;
         private readonly ConnectionManagement.ConnectionSettings connectionSettings;
         private ConnectionMonitor connectionMonitor;
 
-        private readonly Dictionary<SubscriptionType, Type> consumers = new Dictionary<SubscriptionType, Type>()
+        private readonly Dictionary<string, Type> consumers = new Dictionary<string, Type>()
         {
-           [SubscriptionType.Persistent] = typeof(PersistentConsumer), 
-           [SubscriptionType.CatchUp] = typeof(CatchUpConsumer), 
-           [SubscriptionType.Volatile] = typeof(VolatileConsumer)
+            {"PersistentSubscription", typeof(PersistentConsumer)},
+            {"CatchUpSubscription", typeof(CatchUpConsumer)},
+            {"VolatileSubscription", typeof(VolatileConsumer)}
         };
 
-        public EventStoreFeature(EventStoreSettings settings, ConnectionManagement.ConnectionSettings connectionSettings)
+        public EventStoreFeature(SubscriptionSettings settings, ConnectionManagement.ConnectionSettings connectionSettings)
         {
             this.settings = settings;
             eventTypes = new EventTypes.EventTypes();
@@ -44,20 +45,22 @@
             await connection.ConnectAsync().ConfigureAwait(false); //no need for the initial synchronisation context 
                                                                    //to be reused when executing the rest of the method
 
-            new ConnectionMonitor(connection, connectionSettings.MonitorSettings).AddHandlers();
+            new ConnectionMonitor(connection, connectionSettings.MonitorSettings)
+                    .AddHandlers();
 
             container = appHost.GetContainer();
 
             RegisterTypesForIoc(connection);
 
-            appHost.GetPlugin<MetadataFeature>()?.AddPluginLink($"http://{connectionSettings.GetHttpEndpoint()}/", "EventStore");
+            appHost.GetPlugin<MetadataFeature>()?
+                   .AddPluginLink($"http://{connectionSettings.GetHttpEndpoint()}/", "EventStore");
 
             try
             {
-                foreach (var stream in settings.Streams)
+                foreach (var subscription in settings.Subscriptions)
                 {
-                    var consumer = (IEventConsumer)container.TryResolve(consumers[stream.Value.SubscriptionType]);
-                    await consumer.ConnectToSubscription(stream.Key, stream.Value.SubscriptionGroup);
+                    var consumer = (IEventConsumer) container.TryResolve(consumers[subscription.GetType().Name]);
+                    await consumer.ConnectToSubscription(subscription.StreamId, subscription.SubscriptionGroup);
                 }
             }
             catch (Exception e)

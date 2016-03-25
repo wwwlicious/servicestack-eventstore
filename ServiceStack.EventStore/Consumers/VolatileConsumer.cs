@@ -1,4 +1,6 @@
-﻿namespace ServiceStack.EventStore.Consumers
+﻿using ServiceStack.EventStore.Subscriptions;
+
+namespace ServiceStack.EventStore.Consumers
 {
     using System;
     using System.Threading.Tasks;
@@ -7,7 +9,6 @@
     using Repository;
     using Types;
     using Logging;
-    using Subscription;
 
     public class VolatileConsumer: IEventConsumer
     {

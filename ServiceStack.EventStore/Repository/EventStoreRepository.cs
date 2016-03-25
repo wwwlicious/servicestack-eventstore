@@ -85,7 +85,7 @@
             {
                 try
                 {
-                    using (var transaction = Connection.StartTransactionAsync(streamName, expectedVersion).Result)
+                    using (var transaction = await Connection.StartTransactionAsync(streamName, expectedVersion))
                     {
                         var position = 0;
 
@@ -94,7 +94,7 @@
                             var pageEvents = eventsToSave.Skip(position).Take(WritePageSize);
                             try
                             {
-                                transaction.WriteAsync(pageEvents).Wait();
+                                await transaction.WriteAsync(pageEvents);
                             }
                             catch (Exception e) when (e.Message.Contains("WrongExpectedVersion"))
                             {
@@ -107,7 +107,7 @@
                             }
                             position += WritePageSize;
                         }
-                        transaction.CommitAsync().Wait();
+                        await transaction.CommitAsync();
                     }
                 }
                 catch (Exception e)
@@ -117,9 +117,9 @@
             }
             aggregate.ClearCommittedEvents();
         }
-        public async Task<TAggregate> GetByIdAsync<TAggregate>(Guid id) where TAggregate : Aggregate
+        public Task<TAggregate> GetByIdAsync<TAggregate>(Guid id) where TAggregate : Aggregate
         {
-            return await GetByIdAsync<TAggregate>(id, int.MaxValue);
+            return GetByIdAsync<TAggregate>(id, int.MaxValue);
         }
 
         public async Task<TAggregate> GetByIdAsync<TAggregate>(Guid id, int version) where TAggregate : Aggregate

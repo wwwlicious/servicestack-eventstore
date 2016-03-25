@@ -8,7 +8,7 @@
     using Repository;
     using System.Threading.Tasks;
     using global::EventStore.ClientAPI;
-    using Subscription;
+    using Subscriptions;
 
     public class PersistentConsumer: IEventConsumer
     {

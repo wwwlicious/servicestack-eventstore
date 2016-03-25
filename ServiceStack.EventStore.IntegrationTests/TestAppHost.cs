@@ -2,6 +2,7 @@
 using Funq;
 using ServiceStack.EventStore.ConnectionManagement;
 using ServiceStack.EventStore.IntegrationTests.TestClasses;
+using ServiceStack.EventStore.Subscriptions;
 using ServiceStack.EventStore.Types;
 using ServiceStack.Host;
 using ServiceStack.Logging;
@@ -28,10 +29,11 @@ namespace ServiceStack.EventStore.IntegrationTests
 
         public override void Configure(Container container)
         {
-            var settings = new EventStoreSettings()
+            var settings = new SubscriptionSettings()
+                                .MaxSubscriptionRetries(10)
                                 .SubscribeToStreams(streams =>
                                 {
-                                    streams.Add("alien-landings", new ConsumerStream(SubscriptionType.Volatile, "mygroup"));
+                                    streams.Add(new VolatileSubscription("alien-landings"));
                                 });
 
             var connection = new ConnectionSettings()

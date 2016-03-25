@@ -97,7 +97,7 @@
   <ItemGroup>
     <Compile Include="ConnectionManagement\MonitorSettings.cs" />
     <Compile Include="ConnectionManagement\IMonitorSettings.cs" />
-    <Compile Include="Consumers\SubscriptionPolicy.cs" />
+    <Compile Include="Subscriptions\SubscriptionPolicy.cs" />
     <Compile Include="EventStoreCheck.cs" />
     <Compile Include="EventStoreHealthService.cs" />
     <Compile Include="Exceptions\AggregateDeletedException.cs" />
@@ -115,7 +115,9 @@
     <Compile Include="ConnectionManagement\ConnectionMonitor.cs" />
     <Compile Include="ConnectionManagement\ConnectionSettings.cs" />
     <Compile Include="Consumers\CatchUpConsumer.cs" />
-    <Compile Include="Types\ConsumerStream.cs" />
+    <Compile Include="Subscriptions\CatchUpSubscription.cs" />
+    <Compile Include="Subscriptions\VolatileSubscription.cs" />
+    <Compile Include="Subscriptions\PersistentSubscription.cs" />
     <Compile Include="Types\Event.cs" />
     <Compile Include="Types\IAggregateEvent.cs" />
     <Compile Include="Types\InvalidMessage.cs" />
@@ -127,12 +129,13 @@
     <Compile Include="EventTypes\EventTypes.cs" />
     <Compile Include="Dispatcher\IEventDispatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="EventStoreSettings.cs" />
+    <Compile Include="SubscriptionSettings.cs" />
     <Compile Include="Types\IState.cs" />
     <Compile Include="Types\IStateMutator.cs" />
     <Compile Include="Types\State.cs" />
     <Compile Include="Types\StateMutator.cs" />
-    <Compile Include="Types\SubscriptionType.cs" />
+    <Compile Include="Subscriptions\Subscription.cs" />
+    <Compile Include="Subscriptions\SubscriptionType.cs" />
     <Compile Include="Consumers\VolatileConsumer.cs" />
   </ItemGroup>
   <ItemGroup>

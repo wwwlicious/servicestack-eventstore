@@ -6,8 +6,8 @@
     using Types;
     using Logging;
     using System.Threading.Tasks;
-    using Subscription;
     using global::EventStore.ClientAPI;
+    using Subscriptions;
 
     public class CatchUpConsumer : IEventConsumer
     {
