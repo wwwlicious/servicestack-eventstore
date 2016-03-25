@@ -2,7 +2,6 @@
 {
     public class CatchUpSubscription : Subscription
     {
-        public CatchUpSubscription(string streamId, string subscriptionGroup = default(string),int maxNoOfRetries = 5) 
-                : base(streamId, subscriptionGroup, maxNoOfRetries) {}
+        public CatchUpSubscription(string streamId) : base(streamId, default(string)) {}
     }
 }

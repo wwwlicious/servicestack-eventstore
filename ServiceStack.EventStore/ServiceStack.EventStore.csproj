@@ -97,6 +97,10 @@
   <ItemGroup>
     <Compile Include="ConnectionManagement\MonitorSettings.cs" />
     <Compile Include="ConnectionManagement\IMonitorSettings.cs" />
+    <Compile Include="Resilience\RetryExtensions.cs" />
+    <Compile Include="Resilience\RetryType.cs" />
+    <Compile Include="Resilience\Retries.cs" />
+    <Compile Include="Resilience\RetryPolicy.cs" />
     <Compile Include="Subscriptions\SubscriptionPolicy.cs" />
     <Compile Include="EventStoreCheck.cs" />
     <Compile Include="EventStoreHealthService.cs" />
@@ -135,8 +139,8 @@
     <Compile Include="Types\State.cs" />
     <Compile Include="Types\StateMutator.cs" />
     <Compile Include="Subscriptions\Subscription.cs" />
-    <Compile Include="Subscriptions\SubscriptionType.cs" />
     <Compile Include="Consumers\VolatileConsumer.cs" />
+    <Compile Include="Types\StreamSubscriptionDropped.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

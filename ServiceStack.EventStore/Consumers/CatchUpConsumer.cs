@@ -8,6 +8,7 @@
     using System.Threading.Tasks;
     using global::EventStore.ClientAPI;
     using Subscriptions;
+    using Resilience;
 
     public class CatchUpConsumer : IEventConsumer
     {
@@ -15,6 +16,7 @@
         private readonly IEventStoreConnection connection;
         private readonly IEventStoreRepository eventStoreRepository;
         private readonly ILog log;
+        private RetryPolicy retryPolicy;
 
         public CatchUpConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStoreRepository eventStoreRepository)
         {
@@ -40,11 +42,16 @@
             }
         }
 
+        public void SetRetryPolicy(RetryPolicy policy)
+        {
+            retryPolicy = policy;
+        }
+
         private async Task SubscriptionDropped(EventStoreCatchUpSubscription subscription, SubscriptionDropReason dropReason, Exception exception)
         {
-            var streamId = subscription.StreamId;
+            var subscriptionDropped = new StreamSubscriptionDropped(subscription.StreamId, exception.Message, dropReason, retryPolicy);    
 
-            await SubscriptionPolicy.Handle(streamId, dropReason, exception, async () => await ConnectToSubscription(streamId, string.Empty));
+            await SubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscription(subscription.StreamId, string.Empty));
         }
 
         private async Task LiveProcessingStarted(EventStoreCatchUpSubscription @event)

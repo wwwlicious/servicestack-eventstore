@@ -1,7 +1,10 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
+using FluentAssertions;
 using Funq;
 using ServiceStack.EventStore.ConnectionManagement;
 using ServiceStack.EventStore.IntegrationTests.TestClasses;
+using ServiceStack.EventStore.Resilience;
 using ServiceStack.EventStore.Subscriptions;
 using ServiceStack.EventStore.Types;
 using ServiceStack.Host;
@@ -20,12 +23,6 @@ namespace ServiceStack.EventStore.IntegrationTests
         {
 
         }
-
-        //public override IServiceRunner<TRequest> CreateServiceRunner<TRequest>(ActionContext actionContext)
-        //{
-        //    //Cached per Service Action
-        //    return new EventStoreServiceRunner<TRequest>(this, actionContext);
-        //}
 
         public override void Configure(Container container)
         {

@@ -1,7 +1,6 @@
 ﻿namespace ServiceStack.EventStore.Consumers
 {
     using System;
-    using Polly;
     using Logging;
     using Dispatcher;
     using Types;
@@ -9,16 +8,17 @@
     using System.Threading.Tasks;
     using global::EventStore.ClientAPI;
     using Subscriptions;
+    using Resilience;
 
     public class PersistentConsumer: IEventConsumer
     {
         private readonly IEventDispatcher dispatcher;
         private readonly IEventStoreConnection connection;
         private readonly IEventStoreRepository eventStoreRepository;
-        private Policy policy;
         private readonly ILog log;
         private string streamId;
         private string subscriptionGroup;
+        private RetryPolicy retryPolicy;
 
         public PersistentConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStoreRepository eventStoreRepository)
         {
@@ -45,9 +45,16 @@
             }
         }
 
+        public void SetRetryPolicy(RetryPolicy policy)
+        {
+            retryPolicy = policy;
+        }
+
         private async Task SubscriptionDropped(EventStorePersistentSubscriptionBase subscriptionBase, SubscriptionDropReason dropReason, Exception exception)
         {
-            await SubscriptionPolicy.Handle(streamId, dropReason, exception, async () => await ConnectToSubscription(streamId, subscriptionGroup));
+            var subscriptionDropped = new StreamSubscriptionDropped(streamId, exception.Message, dropReason, retryPolicy);
+
+            await SubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscription(streamId, subscriptionGroup));
         }
 
         private async Task EventAppeared(EventStorePersistentSubscriptionBase @base, ResolvedEvent resolvedEvent)

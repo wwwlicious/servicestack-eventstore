@@ -1,6 +1,4 @@
-﻿using ServiceStack.EventStore.Subscriptions;
-
-namespace ServiceStack.EventStore.Consumers
+﻿namespace ServiceStack.EventStore.Consumers
 {
     using System;
     using System.Threading.Tasks;
@@ -9,6 +7,8 @@ namespace ServiceStack.EventStore.Consumers
     using Repository;
     using Types;
     using Logging;
+    using Subscriptions;
+    using Resilience;
 
     public class VolatileConsumer: IEventConsumer
     {
@@ -17,6 +17,7 @@ namespace ServiceStack.EventStore.Consumers
         private readonly IEventStoreConnection connection;
         private readonly IEventStoreRepository eventStoreRepository;
         private readonly ILog log;
+        private RetryPolicy retryPolicy;
 
         public VolatileConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStoreRepository eventStoreRepository)
         {
@@ -40,11 +41,16 @@ namespace ServiceStack.EventStore.Consumers
             }
         }
 
-        private async Task SubscriptionDropped(EventStoreSubscription subscription, SubscriptionDropReason subscriptionDropReason, Exception exception)
+        public void SetRetryPolicy(RetryPolicy policy)
         {
-            var streamId = subscription.StreamId;
+            retryPolicy = policy;
+        }
 
-            await SubscriptionPolicy.Handle(streamId, subscriptionDropReason, exception, async () => await ConnectToSubscription(streamId, string.Empty));
+        private async Task SubscriptionDropped(EventStoreSubscription subscription, SubscriptionDropReason dropReason, Exception exception)
+        {
+            var subscriptionDropped = new StreamSubscriptionDropped(subscription.StreamId, exception.Message, dropReason, retryPolicy);
+
+            await SubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscription(subscription.StreamId, string.Empty));
         }
 
         private async Task EventAppeared(EventStoreSubscription subscription, ResolvedEvent resolvedEvent)

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using ServiceStack.EventStore.Subscriptions;
-
-namespace ServiceStack.EventStore
+﻿namespace ServiceStack.EventStore
 {
     using ServiceStack;
     using System;
@@ -13,6 +10,7 @@ namespace ServiceStack.EventStore
     using Resilience;
     using Repository;
     using global::EventStore.ClientAPI;
+    using System.Collections.Generic;
 
     public class EventStoreFeature: IPlugin
     {
@@ -60,6 +58,7 @@ namespace ServiceStack.EventStore
                 foreach (var subscription in settings.Subscriptions)
                 {
                     var consumer = (IEventConsumer) container.TryResolve(consumers[subscription.GetType().Name]);
+                    consumer.SetRetryPolicy(subscription.RetryPolicy);
                     await consumer.ConnectToSubscription(subscription.StreamId, subscription.SubscriptionGroup);
                 }
             }

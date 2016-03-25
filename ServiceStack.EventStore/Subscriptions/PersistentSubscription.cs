@@ -3,7 +3,7 @@
     public class PersistentSubscription : Subscription
     {
 
-        public PersistentSubscription(string streamId, string subscriptionGroup, int maxNoOfRetries = 5) 
-            : base(streamId, subscriptionGroup, maxNoOfRetries) { }
+        public PersistentSubscription(string streamId, string subscriptionGroup) 
+            : base(streamId, subscriptionGroup) { }
     }
 }
