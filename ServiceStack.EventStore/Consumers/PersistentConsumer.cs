@@ -8,6 +8,7 @@
     using Repository;
     using System.Threading.Tasks;
     using global::EventStore.ClientAPI;
+    using Subscription;
 
     public class PersistentConsumer: IEventConsumer
     {
@@ -16,7 +17,7 @@
         private readonly IEventStoreRepository eventStoreRepository;
         private Policy policy;
         private readonly ILog log;
-        private string streamName;
+        private string streamId;
         private string subscriptionGroup;
 
         public PersistentConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStoreRepository eventStoreRepository)
@@ -27,14 +28,14 @@
             log = LogManager.GetLogger(GetType());
         }
 
-        public async Task ConnectToSubscription(string streamName, string subscriptionGroup)
+        public async Task ConnectToSubscription(string streamId, string subscriptionGroup)
         {
-            this.streamName = streamName;
+            this.streamId = streamId;
             this.subscriptionGroup = subscriptionGroup;
 
             try
             {
-                await Task.Run(() => connection.ConnectToPersistentSubscription(streamName, subscriptionGroup,
+                await Task.Run(() => connection.ConnectToPersistentSubscription(streamId, subscriptionGroup,
                      async (@base, @event) => await EventAppeared(@base, @event), 
                      async (@base, reason, exception) => await SubscriptionDropped(@base, reason, exception)));
             }
@@ -44,17 +45,19 @@
             }
         }
 
-        private async Task SubscriptionDropped(EventStorePersistentSubscriptionBase subscriptionBase, SubscriptionDropReason dropReason, Exception e)
+        private async Task SubscriptionDropped(EventStorePersistentSubscriptionBase subscriptionBase, SubscriptionDropReason dropReason, Exception exception)
         {
-            await ConnectToSubscription(streamName, subscriptionGroup);
+            await SubscriptionPolicy.Handle(streamId, dropReason, exception, async () => await ConnectToSubscription(streamId, subscriptionGroup));
         }
 
         private async Task EventAppeared(EventStorePersistentSubscriptionBase @base, ResolvedEvent resolvedEvent)
         {
-            if (!dispatcher.Dispatch(resolvedEvent))
-                {
-                 await eventStoreRepository.PublishAsync(new InvalidMessage(resolvedEvent.OriginalEvent));
-                }
+            var dispatched = await dispatcher.Dispatch(resolvedEvent);
+
+            if (!dispatched)
+            {
+                await eventStoreRepository.PublishAsync(new InvalidMessage(resolvedEvent.OriginalEvent));
             }
         }
     }
+}

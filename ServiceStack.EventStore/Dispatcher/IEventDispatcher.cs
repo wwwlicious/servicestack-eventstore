@@ -1,9 +1,10 @@
 ﻿namespace ServiceStack.EventStore.Dispatcher
 {
+    using System.Threading.Tasks;
     using global::EventStore.ClientAPI;
 
     public interface IEventDispatcher
     {
-        bool Dispatch(ResolvedEvent @event);
+        Task<bool> Dispatch(ResolvedEvent @event);
     }
 }

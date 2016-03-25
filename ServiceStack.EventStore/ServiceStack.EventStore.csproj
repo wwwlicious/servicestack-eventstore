@@ -97,6 +97,7 @@
   <ItemGroup>
     <Compile Include="ConnectionManagement\MonitorSettings.cs" />
     <Compile Include="ConnectionManagement\IMonitorSettings.cs" />
+    <Compile Include="Consumers\SubscriptionPolicy.cs" />
     <Compile Include="EventStoreCheck.cs" />
     <Compile Include="EventStoreHealthService.cs" />
     <Compile Include="Exceptions\AggregateDeletedException.cs" />
@@ -116,7 +117,7 @@
     <Compile Include="Consumers\CatchUpConsumer.cs" />
     <Compile Include="Types\ConsumerStream.cs" />
     <Compile Include="Types\Event.cs" />
-    <Compile Include="Types\IDomainEvent.cs" />
+    <Compile Include="Types\IAggregateEvent.cs" />
     <Compile Include="Types\InvalidMessage.cs" />
     <Compile Include="Idempotency\GuidUtility.cs" />
     <Compile Include="Consumers\IEventConsumer.cs" />

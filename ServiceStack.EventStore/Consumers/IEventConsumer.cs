@@ -4,6 +4,6 @@
 
     public interface IEventConsumer
     {
-        Task ConnectToSubscription(string streamName, string subscriptionGroup);
+        Task ConnectToSubscription(string streamId, string subscriptionGroup);
     }
 }
