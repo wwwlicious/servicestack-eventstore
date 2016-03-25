@@ -48,12 +48,9 @@
             {
                 await Connection.AppendToStreamAsync(streamName, ExpectedVersion.Any, ToEventData(@event, headers));
             }
-            catch (AggregateException aggregate)
+            catch (Exception exception)
             {
-                foreach (var exception in aggregate.Flatten().InnerExceptions)
-                {
-                    log.Error(exception);
-                }
+                log.Error(exception);
             }
         }
 
@@ -79,16 +76,9 @@
                 {
                     await Connection.AppendToStreamAsync(streamName, expectedVersion, eventsToSave);
                 }
-                catch (AggregateException aggregateException)
-                {
-                    foreach (var exception in aggregateException.Flatten().InnerExceptions)
-                    {
-                        log.Error(exception);
-                    }
-                }
-                catch (Exception e)
+                catch (Exception exception)
                 { 
-                    log.Error(e);
+                    log.Error(exception);
                 }
             }
             else

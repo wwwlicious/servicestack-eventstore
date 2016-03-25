@@ -39,12 +39,9 @@
                     async (subscription, @event) => await EventAppeared(subscription, @event),
                     async (subscription, reason, exception) => await SubscriptionDropped(subscription, reason, exception));
             }
-            catch (AggregateException aggregate)
+            catch (Exception exception)
             {
-                foreach (var exception in aggregate.Flatten().InnerExceptions)
-                {
-                    log.Error(exception);
-                }
+                log.Error(exception);
             }
         }
 
