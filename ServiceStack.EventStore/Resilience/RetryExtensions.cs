@@ -2,7 +2,7 @@
 {
     public static class RetryExtensions
     {
-        public static Retries Retries(this int input)
+        public static Retries  Retries  (this int input)
         {
             return (Retries) input;
         }

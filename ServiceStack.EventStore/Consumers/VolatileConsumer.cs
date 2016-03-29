@@ -40,11 +40,6 @@
             }
         }
 
-        public void SetRetryPolicy(RetryPolicy policy)
-        {
-            retryPolicy = policy;
-        }
-
         private async Task SubscriptionDropped(EventStoreSubscription subscription, SubscriptionDropReason dropReason, Exception exception)
         {
             var subscriptionDropped = new DroppedSubscription(subscription.StreamId, exception.Message, dropReason, retryPolicy);

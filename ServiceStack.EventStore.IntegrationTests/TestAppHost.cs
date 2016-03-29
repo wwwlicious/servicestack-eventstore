@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Net;
 using FluentAssertions;
-using Funq;
-using ServiceStack.EventStore.ConnectionManagement;
-using ServiceStack.EventStore.IntegrationTests.TestClasses;
-using ServiceStack.EventStore.Resilience;
-using ServiceStack.EventStore.Subscriptions;
-using ServiceStack.EventStore.Types;
-using ServiceStack.Host;
-using ServiceStack.Logging;
-using ServiceStack.Web;
 
 namespace ServiceStack.EventStore.IntegrationTests
 {
+    using Funq;
+    using ConnectionManagement;
+    using HelperClasses;
+    using Resilience;
+    using Subscriptions;
+    using Logging;
+
     public class TestAppHost : AppHostHttpListenerBase
     {
         /// <summary>
@@ -27,10 +24,12 @@ namespace ServiceStack.EventStore.IntegrationTests
         public override void Configure(Container container)
         {
             var settings = new SubscriptionSettings()
-                                .MaxSubscriptionRetries(10)
                                 .SubscribeToStreams(streams =>
                                 {
-                                    streams.Add(new VolatileSubscription("alien-landings"));
+                                    streams.Add(new VolatileSubscription("alien-landings")
+                                            .SetRetryPolicy(5.Retries(), e => TimeSpan.FromSeconds(Math.Pow(2, e))));
+                                    streams.Add(new PersistentSubscription("", "")
+                                            .SetRetryPolicy(new [] {1.Seconds(), 3.Seconds()}));
                                 });
 
             var connection = new ConnectionSettings()

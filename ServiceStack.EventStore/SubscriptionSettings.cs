@@ -12,7 +12,6 @@
         private string deadLetterChannel = "deadletters";
         private string subscriptionGroup = "consumer-group";
         private string invalidMessageChannel = "invalidmessages";
-        private int noOfSubscriptionRetries = 5;
 
         private IList<Subscription> subscriptions { get; } = new List<Subscription>();
 
@@ -32,26 +31,6 @@
         public SubscriptionSettings SubscriptionGroup(string @group)
         {
             subscriptionGroup = @group;
-            return this;
-        }
-
-        /// <summary>
-        /// Gets the maximum number of specified retries for a subscription that has dropped.
-        /// </summary>
-        /// <returns>The maximum number of times to retry a subscription.</returns>
-        public int MaxSubscriptionRetries()
-        {
-            return noOfSubscriptionRetries;
-        }
-
-        /// <summary>
-        /// Builder method to specify the maximum number of times to retry a subscription that has dropped.
-        /// </summary>
-        /// <param name="retries"></param>
-        /// <returns>An instance of SubscriptionSettings</returns>
-        public SubscriptionSettings MaxSubscriptionRetries(int retries)
-        {
-            noOfSubscriptionRetries = retries;
             return this;
         }
 

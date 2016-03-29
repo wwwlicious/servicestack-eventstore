@@ -48,9 +48,9 @@
             await DroppedSubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscription(subscription.StreamId, string.Empty));
         }
 
-        private async Task LiveProcessingStarted(EventStoreCatchUpSubscription @event)
+        private Task LiveProcessingStarted(EventStoreCatchUpSubscription @event)
         {
-            await Task.Run(() => log.Info($"Caught up on {@event.StreamId} at {DateTime.UtcNow}"));
+            return Task.Run(() => log.Info($"Caught up on {@event.StreamId} at {DateTime.UtcNow}"));
         }
 
         private async Task EventAppeared(EventStoreCatchUpSubscription subscription, ResolvedEvent resolvedEvent)

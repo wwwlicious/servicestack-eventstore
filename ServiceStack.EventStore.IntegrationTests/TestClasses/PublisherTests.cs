@@ -21,20 +21,20 @@
         }
 
         [Fact]
-        public async Task CanPublishEvent()
+        public Task CanPublishEvent()
         {
-            await eventStore.PublishAsync(new ServiceHasReachedWarningState(DateTime.UtcNow));
+            return eventStore.PublishAsync(new ServiceHasReachedWarningState(DateTime.UtcNow));
         }
 
         [Fact]
-        public async Task CanPublishEventWithHeaders()
+        public Task CanPublishEventWithHeaders()
         {
-            await eventStore.PublishAsync(new ServiceHasReachedWarningState(DateTime.UtcNow), headers =>
-            {
-                headers.Add("User", "Fortescue Bryantworth (the Second)");    
-                headers.Add("Titbit", "In truth, the World reposes on the back of a somewhat indignant turtle.");
-                headers.Add("CorrelationId", Guid.NewGuid());
-            });
+            return eventStore.PublishAsync(new ServiceHasReachedWarningState(DateTime.UtcNow), headers =>
+             {
+                 headers.Add("User", "Fortescue Bryantworth (the Second)");
+                 headers.Add("Titbit", "In truth, the World reposes on the back of a somewhat indignant turtle.");
+                 headers.Add("CorrelationId", Guid.NewGuid());
+             });
         }
     }
 }

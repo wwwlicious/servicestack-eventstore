@@ -36,7 +36,7 @@
             flightToBePersisted.UpdateFlightNumber("CQH8821");
             flightToBePersisted.SetEstimatedDepartureTime(DateTime.UtcNow.AddHours(1));
 
-            eventStore.SaveAsync(flightToBePersisted).Wait();
+            await eventStore.SaveAsync(flightToBePersisted);
 
             var flightToBeRehydrated = await eventStore.GetByIdAsync<Flight>(flightToBePersisted.Id);
 
@@ -210,9 +210,9 @@
         }
 
         [Fact]
-        public async Task ThrowsCorrectExceptionWhenLoadingNonPersistedAggregate()
+        public Task ThrowsCorrectExceptionWhenLoadingNonPersistedAggregate()
         {
-            await Assert.ThrowsAsync<AggregateNotFoundException>(() => eventStore.GetByIdAsync<Flight>(Guid.NewGuid()));
+            return Assert.ThrowsAsync<AggregateNotFoundException>(() => eventStore.GetByIdAsync<Flight>(Guid.NewGuid()));
         }
 
         [Fact]
@@ -223,7 +223,7 @@
 
             //Act
             flight.SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(23));
-            eventStore.SaveAsync(flight).Wait();
+            await eventStore.SaveAsync(flight);
 
             //use the eventstore connection directly
             await eventStore.Connection.DeleteStreamAsync(streamName, ExpectedVersion.Any);
@@ -240,7 +240,7 @@
 
             //Act
             flight.SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(23));
-            eventStore.SaveAsync(flight).Wait();
+            await eventStore.SaveAsync(flight);
             await eventStore.Connection.DeleteStreamAsync(streamName, ExpectedVersion.Any, hardDelete);
 
             await Assert.ThrowsAsync<AggregateDeletedException>(() => eventStore.GetByIdAsync<Flight>(flight.Id));

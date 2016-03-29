@@ -18,7 +18,6 @@
         private readonly ILog log;
         private string streamId;
         private string subscriptionGroup;
-        private RetryPolicy retryPolicy;
 
         public PersistentConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStoreRepository eventStoreRepository)
         {

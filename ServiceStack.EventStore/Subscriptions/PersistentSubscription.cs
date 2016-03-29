@@ -3,7 +3,8 @@
     public class PersistentSubscription : Subscription
     {
 
-        public PersistentSubscription(string streamId, string subscriptionGroup) 
+        public PersistentSubscription(string streamId, string subscriptionGroup)
             : base(streamId, subscriptionGroup) { }
+
     }
 }

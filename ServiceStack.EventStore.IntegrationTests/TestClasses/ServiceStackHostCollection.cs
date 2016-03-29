@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
-
-namespace ServiceStack.EventStore.IntegrationTests.TestClasses
+﻿namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 {
+    using Xunit;
+
     [CollectionDefinition("ServiceStackHostCollection")]
     public class ServiceStackHostCollection : ICollectionFixture<ServiceStackHostFixture>
     {
