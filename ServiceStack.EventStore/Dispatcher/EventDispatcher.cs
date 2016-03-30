@@ -1,26 +1,28 @@
-﻿namespace ServiceStack.EventStore.Dispatcher
+﻿using ServiceStack.EventStore.EventTypeManagement;
+
+namespace ServiceStack.EventStore.Dispatcher
 {
     using System;
     using Funq;
     using Text;
     using Logging;
-    using EventTypes;
     using global::EventStore.ClientAPI;
     using System.Threading.Tasks;
     using Host;
 
-    public class EventDispatcher : IEventDispatcher
+    /// <summary>
+    /// Mediator class that transforms a ResolvedEvent from EventStore into a CLR type
+    /// </summary>
+    internal class EventDispatcher : IEventDispatcher
     {
         // ReSharper disable once InconsistentNaming
         public Container container = ServiceStackHost.Instance.Container;
-        private readonly EventTypes eventTypes;
         private const string EventClrTypeHeader = "EventClrTypeName";
 
         private ILog log;
 
-        public EventDispatcher(EventTypes eventTypes)
+        public EventDispatcher()
         {
-            this.eventTypes = eventTypes;
             log = LogManager.GetLogger(GetType());
         }
 
@@ -31,7 +33,7 @@
 
             Type type;
 
-            if (eventTypes.TryResolveMapping(clrEventType, out type))
+            if (EventTypes.TryResolveMapping(clrEventType, out type))
             {
                 var typedEvent = JsonSerializer.DeserializeFromString(@event.Event.Data.FromAsciiBytes(), type);
 

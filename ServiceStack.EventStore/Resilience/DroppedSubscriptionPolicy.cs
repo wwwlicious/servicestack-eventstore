@@ -10,7 +10,7 @@
     /// <summary>
     /// Defines the policy for dealing with dropped subscriptions
     /// </summary>
-    public static class DroppedSubscriptionPolicy
+    internal static class DroppedSubscriptionPolicy
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(DroppedSubscriptionPolicy));
 

@@ -2,6 +2,9 @@ namespace ServiceStack.EventStore.Exceptions
 {
     using System;
 
+    /// <summary>
+    /// An exception thrown when trying persist new events to an (aggregate) stream but there have been other changes in the meant6ime.
+    /// </summary>
     public class AggregateVersionException : Exception
     {
         public readonly Guid Id;
@@ -10,7 +13,7 @@ namespace ServiceStack.EventStore.Exceptions
         public readonly int RequestedVersion;
         
         public AggregateVersionException(Guid id, Type type, int aggregateVersion, int requestedVersion)
-            : base(string.Format("Requested version {2} of aggregate '{0}' (type {1}) - aggregate version is {3}", id, type.Name, requestedVersion, aggregateVersion))
+            : base(string.Format($"Requested version {requestedVersion} of aggregate '{id}' (type {type.Name}) - aggregate version is {aggregateVersion}"))
         {
             Id = id;
             Type = type;

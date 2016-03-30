@@ -4,36 +4,27 @@
     using Dispatcher;
     using Repository;
     using Types;
-    using Logging;
     using System.Threading.Tasks;
     using global::EventStore.ClientAPI;
     using Subscriptions;
-    using Resilience;
 
-    public class CatchUpConsumer : StreamConsumer
+    /// <summary>
+    /// Represents the consumer of a catch-up subscription to EventStore: http://docs.geteventstore.com/introduction/subscriptions/
+    /// </summary>
+    internal class CatchUpConsumer : StreamConsumer
     {
-        private readonly IEventDispatcher dispatcher;
-        private readonly IEventStoreConnection connection;
-        private readonly IEventStoreRepository eventStoreRepository;
-        private readonly ILog log;
+        public CatchUpConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStoreRepository eventStoreRepository) 
+            : base(connection, dispatcher, eventStoreRepository) { }
 
-        public CatchUpConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStoreRepository eventStoreRepository)
+        public override async Task ConnectToSubscription(Subscription subscription)
         {
-            this.dispatcher = dispatcher;
-            this.connection = connection;
-            this.eventStoreRepository = eventStoreRepository;
-            log = LogManager.GetLogger(GetType());
-        }
-
-
-        public override async Task ConnectToSubscription(string streamId, string subscriptionGroup)
-        {
+            this.subscription = subscription;
             try
             {
-                await Task.Run(() => connection.SubscribeToStreamFrom(streamId, StreamPosition.Start, true,
-                             async (subscription, @event) => await EventAppeared(subscription, @event),
-                             async (subscription) => await LiveProcessingStarted(subscription),
-                             async (subscription, reason, exception) => await SubscriptionDropped(subscription, reason, exception)));
+                await Task.Run(() => connection.SubscribeToStreamFrom(subscription.StreamId, StreamPosition.Start, true,
+                             async (sub, @event) => await EventAppeared(sub, @event),
+                             async (sub) => await LiveProcessingStarted(sub),
+                             async (sub, reason, exception) => await SubscriptionDropped(sub, reason, exception)));
             }
             catch (Exception exception)
             {
@@ -43,9 +34,9 @@
 
         private async Task SubscriptionDropped(EventStoreCatchUpSubscription subscription, SubscriptionDropReason dropReason, Exception exception)
         {
-            var subscriptionDropped = new DroppedSubscription(subscription.StreamId, exception.Message, dropReason, retryPolicy);    
+            var subscriptionDropped = new DroppedSubscription(this.subscription, exception.Message, dropReason);
 
-            await DroppedSubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscription(subscription.StreamId, string.Empty));
+            await HandleDroppedSubscription(subscriptionDropped);
         }
 
         private Task LiveProcessingStarted(EventStoreCatchUpSubscription @event)
@@ -55,15 +46,8 @@
 
         private async Task EventAppeared(EventStoreCatchUpSubscription subscription, ResolvedEvent resolvedEvent)
         {
-            if (resolvedEvent.Event != null)
-            {
-                var dispatched = await dispatcher.Dispatch(resolvedEvent);
-
-                if (!dispatched)
-                {
-                    await eventStoreRepository.PublishAsync(new InvalidMessage(resolvedEvent.OriginalEvent));
-                }
-            }
+            await Dispatch(resolvedEvent);
         }
+
     }
 }

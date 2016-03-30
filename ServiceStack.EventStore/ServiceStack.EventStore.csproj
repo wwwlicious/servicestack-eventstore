@@ -12,6 +12,7 @@
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -67,6 +68,10 @@
       <HintPath>..\packages\ServiceStack.OrmLite.4.0.54\lib\net45\ServiceStack.OrmLite.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="ServiceStack.Redis, Version=4.0.54.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\Sandbox\EventStoreListener\packages\ServiceStack.Redis.4.0.54\lib\net40\ServiceStack.Redis.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="ServiceStack.Text, Version=4.0.54.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ServiceStack.Text.4.0.54\lib\net40\ServiceStack.Text.dll</HintPath>
       <Private>True</Private>
@@ -100,13 +105,19 @@
   <ItemGroup>
     <Compile Include="ConnectionManagement\MonitorSettings.cs" />
     <Compile Include="ConnectionManagement\IMonitorSettings.cs" />
+    <Compile Include="Consumers\ReadModelConsumer.cs" />
+    <Compile Include="Extensions\TaskExtensions.cs" />
+    <Compile Include="Factories\ProjectionWriterFactory.cs" />
+    <Compile Include="Projections\IProjectionWriter.cs" />
+    <Compile Include="Projections\RavenProjectionWriter.cs" />
+    <Compile Include="Projections\RedisProjectionWriter.cs" />
     <Compile Include="Resilience\RetryExtensions.cs" />
     <Compile Include="Resilience\RetryType.cs" />
     <Compile Include="Resilience\Retries.cs" />
     <Compile Include="Resilience\RetryPolicy.cs" />
     <Compile Include="Resilience\DroppedSubscriptionPolicy.cs" />
-    <Compile Include="EventStoreCheck.cs" />
-    <Compile Include="EventStoreHealthService.cs" />
+    <Compile Include="Health\EventStoreCheck.cs" />
+    <Compile Include="Health\EventStoreHealthService.cs" />
     <Compile Include="Exceptions\AggregateDeletedException.cs" />
     <Compile Include="Exceptions\AggregateNotFoundException.cs" />
     <Compile Include="Exceptions\AggregateVersionException.cs" />
@@ -116,9 +127,8 @@
     <Compile Include="HelperClasses\ReflectionUtils.cs" />
     <Compile Include="Repository\EventStoreRepository.cs" />
     <Compile Include="Repository\IEventStoreRepository.cs" />
-    <Compile Include="Resilience\CircuitBreaker.cs" />
+    <Compile Include="Subscriptions\ReadModelSubscription.cs" />
     <Compile Include="Types\Aggregate.cs" />
-    <Compile Include="Resilience\ICircuitBreaker.cs" />
     <Compile Include="ConnectionManagement\ConnectionMonitor.cs" />
     <Compile Include="ConnectionManagement\ConnectionSettings.cs" />
     <Compile Include="Consumers\CatchUpConsumer.cs" />
@@ -132,15 +142,15 @@
     <Compile Include="Consumers\StreamConsumer.cs" />
     <Compile Include="Consumers\PersistentConsumer.cs" />
     <Compile Include="Dispatcher\EventDispatcher.cs" />
-    <Compile Include="EventStoreFeature.cs" />
-    <Compile Include="EventTypes\EventTypes.cs" />
+    <Compile Include="Main\EventStoreFeature.cs" />
+    <Compile Include="EventTypeManagement\EventTypes.cs" />
     <Compile Include="Dispatcher\IEventDispatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SubscriptionSettings.cs" />
-    <Compile Include="Types\IState.cs" />
-    <Compile Include="Types\IStateMutator.cs" />
-    <Compile Include="Types\State.cs" />
-    <Compile Include="Types\StateMutator.cs" />
+    <Compile Include="Subscriptions\SubscriptionSettings.cs" />
+    <Compile Include="StateManagement\IState.cs" />
+    <Compile Include="StateManagement\IStateMutator.cs" />
+    <Compile Include="StateManagement\State.cs" />
+    <Compile Include="StateManagement\StateMutator.cs" />
     <Compile Include="Subscriptions\Subscription.cs" />
     <Compile Include="Consumers\VolatileConsumer.cs" />
     <Compile Include="Types\DroppedSubscription.cs" />

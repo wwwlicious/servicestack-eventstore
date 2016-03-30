@@ -1,5 +1,8 @@
 ﻿namespace ServiceStack.EventStore.Extensions
 {
+    /// <summary>
+    /// Handy helpers to make simple mathematical operations read more like prose.
+    /// </summary>
     public static class NumericExtensions
     {
         public static int Add(this int firstAddend, int secondAddend)

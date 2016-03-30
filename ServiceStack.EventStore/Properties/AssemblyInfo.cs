@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ServiceStack.EventStore")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A ServiceStack Plugin for EventStore.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("MacLean Electrical Ltd")]
 [assembly: AssemblyProduct("ServiceStack.EventStore")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyCopyright("Copyright ©2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

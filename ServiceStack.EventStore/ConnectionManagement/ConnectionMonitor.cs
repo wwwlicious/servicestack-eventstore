@@ -11,7 +11,11 @@
     public delegate void OnReconnectingDelegate(object sender, ClientReconnectingEventArgs args);
     public delegate void OnClosedDelegate(object sender, ClientClosedEventArgs args);
 
-    public class ConnectionMonitor
+    /// <summary>
+    /// Monitors the connection to EventStore and exposes a number of delegates that the developer can override 
+    /// to specify the behaviour of the system in response to an authentication failure etc.
+    /// </summary>
+    internal class ConnectionMonitor
     {
         private readonly ILog log;
         private readonly IEventStoreConnection connection;

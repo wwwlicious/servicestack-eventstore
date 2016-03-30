@@ -10,7 +10,6 @@
     [Trait("Category", "Integration")]
     public class PublisherTests
     {
-
         private readonly IEventStoreRepository eventStore;
         private readonly ITestOutputHelper testOutput;
 

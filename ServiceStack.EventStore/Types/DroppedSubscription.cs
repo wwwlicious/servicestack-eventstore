@@ -2,16 +2,19 @@
 {
     using global::EventStore.ClientAPI;
     using Resilience;
+    using Subscriptions;
 
-    public class DroppedSubscription
+    /// <summary>
+    /// Represents a subscription to EventStore that has been dropped that is used by the DroppedSubscriptionPolicy to handle it.
+    /// </summary>
+    internal class DroppedSubscription
     {
-        public DroppedSubscription(string streamId, string exceptionMessage, 
-                                   SubscriptionDropReason dropReason, RetryPolicy retryPolicy)
+        public DroppedSubscription(Subscription subscription, string exceptionMessage, SubscriptionDropReason dropReason)
         {
-            StreamId = streamId;
+            StreamId = subscription.StreamId;
             ExceptionMessage = exceptionMessage;
             DropReason = dropReason;
-            RetryPolicy = retryPolicy;
+            RetryPolicy = subscription.RetryPolicy;
         }
 
         public string StreamId { get; }

@@ -1,11 +1,15 @@
-﻿namespace ServiceStack.EventStore.Types
+﻿using ServiceStack.EventStore.StateManagement;
+
+namespace ServiceStack.EventStore.Types
 {
     using System;
     using System.Collections.Generic;
     using HelperClasses;
+    using State = StateManagement.State;
 
     /// <summary>
     /// Represents an event-sourced aggregate
+    /// Original source: https://github.com/mfelicio/NDomain/blob/d30322bc64105ad2e4c961600ae24831f675b0e9/source/NDomain/Aggregate.cs
     /// </summary>
     public abstract class Aggregate
     {
@@ -44,7 +48,7 @@
         public abstract void ApplyEvent(IAggregateEvent @event);
     }
 
-    public class Aggregate<TState> : Aggregate where TState : State, new()
+    public abstract class Aggregate<TState> : Aggregate where TState : State, new()
     {
         protected Aggregate(Guid id): base(id, New<TState>.Instance())
         {

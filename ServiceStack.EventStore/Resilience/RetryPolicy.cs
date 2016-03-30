@@ -3,6 +3,9 @@
     using System.Collections.Generic;
     using System;
 
+    /// <summary>
+    /// Class that represents the retry policy for dealing with a dropped subscription.
+    /// </summary>
     public class RetryPolicy
     {
         public RetryPolicy(IEnumerable<TimeSpan> sleepDurations)

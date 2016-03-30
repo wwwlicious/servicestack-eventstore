@@ -1,4 +1,5 @@
-﻿namespace ServiceStack.EventStore
+﻿
+namespace ServiceStack.EventStore.Health
 {
     using System;
 

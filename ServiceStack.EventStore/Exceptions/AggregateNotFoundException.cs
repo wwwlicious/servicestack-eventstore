@@ -2,6 +2,9 @@ namespace ServiceStack.EventStore.Exceptions
 {
     using System;
 
+    /// <summary>
+    /// An exception thrown when a requested (aggregate) stream can't be found.
+    /// </summary>
     public class AggregateNotFoundException : Exception
     {
         public readonly Guid Id;

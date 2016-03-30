@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentAssertions;
+using ServiceStack.EventStore.Main;
 
 namespace ServiceStack.EventStore.IntegrationTests
 {
@@ -35,7 +36,7 @@ namespace ServiceStack.EventStore.IntegrationTests
             var connection = new ConnectionSettings()
                                 .UserName("admin")
                                 .Password("changeit")
-                                .HttpAddress("localhost:1113");
+                                .TCPEndpoint("localhost:1113").HttpAddress("localhost:2113");
 
             LogManager.LogFactory = new ConsoleLogFactory();
 

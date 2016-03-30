@@ -1,12 +1,14 @@
-﻿namespace ServiceStack.EventStore.Types
+﻿namespace ServiceStack.EventStore.StateManagement
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using HelperClasses;
+    using Types;
 
     /// <summary>
     /// Factory for StateMutator objects
+    /// Original Source: https://github.com/mfelicio/NDomain/blob/d30322bc64105ad2e4c961600ae24831f675b0e9/source/NDomain/StateMutator.cs
     /// </summary>
     internal static class StateMutator
     {

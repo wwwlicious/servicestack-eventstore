@@ -1,4 +1,6 @@
-﻿namespace ServiceStack.EventStore.Repository
+﻿using ServiceStack.EventStore.EventTypeManagement;
+
+namespace ServiceStack.EventStore.Repository
 {
     using Types;
     using System;
@@ -13,13 +15,18 @@
     using Extensions;
     using HelperClasses;
     using global::EventStore.ClientAPI;
+    using EventTypes = EventTypes;
 
     public delegate string GetStreamName(Type type, Guid guid);
 
     //todo: add ability to save and load snapshots
+    /// <summary>
+    /// Based on: https://github.com/EventStore/getting-started-with-event-store/blob/master/src/GetEventStoreRepository/GetEventStoreRepository.cs
+    /// </summary>
     public class EventStoreRepository : IEventStoreRepository
     {
         private const string EventClrTypeHeader = "EventClrTypeName";
+        private const string CausedBy = "$causedBy";
         private const int WritePageSize = 500;
         private const int ReadPageSize = 500;
         private const int InitialVersion = 0;
@@ -117,6 +124,7 @@
             }
             aggregate.ClearCommittedEvents();
         }
+
         public Task<TAggregate> GetByIdAsync<TAggregate>(Guid id) where TAggregate : Aggregate
         {
             return GetByIdAsync<TAggregate>(id, int.MaxValue);
@@ -171,8 +179,11 @@
         private static object DeserializeEvent(byte[] metadata, byte[] data)
         {
             var eventClrTypeName = JsonObject.Parse(metadata.FromAsciiBytes()).GetUnescaped(EventClrTypeHeader);
+            Type type;
+            if (!EventTypes.TryResolveMapping(eventClrTypeName, out type))
+                throw new InvalidOperationException($"Could not resolve event type {eventClrTypeName}");
 
-            return JsonSerializer.DeserializeFromString(data.FromAsciiBytes(), Type.GetType(eventClrTypeName));
+            return JsonSerializer.DeserializeFromString(data.FromAsciiBytes(), type);
         }
 
         private static TAggregate ConstructAggregate<TAggregate>(Guid id) where TAggregate : Aggregate
@@ -190,7 +201,7 @@
             var eventHeaders = new Dictionary<string, object>(headers)
             {
                 {
-                    EventClrTypeHeader, @event.GetType().AssemblyQualifiedName
+                    EventClrTypeHeader, @event.GetType().Name
                 }
             };
 

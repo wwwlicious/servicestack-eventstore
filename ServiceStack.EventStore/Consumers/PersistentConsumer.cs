@@ -1,40 +1,29 @@
 ﻿namespace ServiceStack.EventStore.Consumers
 {
     using System;
-    using Logging;
     using Dispatcher;
     using Types;
     using Repository;
     using System.Threading.Tasks;
     using global::EventStore.ClientAPI;
     using Subscriptions;
-    using Resilience;
 
-    public class PersistentConsumer: StreamConsumer
+    /// <summary>
+    /// Represents the consumer of a persistent subscription to EventStore: http://docs.geteventstore.com/introduction/subscriptions/
+    /// This kind of consumer supports the competing consumer messaging pattern: http://www.enterpriseintegrationpatterns.com/patterns/messaging/CompetingConsumers.html
+    /// </summary>
+    internal class PersistentConsumer: StreamConsumer
     {
-        private readonly IEventDispatcher dispatcher;
-        private readonly IEventStoreConnection connection;
-        private readonly IEventStoreRepository eventStoreRepository;
-        private readonly ILog log;
-        private string streamId;
-        private string subscriptionGroup;
+        public PersistentConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStoreRepository eventStoreRepository) 
+            : base(connection, dispatcher, eventStoreRepository) { }
 
-        public PersistentConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStoreRepository eventStoreRepository)
+        public override async Task ConnectToSubscription(Subscription subscription)
         {
-            this.dispatcher = dispatcher;
-            this.connection = connection;
-            this.eventStoreRepository = eventStoreRepository;
-            log = LogManager.GetLogger(GetType());
-        }
-
-        public override async Task ConnectToSubscription(string streamId, string subscriptionGroup)
-        {
-            this.streamId = streamId;
-            this.subscriptionGroup = subscriptionGroup;
+            this.subscription = subscription;
 
             try
             {
-                await Task.Run(() => connection.ConnectToPersistentSubscription(streamId, subscriptionGroup,
+                await Task.Run(() => connection.ConnectToPersistentSubscription(this.subscription.StreamId, this.subscription.SubscriptionGroup,
                      async (@base, @event) => await EventAppeared(@base, @event), 
                      async (@base, reason, exception) => await SubscriptionDropped(@base, reason, exception)));
             }
@@ -46,19 +35,14 @@
 
         private async Task SubscriptionDropped(EventStorePersistentSubscriptionBase subscriptionBase, SubscriptionDropReason dropReason, Exception exception)
         {
-            var subscriptionDropped = new DroppedSubscription(streamId, exception.Message, dropReason, retryPolicy);
+            var subscriptionDropped = new DroppedSubscription(this.subscription, exception.Message, dropReason);
 
-            await DroppedSubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscription(streamId, subscriptionGroup));
+            await HandleDroppedSubscription(subscriptionDropped);
         }
 
         private async Task EventAppeared(EventStorePersistentSubscriptionBase @base, ResolvedEvent resolvedEvent)
         {
-            var dispatched = await dispatcher.Dispatch(resolvedEvent);
-
-            if (!dispatched)
-            {
-                await eventStoreRepository.PublishAsync(new InvalidMessage(resolvedEvent.OriginalEvent));
-            }
+            await Dispatch(resolvedEvent);
         }
     }
 }

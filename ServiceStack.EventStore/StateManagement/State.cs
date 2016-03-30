@@ -1,7 +1,10 @@
-﻿namespace ServiceStack.EventStore.Types
+﻿namespace ServiceStack.EventStore.StateManagement
 {
+    using Types;
+
     /// <summary>
     /// Holds the state of an aggregate in memory and will be used as the snapshot for that aggregate.
+    /// Original source: https://github.com/mfelicio/NDomain/blob/d30322bc64105ad2e4c961600ae24831f675b0e9/source/NDomain/State.cs
     /// </summary>
     public abstract class State : IState
     {

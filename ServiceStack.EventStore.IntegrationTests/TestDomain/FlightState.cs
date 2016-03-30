@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using Types;
 
-    public class FlightState : State
+    public class FlightState : StateManagement.State
     {
         public string FlightNumber { get; private set; }
         public IList<Passenger> Passengers { get; private set; }

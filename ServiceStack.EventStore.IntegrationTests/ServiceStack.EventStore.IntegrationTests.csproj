@@ -86,12 +86,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TestClasses\EventHandlerTests.cs" />
+    <Compile Include="TestClasses\ProjectionTests.cs" />
     <Compile Include="TestClasses\PublisherTests.cs" />
     <Compile Include="TestClasses\ServiceHasReachedWarningState.cs" />
     <Compile Include="TestClasses\ServiceStackHostFixture.cs" />
     <Compile Include="TestClasses\ServiceStackHostCollection.cs" />
-    <Compile Include="TestClasses\WeeGreenManService.cs" />
-    <Compile Include="TestClasses\WeeGreenMenLanded.cs" />
+    <Compile Include="TestDomain\OrderItem.cs" />
+    <Compile Include="TestDomain\OrderLineItemAdded.cs" />
+    <Compile Include="TestDomain\PurchaseOrderCreated.cs" />
+    <Compile Include="TestDomain\WeeGreenManService.cs" />
+    <Compile Include="TestDomain\WeeGreenMenLanded.cs" />
     <Compile Include="TestDomain\BaggageAdded.cs" />
     <Compile Include="TestDomain\DestinationChanged.cs" />
     <Compile Include="TestDomain\EDTUpdated.cs" />

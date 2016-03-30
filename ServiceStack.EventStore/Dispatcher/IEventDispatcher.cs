@@ -3,7 +3,7 @@
     using System.Threading.Tasks;
     using global::EventStore.ClientAPI;
 
-    public interface IEventDispatcher
+    internal interface IEventDispatcher
     {
         Task<bool> Dispatch(ResolvedEvent @event);
     }

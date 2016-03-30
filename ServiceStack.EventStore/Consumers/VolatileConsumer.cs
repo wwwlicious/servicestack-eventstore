@@ -6,33 +6,25 @@
     using Dispatcher;
     using Repository;
     using Types;
-    using Logging;
     using Subscriptions;
-    using Resilience;
 
-    public class VolatileConsumer: StreamConsumer
+    /// <summary>
+    /// Represents a consumer to a volatile subscription: http://docs.geteventstore.com/introduction/subscriptions/
+    /// </summary>
+    internal class VolatileConsumer: StreamConsumer
     {
+        public VolatileConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStoreRepository eventStoreRepository) 
+                : base(connection, dispatcher, eventStoreRepository) { }
 
-        private readonly IEventDispatcher dispatcher;
-        private readonly IEventStoreConnection connection;
-        private readonly IEventStoreRepository eventStoreRepository;
-        private readonly ILog log;
-
-        public VolatileConsumer(IEventStoreConnection connection, IEventDispatcher dispatcher, IEventStoreRepository eventStoreRepository)
+        public override async Task ConnectToSubscription(Subscription subscription)
         {
-            this.dispatcher = dispatcher;
-            this.connection = connection;
-            this.eventStoreRepository = eventStoreRepository;
-            log = LogManager.GetLogger(GetType());
-        }
+            this.subscription = subscription;
 
-        public override async Task ConnectToSubscription(string streamId, string subscriptionGroup)
-        {
             try
             {
-                await connection.SubscribeToStreamAsync(streamId, true,
-                        async (subscription, @event) => await EventAppeared(subscription, @event),
-                        async (subscription, reason, exception) => await SubscriptionDropped(subscription, reason, exception));
+                await connection.SubscribeToStreamAsync(subscription.StreamId, true,
+                        async (sub, @event) => await EventAppeared(sub, @event),
+                        async (sub, reason, exception) => await SubscriptionDropped(sub, reason, exception));
             }
             catch (Exception exception)
             {
@@ -42,19 +34,14 @@
 
         private async Task SubscriptionDropped(EventStoreSubscription subscription, SubscriptionDropReason dropReason, Exception exception)
         {
-            var subscriptionDropped = new DroppedSubscription(subscription.StreamId, exception.Message, dropReason, retryPolicy);
+            var subscriptionDropped = new DroppedSubscription(this.subscription, exception.Message, dropReason);
 
-            await DroppedSubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscription(subscription.StreamId, string.Empty));
+            await HandleDroppedSubscription(subscriptionDropped);
         }
 
         private async Task EventAppeared(EventStoreSubscription subscription, ResolvedEvent resolvedEvent)
         {
-            var dispatched = await dispatcher.Dispatch(resolvedEvent);
-
-            if (!dispatched)
-            {
-                await eventStoreRepository.PublishAsync(new InvalidMessage(resolvedEvent.OriginalEvent));
-            }
+            await Dispatch(resolvedEvent);
         }
     }
 }

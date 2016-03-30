@@ -4,6 +4,9 @@
     using System;
     using System.Collections.Generic;
 
+    /// <summary>
+    /// Represents a subscription to EventStore incl. StreamId, SubscriptionGroup and RetryPolicy
+    /// </summary>
     public abstract class Subscription
     {
 

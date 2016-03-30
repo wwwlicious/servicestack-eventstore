@@ -1,8 +1,7 @@
-﻿namespace ServiceStack.EventStore
+﻿namespace ServiceStack.EventStore.Subscriptions
 {
     using System;
     using System.Collections.Generic;
-    using Subscriptions;
 
     /// <summary>
     /// Settings required to manage subscriptions to EventStore.

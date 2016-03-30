@@ -8,7 +8,7 @@
     /// Instantiates TClass using a compiled lambda expression and caches it. This assumes a parameterless constructor.
     /// </summary>
     /// <typeparam name="TClass">The type of the class to be instantiated.</typeparam>
-    public static class New<TClass> where TClass : class
+    internal static class New<TClass> where TClass : class
     {
         public static readonly Func<TClass> Instance = Expression.Lambda<Func<TClass>>(Expression.New(typeof(TClass))).Compile();
 
@@ -17,7 +17,11 @@
             return Instance;
         }
 
-        public static class WithCtorParam<TParam>
+        /// <summary>
+        /// Allows a class to be instantiated using a parameterised constructor
+        /// </summary>
+        /// <typeparam name="TParam"></typeparam>
+        internal static class WithCtorParam<TParam>
         {
             private static readonly Dictionary<Type, Func<TParam, TClass>> cache = new Dictionary<Type, Func<TParam, TClass>>();
 
@@ -44,7 +48,7 @@
     /// <summary>
     /// Instantiates a class using generic parameters passed in at runtime.
     /// </summary>
-    public static class New
+    internal static class New
     {
         private static readonly Dictionary<Tuple<Type, Type>, Func<object>> cache = new Dictionary<Tuple<Type, Type>, Func<object>>();
 

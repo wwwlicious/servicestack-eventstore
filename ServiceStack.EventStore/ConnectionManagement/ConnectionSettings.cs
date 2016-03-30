@@ -4,6 +4,9 @@
     using System.Text;
     using FluentValidation;
 
+    /// <summary>
+    /// Enables the developer to specify the connection settings to the running EventStore instance.
+    /// </summary>
     public class ConnectionSettings
     {
         public MonitorSettings MonitorSettings { get; set; }
@@ -26,7 +29,7 @@
             {
                 RuleFor(cb => cb.userName).NotEmpty();
                 RuleFor(cb => cb.password).NotEmpty();
-                RuleFor(cb => cb.httpAddress).NotEmpty();
+                RuleFor(cb => cb.tcpAddress).NotEmpty();
             }
         }
 
@@ -35,7 +38,7 @@
             validator.ValidateAndThrow(this);
 
             var connectionString = new StringBuilder();
-            connectionString.Append($"ConnectTo=tcp://{userName}:{password}@{httpAddress}; ");
+            connectionString.Append($"ConnectTo=tcp://{userName}:{password}@{tcpAddress}; ");
             settings.Each(s => connectionString.Append($"{s.Key}={s.Value}; "));
             return connectionString.ToString();
         }
@@ -56,7 +59,7 @@
             return tcpAddress;
         }
 
-        public ConnectionSettings TcpEndpoint(string address)
+        public ConnectionSettings TCPEndpoint(string address)
         {
             tcpAddress = address;
             return this;

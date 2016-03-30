@@ -23,6 +23,7 @@
 
         public AggregateTests(ServiceStackHostFixture fixture, ITestOutputHelper output)
         {
+
             eventStore = fixture.AppHost.Container.Resolve<IEventStoreRepository>();
             testOutput = output;
         }
