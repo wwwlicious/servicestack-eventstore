@@ -120,7 +120,7 @@
             await Assert.ThrowsAsync<AggregateVersionException>(() => eventStore.GetByIdAsync<Flight>(flightToBePersisted.Id, incorrectVersion));
         }
 
-        //todo: currently no way of reading additional headers (other than CLR type) from events
+        // todo: currently no way of reading additional headers (other than CLR type) from events
         [Fact]
         public async Task CanAddHeadersToAggregateEvents()
         {

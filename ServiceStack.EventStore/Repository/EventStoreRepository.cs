@@ -1,6 +1,4 @@
-﻿using ServiceStack.EventStore.EventTypeManagement;
-
-namespace ServiceStack.EventStore.Repository
+﻿namespace ServiceStack.EventStore.Repository
 {
     using Types;
     using System;
@@ -15,11 +13,11 @@ namespace ServiceStack.EventStore.Repository
     using Extensions;
     using HelperClasses;
     using global::EventStore.ClientAPI;
-    using EventTypes = EventTypes;
+    using EventTypes = Events.EventTypes;
 
     public delegate string GetStreamName(Type type, Guid guid);
 
-    //todo: add ability to save and load snapshots
+    // todo: add ability to save and load snapshots
     /// <summary>
     /// Based on: https://github.com/EventStore/getting-started-with-event-store/blob/master/src/GetEventStoreRepository/GetEventStoreRepository.cs
     /// </summary>
@@ -37,7 +35,7 @@ namespace ServiceStack.EventStore.Repository
         public EventStoreRepository(IEventStoreConnection connection)
         {
             Connection = connection;
-            getStreamName = (type, guid) => $"{type.Name}-{guid}"; //todo make this a delegate
+            getStreamName = (type, guid) => $"{type.Name}-{guid}"; // todo make this a delegate
             log = LogManager.GetLogger(GetType());
         }
 
@@ -106,7 +104,7 @@ namespace ServiceStack.EventStore.Repository
                             catch (Exception e) when (e.Message.Contains("WrongExpectedVersion"))
                             {
                                 log.Error(e);
-                                //todo: throw appropriate exception e.g. AggregateVersionException
+                                // todo: throw appropriate exception e.g. AggregateVersionException
                             }
                             catch (Exception e)
                             {
@@ -210,7 +208,7 @@ namespace ServiceStack.EventStore.Repository
             return new EventData(deterministicEventId, typeName, true, data, metadata);
         }
 
-        //todo: this will be changed to stop using the assembly guid
+        // todo: this will be changed to stop using the assembly guid
         private Guid GetExecutingAssemblyGuid()
         {
             var assembly = GetType().Assembly;

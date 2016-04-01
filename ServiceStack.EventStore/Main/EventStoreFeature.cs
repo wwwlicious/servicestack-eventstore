@@ -1,6 +1,4 @@
-﻿using ServiceStack.EventStore.EventTypeManagement;
-
-namespace ServiceStack.EventStore.Main
+﻿namespace ServiceStack.EventStore.Main
 {
     using System;
     using System.Collections.Generic;
@@ -13,20 +11,17 @@ namespace ServiceStack.EventStore.Main
     using Subscriptions;
     using Logging;
     using Redis;
-    using EventTypes = EventTypes;
-
-    using ConnectionSettings = ConnectionManagement.ConnectionSettings;
+    using Events;
+    using Projections;
 
     public class EventStoreFeature: IPlugin
     {
-        private readonly SubscriptionSettings settings;
+        private readonly EventStoreFeatureSettings featureSettings;
         private Container container;
         private readonly ILog log;
-        private readonly ConnectionSettings connectionSettings;
+        private readonly EventStoreConnectionSettings connectionSettings;
 
-        private string redisConnectionString = "127.0.0.1:6379"; //todo read this in
-
-        private readonly Dictionary<string, Type> consumers = new Dictionary<string, Type>()
+        private readonly Dictionary<string, Type> consumers = new Dictionary<string, Type>
         {
             {"PersistentSubscription", typeof(PersistentConsumer)},
             {"CatchUpSubscription", typeof(CatchUpConsumer)},
@@ -34,13 +29,13 @@ namespace ServiceStack.EventStore.Main
             {"ReadModelSubscription", typeof(ReadModelConsumer)}
         };
 
-        public EventStoreFeature(SubscriptionSettings settings, ConnectionSettings connectionSettings)
+        public EventStoreFeature(EventStoreFeatureSettings featureSettings, EventStoreConnectionSettings connectionSettings)
         {
-            this.settings = settings;
-            log = LogManager.GetLogger(GetType());
+            this.featureSettings = featureSettings;
             this.connectionSettings = connectionSettings;
             EventTypes.ScanForAggregateEvents();
             EventTypes.ScanForServiceEvents();
+            log = LogManager.GetLogger(GetType());
         }
 
         public async void Register(IAppHost appHost)
@@ -62,10 +57,10 @@ namespace ServiceStack.EventStore.Main
 
             try
             {
-                foreach (var subscription in settings.Subscriptions)
+                foreach (var subscription in featureSettings.Subscriptions)
                 {
                     var consumer = (StreamConsumer)container.TryResolve(consumers[subscription.GetType().Name]);
-                    await consumer.ConnectToSubscription(subscription);
+                    await consumer.ConnectToSubscription(subscription).ConfigureAwait(false);
                 }
             }
             catch (Exception e)
@@ -82,8 +77,20 @@ namespace ServiceStack.EventStore.Main
             container.RegisterAutoWired<ReadModelConsumer>();
             container.RegisterAutoWiredAs<EventStoreRepository, IEventStoreRepository>();
             container.RegisterAutoWiredAs<EventDispatcher, IEventDispatcher>().ReusedWithin(ReuseScope.Default);
-            container.Register<IRedisClientsManager>(c => new RedisManagerPool(redisConnectionString));
             container.Register(c => connection).ReusedWithin(ReuseScope.Container);
+
+            RegisterStorageTypes();
+        }
+
+        private void RegisterStorageTypes()
+        {
+            var readModelDelegates = new Dictionary<StorageType, Action<string>>
+            {
+                {StorageType.Redis, (cs) => container.Register<IRedisClientsManager>(c => new RedisManagerPool(cs))}
+            };
+
+            var readModel = featureSettings.ReadModel();
+            readModelDelegates[readModel.StorageType]?.Invoke(readModel.ConnectionString);
         }
     }
 }

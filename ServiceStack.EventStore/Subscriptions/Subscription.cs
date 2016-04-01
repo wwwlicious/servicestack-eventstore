@@ -9,7 +9,6 @@
     /// </summary>
     public abstract class Subscription
     {
-
         protected Subscription(string streamId, string subscriptionGroup)
         {
             StreamId = streamId;

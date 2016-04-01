@@ -85,22 +85,6 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="xunit.assert, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\packages\xunit.assert.2.1.0\lib\dotnet\xunit.assert.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="xunit.core, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\packages\xunit.extensibility.core.2.1.0\lib\dotnet\xunit.core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="xunit.execution.desktop, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\packages\xunit.extensibility.execution.2.1.0\lib\net45\xunit.execution.desktop.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionManagement\MonitorSettings.cs" />
@@ -108,9 +92,10 @@
     <Compile Include="Consumers\ReadModelConsumer.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Factories\ProjectionWriterFactory.cs" />
+    <Compile Include="Projections\StorageType.cs" />
     <Compile Include="Projections\IProjectionWriter.cs" />
-    <Compile Include="Projections\RavenProjectionWriter.cs" />
     <Compile Include="Projections\RedisProjectionWriter.cs" />
+    <Compile Include="Projections\ReadModelStorage.cs" />
     <Compile Include="Resilience\RetryExtensions.cs" />
     <Compile Include="Resilience\RetryType.cs" />
     <Compile Include="Resilience\Retries.cs" />
@@ -143,10 +128,10 @@
     <Compile Include="Consumers\PersistentConsumer.cs" />
     <Compile Include="Dispatcher\EventDispatcher.cs" />
     <Compile Include="Main\EventStoreFeature.cs" />
-    <Compile Include="EventTypeManagement\EventTypes.cs" />
+    <Compile Include="Events\EventTypes.cs" />
     <Compile Include="Dispatcher\IEventDispatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Subscriptions\SubscriptionSettings.cs" />
+    <Compile Include="Subscriptions\EventStoreFeatureSettings.cs" />
     <Compile Include="StateManagement\IState.cs" />
     <Compile Include="StateManagement\IStateMutator.cs" />
     <Compile Include="StateManagement\State.cs" />

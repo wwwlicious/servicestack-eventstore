@@ -1,4 +1,4 @@
-﻿namespace ServiceStack.EventStore.EventTypeManagement
+﻿namespace ServiceStack.EventStore.Events
 {
     using System;
     using System.Collections.Generic;
@@ -15,23 +15,23 @@
     {
         private static readonly Dictionary<string, Type> eventTypes = new Dictionary<string, Type>();
 
-        internal static IReadOnlyDictionary<string, Type> GetAllHandlers()
+        public static IReadOnlyDictionary<string, Type> GetAllHandlers()
         {
             return eventTypes;
         }
 
-        internal static bool TryResolveMapping(string eventType, out Type type)
+        public static bool TryResolveMapping(string eventType, out Type type)
         {
             eventTypes.TryGetValue(eventType, out type);
             return type != null;
         }
 
-        internal static bool HasMappings()
+        public static bool HasMappings()
         {
             return eventTypes.HasAny();
         }
 
-        internal static void ScanForServiceEvents()
+        public static void ScanForServiceEvents()
         {
             var methods = HostContext.Metadata.ServiceTypes
                                                     .SelectMany(t => t.GetMethods()
@@ -45,7 +45,7 @@
             }
         }
 
-        internal static void ScanForAggregateEvents()
+        public static void ScanForAggregateEvents()
         {
             var path = AppDomain.CurrentDomain.BaseDirectory;
             var files = Directory.GetFiles(path, "*.dll");

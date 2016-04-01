@@ -29,6 +29,11 @@
             log = LogManager.GetLogger(GetType());
         }
 
+        //set the default RetryPolicy for each subscription - max 5 retries with exponential backoff
+        protected RetryPolicy retryPolicy = new RetryPolicy(5.Retries(), retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+
+        public abstract Task ConnectToSubscription(Subscription subscription);
+
         protected async Task Dispatch(ResolvedEvent resolvedEvent)
         {
             if (resolvedEvent.Event != null && !IsSystemEvent(resolvedEvent))
@@ -44,13 +49,7 @@
 
         protected async Task HandleDroppedSubscription(DroppedSubscription subscriptionDropped)
         {
-            await DroppedSubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscription(this.subscription));
+            await DroppedSubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscription(subscription));
         }
-
-        //set the default RetryPolicy for each subscription - max 5 retries with exponential backoff
-        protected RetryPolicy retryPolicy = new RetryPolicy(5.Retries(), 
-                                retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
-
-        public abstract Task ConnectToSubscription(Subscription subscription);
     }
 }

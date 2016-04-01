@@ -1,4 +1,4 @@
-﻿using ServiceStack.EventStore.EventTypeManagement;
+﻿using ServiceStack.EventStore.Events;
 
 namespace ServiceStack.EventStore.Dispatcher
 {

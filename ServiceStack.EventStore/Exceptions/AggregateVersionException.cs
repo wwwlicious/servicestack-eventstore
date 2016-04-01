@@ -3,7 +3,8 @@ namespace ServiceStack.EventStore.Exceptions
     using System;
 
     /// <summary>
-    /// An exception thrown when trying persist new events to an (aggregate) stream but there have been other changes in the meant6ime.
+    /// An exception thrown when trying persist new events to an 
+    /// (aggregate) stream but there have been other changes in the meantime.
     /// </summary>
     public class AggregateVersionException : Exception
     {

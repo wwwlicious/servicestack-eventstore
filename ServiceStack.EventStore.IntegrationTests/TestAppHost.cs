@@ -1,15 +1,14 @@
-﻿using System;
-using FluentAssertions;
-using ServiceStack.EventStore.Main;
-
-namespace ServiceStack.EventStore.IntegrationTests
+﻿namespace ServiceStack.EventStore.IntegrationTests
 {
     using Funq;
     using ConnectionManagement;
-    using HelperClasses;
     using Resilience;
     using Subscriptions;
     using Logging;
+    using System;
+    using FluentAssertions;
+    using Main;
+    using Projections;
 
     public class TestAppHost : AppHostHttpListenerBase
     {
@@ -24,19 +23,22 @@ namespace ServiceStack.EventStore.IntegrationTests
 
         public override void Configure(Container container)
         {
-            var settings = new SubscriptionSettings()
-                                .SubscribeToStreams(streams =>
+            var settings = new EventStoreFeatureSettings()
+                                .SubscribeToStreams(s =>
                                 {
-                                    streams.Add(new VolatileSubscription("alien-landings")
+                                    s.Add(new VolatileSubscription("alien-landings")
                                             .SetRetryPolicy(5.Retries(), e => TimeSpan.FromSeconds(Math.Pow(2, e))));
-                                    streams.Add(new PersistentSubscription("", "")
+                                    s.Add(new PersistentSubscription("", "")
                                             .SetRetryPolicy(new [] {1.Seconds(), 3.Seconds()}));
-                                });
+                                    s.Add(new ReadModelSubscription());
+                                })
+                                .WithReadModel(new ReadModelStorage(StorageType.Redis, "127.0.0.1:6379"));
 
-            var connection = new ConnectionSettings()
+        var connection = new EventStoreConnectionSettings()
                                 .UserName("admin")
                                 .Password("changeit")
-                                .TCPEndpoint("localhost:1113").HttpAddress("localhost:2113");
+                                .TcpEndpoint("localhost:1113")
+                                .HttpEndpoint("localhost:2113");
 
             LogManager.LogFactory = new ConsoleLogFactory();
 
@@ -44,4 +46,6 @@ namespace ServiceStack.EventStore.IntegrationTests
             Plugins.Add(new EventStoreFeature(settings, connection));
         }
     }
+
+
 }

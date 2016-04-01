@@ -48,7 +48,7 @@
                     //something went wrong while subscribing - retry
                     log.Error($@"Subscription to {subscription.StreamId} failed. 
                                  {message}");
-                    await RetrySubscriptionAsync(compensatingAction, retryPolicy);
+                    await RetrySubscriptionAsync(compensatingAction, retryPolicy).ConfigureAwait(false);
                     break;
                 case SubscriptionDropReason.ServerError:
                     //error on the server
@@ -59,19 +59,19 @@
                     //the connection was closed - retry
                     log.Error($@"Subscription to {subscription.StreamId} was dropped due to the connection being closed.
                                  {message}");
-                    await RetrySubscriptionAsync(compensatingAction, retryPolicy);
+                    await RetrySubscriptionAsync(compensatingAction, retryPolicy).ConfigureAwait(false);
                     break;
                 case SubscriptionDropReason.CatchUpError:
                     //an error occurred during the catch-up phase - retry
                     log.Error($@"Subscription to {subscription.StreamId} was dropped during the catch-up phase.
                                  {message}");
-                    await RetrySubscriptionAsync(compensatingAction, retryPolicy);
+                    await RetrySubscriptionAsync(compensatingAction, retryPolicy).ConfigureAwait(false);
                     break;
                 case SubscriptionDropReason.ProcessingQueueOverflow:
                     //occurs when the number of events on the push buffer exceed the specified maximum - retry
                     log.Warn($@"Subscription to {subscription.StreamId} was dropped due to a processing buffer overflow.
                                 {message}");
-                    await RetrySubscriptionAsync(compensatingAction, retryPolicy);
+                    await RetrySubscriptionAsync(compensatingAction, retryPolicy).ConfigureAwait(false);
                     break;
                 case SubscriptionDropReason.EventHandlerException:
                     //Subscription dropped because an exception was thrown by one of our handlers.

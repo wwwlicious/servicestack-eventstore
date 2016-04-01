@@ -24,7 +24,7 @@
         }
 
         [Fact]
-        //todo: how best to test handling events and streams?
+        // todo: how best to test handling events and streams?
         public async Task ConsumesEvent()
         {
             var weeGreenMenLanded = new WeeGreenMenLanded(14);

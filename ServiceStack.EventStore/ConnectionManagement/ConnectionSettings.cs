@@ -1,4 +1,6 @@
-﻿namespace ServiceStack.EventStore.ConnectionManagement
+﻿using EventStore.ClientAPI;
+
+namespace ServiceStack.EventStore.ConnectionManagement
 {
     using System.Collections.Generic;
     using System.Text;
@@ -7,29 +9,29 @@
     /// <summary>
     /// Enables the developer to specify the connection settings to the running EventStore instance.
     /// </summary>
-    public class ConnectionSettings
+    public class EventStoreConnectionSettings
     {
         public MonitorSettings MonitorSettings { get; set; }
         private readonly Dictionary<string, object> settings = new Dictionary<string, object>();
         private readonly Validator validator = new Validator();
 
-        private string httpAddress;
-        private string tcpAddress;
+        private string httpEndpoint;
+        private string tcpEndpoint;
         private string userName = "";
         private string password = "";
 
-        public ConnectionSettings()
+        public EventStoreConnectionSettings()
         {
             MonitorSettings = new MonitorSettings();
         }
 
-        private class Validator : AbstractValidator<ConnectionSettings>
+        private class Validator : AbstractValidator<EventStoreConnectionSettings>
         {
             public Validator()
             {
-                RuleFor(cb => cb.userName).NotEmpty();
-                RuleFor(cb => cb.password).NotEmpty();
-                RuleFor(cb => cb.tcpAddress).NotEmpty();
+                RuleFor(cs => cs.userName).NotEmpty();
+                RuleFor(cs => cs.password).NotEmpty();
+                RuleFor(cs => cs.tcpEndpoint).NotEmpty();
             }
         }
 
@@ -38,58 +40,58 @@
             validator.ValidateAndThrow(this);
 
             var connectionString = new StringBuilder();
-            connectionString.Append($"ConnectTo=tcp://{userName}:{password}@{tcpAddress}; ");
+            connectionString.Append($"ConnectTo=tcp://{userName}:{password}@{tcpEndpoint}; ");
             settings.Each(s => connectionString.Append($"{s.Key}={s.Value}; "));
             return connectionString.ToString();
         }
 
         public string GetHttpEndpoint()
         {
-            return httpAddress;
+            return httpEndpoint;
         }
 
-        public ConnectionSettings HttpAddress(string address)
+        public EventStoreConnectionSettings HttpEndpoint(string endpoint)
         {
-            httpAddress = address;
+            httpEndpoint = endpoint;
             return this;
         }
 
         public string GetTcpEndpoint()
         {
-            return tcpAddress;
+            return tcpEndpoint;
         }
 
-        public ConnectionSettings TCPEndpoint(string address)
+        public EventStoreConnectionSettings TcpEndpoint(string endpoint)
         {
-            tcpAddress = address;
+            tcpEndpoint = endpoint;
             return this;
         }
 
-        public ConnectionSettings UserName(string name)
+        public EventStoreConnectionSettings UserName(string name)
         {
             userName = name;
             return this;
         }
 
-        public ConnectionSettings Password(string pwd)
+        public EventStoreConnectionSettings Password(string pwd)
         {
             password = pwd;
             return this;
         }
 
-        public ConnectionSettings ReconnectionDelay(int delay)
+        public EventStoreConnectionSettings ReconnectionDelay(int delay)
         {
             settings["ReconnectionDelay"] = delay;
             return this;
         }
 
-        public ConnectionSettings HeartbeatTimeout(int timeout)
+        public EventStoreConnectionSettings HeartbeatTimeout(int timeout)
         {
             settings["HeartbeatTimeout"] = timeout;
             return this;
         }
 
-        public ConnectionSettings MaxReconnections(int reconnections)
+        public EventStoreConnectionSettings MaxReconnections(int reconnections)
         {
             settings["MaxReconnections"] = reconnections;
             return this;

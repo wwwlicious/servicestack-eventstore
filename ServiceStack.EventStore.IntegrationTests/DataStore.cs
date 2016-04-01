@@ -1,0 +1,4 @@
+﻿namespace ServiceStack.EventStore.IntegrationTests
+{
+
+}

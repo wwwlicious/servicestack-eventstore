@@ -85,6 +85,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataStore.cs" />
     <Compile Include="TestClasses\EventHandlerTests.cs" />
     <Compile Include="TestClasses\ProjectionTests.cs" />
     <Compile Include="TestClasses\PublisherTests.cs" />
