@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://www.mozilla.org/en-US/MPL/2.0/</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>Initial release of ServiceStack.EventStore</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>ServiceStack EventStore</tags>
+  </metadata>
+</package>
