@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this 
 // file, You can obtain one at http://mozilla.org/MPL/2.0/. 
 
+using System.Linq;
+
 namespace ServiceStack.EventStore.Main
 {
     using System;
@@ -20,7 +22,7 @@ namespace ServiceStack.EventStore.Main
 
     public class EventStoreFeature: IPlugin
     {
-        private readonly EventStoreFeatureSettings featureSettings;
+        private readonly SubscriptionSettings featureSettings;
         private Container container;
         private readonly ILog log;
         private readonly EventStoreConnectionSettings connectionSettings;
@@ -33,7 +35,10 @@ namespace ServiceStack.EventStore.Main
             {"ReadModelSubscription", typeof(ReadModelConsumer)}
         };
 
-        public EventStoreFeature(EventStoreFeatureSettings featureSettings, EventStoreConnectionSettings connectionSettings)
+        public EventStoreFeature(EventStoreConnectionSettings connectionSettings): 
+            this(connectionSettings, new SubscriptionSettings()) { }
+
+        public EventStoreFeature(EventStoreConnectionSettings connectionSettings, SubscriptionSettings featureSettings)
         {
             this.featureSettings = featureSettings;
             this.connectionSettings = connectionSettings;
@@ -93,8 +98,15 @@ namespace ServiceStack.EventStore.Main
                 {StorageType.Redis, (cs) => container.Register<IRedisClientsManager>(c => new RedisManagerPool(cs))}
             };
 
-            var readModel = featureSettings.ReadModel();
-            readModelDelegates[readModel.StorageType]?.Invoke(readModel.ConnectionString);
+            var readModelSubscription =
+                featureSettings.Subscriptions
+                    .FirstOrDefault(s => s.GetType() == typeof (ReadModelSubscription))
+                    .ConvertTo<ReadModelSubscription>();
+
+            var readModel = readModelSubscription?.Storage();
+
+            if (readModel != null)
+                readModelDelegates[readModel.StorageType]?.Invoke(readModel.ConnectionString);
         }
     }
 }

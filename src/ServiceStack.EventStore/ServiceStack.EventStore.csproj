@@ -131,7 +131,7 @@
     <Compile Include="Events\EventTypes.cs" />
     <Compile Include="Dispatcher\IEventDispatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Subscriptions\EventStoreFeatureSettings.cs" />
+    <Compile Include="Subscriptions\SubscriptionSettings.cs" />
     <Compile Include="StateManagement\IState.cs" />
     <Compile Include="StateManagement\IStateMutator.cs" />
     <Compile Include="StateManagement\State.cs" />

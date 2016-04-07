@@ -1,98 +1,210 @@
 # ServiceStack.EventStore #
 
-A plugin for [ServiceStack](https://servicestack.net/) that provides a [message gateway](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessagingGateway.html) to [EventStore](https://geteventstore.com/) streams.
+### A plugin for [ServiceStack](https://servicestack.net/) that provides a [message gateway](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessagingGateway.html) to [EventStore](https://geteventstore.com/) streams. ###
 
-By adding this plugin to an application such as a Windows service the application is able to connect to EventStore, subscribe to named [streams](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageChannel.html), and handle [events](http://www.enterpriseintegrationpatterns.com/patterns/messaging/EventMessage.html) from EventStore as well as publish events to it according to the [message bus](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageBus.html) pattern.
+By adding this plugin to an application, such as a Windows service, the application is able to connect to EventStore; subscribe to and handle [events](http://www.enterpriseintegrationpatterns.com/patterns/messaging/EventMessage.html) from named [streams](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageChannel.html); persist an aggregate to, and rehydrate it from, a stream, as well as populating a read model.
 
 ## Requirements ##
 
 An instance of the EventStore server should be running on the network. Please follow the [installation](http://docs.geteventstore.com/introduction/) instructions provided by EventStore.
 
-As detailed, you can verify that EventStore is running by browsing to port **2113** on the machine running the EventStore server:
-
-![EventStore dashboard](EventStoreDashboard.png) 
+You can verify that EventStore is running by browsing to port **2113** on the machine running the EventStore server.
 
 ## Getting Started ##
 
-Add a reference to ServiceStack.EventStore in your project. 
+Add a reference to **ServiceStack.EventStore** in your project. 
 
-Add the following to your `AppHost`
+### Setting up a Connection to EventStore ###
+Add the following code to the `Configure` method in your `AppHost` class (this class is created automatically for you when you use one of the ServiceStack project templates):
 
-```csharp
-        
-	    public override void Configure(Container container)
-        {
-            var mappings = new HandlerMappings()
-                                    .UseAssemblyScanning();
-
-            var settings = new EventStoreSettings()
-                                .ConsumerStream("orders")
-                                .PublisherStream("order-acknowledgements");
-
-            var connection = new ConnectionBuilder()
-                                    .UserName("admin")
-                                    .Password("changeit")
-                                    .Host("localhost:1113");
-
-            Plugins.Add(new EventStoreFeature(settings, mappings, connection));
-        }
-```
-
-This code assumes that:
-
-- Two streams with the name "event-stream" and "another-event-stream" exists in EventStore and the user with which you are connecting to EventStore has permissions to read events from them.
-- EventStore is running on your local host. **1113** is the TCP port at which you can listen for events and **2113** is the HTTP port.
-
-## Configuring the plugin##
-
-There are three classes that enable configuration of the plugin. 
-
-### EventStoreSettings ###
-
-`EventStoreSettings` provides a fluent API to configure the following settings:
-
-- **Dead Letter Channel** - provides a [dead letter channel](http://www.enterpriseintegrationpatterns.com/patterns/messaging/DeadLetterChannel.html) to handle message that cannot be published to EventStore. The reasons for this can include a stream being deleted, a [message expiring](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageExpiration.html), among others.
-- **Subscription Group** - used when the subscription type is `Persistent`
-- **Invalid Message Channel** - provides an [invalid message channel](http://www.enterpriseintegrationpatterns.com/patterns/messaging/InvalidMessageChannel.html) for messages that cannot be dispatched to a handler. 
-- **Consumer Stream** - the stream from which the service consumes events.
-- **Publisher Stream** - the stream to which the service publishes events.
-- **Subscription Type** - the type of subscription to be used in connecting to the consumer stream. The options are `Persistent` (competing consumers model), `Volatile` (i.e. "read events from this moment forward"), and `CatchUp` (i.e. "read events from event number N onwards"). A discussion of these types can be found in the EventStore [documentation](http://docs.geteventstore.com/introduction/subscriptions/).
-- **Storage Type** - the type of storage to be used in the [guaranteed delivery](http://www.enterpriseintegrationpatterns.com/patterns/messaging/GuaranteedMessaging.html) mechanism of store-and-forward. This can be either `ToDisk` or `InMemory`.  
-
-### ConnectionBuilder ###
-
-`ConnectionBuilder` provides a fluent API to generate the connection string that is used to connect to a running EventStore instance. 
-
-- **Host Name** - the host (and TCP port) where EventStore can be found. By default this is "localhost:2113". Currently, this value is **mandatory**. However, once discovery is implemented this will be optional.  
-- **User Name** - the name of the user with permissions to connect to EventStore. By default this is "admin". **Mandatory**.
-- **Password** - the password of the user with permissions to connece to EventStore. By default this is "changeit". **Mandatory**. 
-- **Reconnection Delay** - the delay before attempting to reconnect.
-- **Heartbeat Timeout** - the amount of time to receive a heartbeat response before timing out.
-
-### HandlerMappings ###
-
-`HandlerMappings` notifies the plugin of which event handlers it should use when dispatching events that arrive from EventStore. These handlers implement `IHandle<TEvent>`:
-
-```csharp
-
-    public class OrderUpdatedHandler: IHandle<OrderUpdated>
+    public override void Configure(Container container)
     {
-        public void Handle(OrderUpdated @event)
+        var connection = new EventStoreConnectionSettings()
+                                .UserName("admin")
+                                .Password("changeit")
+                                .TcpEndpoint("localhost:1113");
+    
+        Plugins.Add(new EventStoreFeature(connection));
+    }
+
+Additionally, you can take advantage of the ServiceStack `MetadataFeature` to provide a link to the EventStore admin UI by providing the HTTP address of the EventStore instance:
+
+    public override void Configure(Container container)
+    {
+        var connection = new EventStoreConnectionSettings()
+                                .UserName("admin")
+                                .Password("changeit")
+                                .TcpEndpoint("localhost:1113")
+								.HttpEndpoint(localhost:2113");
+    
+        Plugins.Add(new EventStoreFeature(connection));
+        Plugins.Add(new MetadataFeature());
+    }
+
+**Please note** that this sample assumes that:
+
+- EventStore is running on your **local host**. **1113** is the TCP port at which you can listen for events and **2113** is the HTTP port.
+
+### Subscribing to Named Streams ###
+
+There are four different kinds of subscription to streams that ServiceStack.EventStore can create:
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;border-color:#aabcfe;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#aabcfe;color:#669;background-color:#e8edff;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#aabcfe;color:#039;background-color:#b9c9fe;}
+.tg .tg-n9nb{color:#666699;vertical-align:top}
+.tg .tg-qv16{font-weight:bold;font-size:16px;text-align:center;vertical-align:top}
+.tg .tg-e3zv{font-weight:bold}
+.tg .tg-qnmb{font-weight:bold;font-size:16px;text-align:center}
+.tg .tg-9hbo{font-weight:bold;vertical-align:top}
+.tg .tg-yw4l{vertical-align:top}
+.tg .tg-381c{color:#666699}
+</style>
+<table class="tg">
+  <tr>
+    <th class="tg-qnmb">Subscription Type</th>
+    <th class="tg-qnmb">Description</th>
+    <th class="tg-qv16">Expected Parameters</th>
+  </tr>
+  <tr>
+    <td class="tg-9hbo">Volatile Subscription</td>
+    <td class="tg-n9nb">Provides access to an EventStore volatile subscription which starts reading from the next event following connection on a named stream.</td>
+    <td class="tg-yw4l">The stream name.</td>
+  </tr>
+  <tr>
+    <td class="tg-e3zv">Persistent Subscription</td>
+    <td class="tg-381c">Provides access to an EventStore persistent subscription which supports the <a href="http://www.enterpriseintegrationpatterns.com/patterns/messaging/CompetingConsumers.html">competing consumer</a> messaging model on a named stream.</td>
+    <td class="tg-yw4l">The stream name and the subscription group.</td>
+  </tr>
+  <tr>
+    <td class="tg-e3zv">Catch-Up Subscription</td>
+    <td class="tg-031e">Provides access to an EventStore catch-up subscription which starts reading from either the beginning of a named stream or from a specified event number on that stream.</td>
+    <td class="tg-yw4l">The stream name.</td>
+  </tr>
+  <tr>
+    <td class="tg-e3zv">Read Model Subscription</td>
+    <td class="tg-031e">Also provides access to an EventStore catch-up subscription with the difference that it automatically subscribes to all ("$all" in EventStore) to allow a read model to be populated from selected events from different streams.</td>
+    <td class="tg-yw4l">None.</td>
+  </tr>
+</table>
+
+A subscription can be created in the following way in the `Configure` method:
+
+        public override void Configure(Container container)
         {
-            //interesting stuff
+            var settings = new SubscriptionSettings()
+                .SubscribeToStreams(streams =>
+                {
+                    streams.Add(new CatchUpSubscription("deadletterchannel"));
+                });
+
+             ...Connection set-up omitted
+
+			//Note the extra parameter being used when creating an instance of the EventStoreFeature
+            Plugins.Add(new EventStoreFeature(connection, settings));
+        }
+
+Multiple subscriptions can be added here.
+
+
+#### Handling Events ####
+
+This plugin makes use of ServiceStack's architecture to route events from EventStore streams to their handlers. 
+
+To handle an event on a stream that you have subscribed to simply create a class that handles from `ServiceStack.Service` and add an end point for the event you wish to handle:
+
+    public class PurchaseOrderService : Service
+    {
+        public object Any(PurchaseOrderCreated @event)
+        {
+			...handle event
+        }
+
+        public object Any(OrderLineItemsAdded @event)
+        {
+			...handle event
         }
     }
-``` 
+#### Setting a Retry Policy ####
+
+When creating a subscription you can also specify the retry policy used by ServiceStack.EventStore in response to a subscription to EventStore beimg dropped. Since the retry functionality builds on the <a href="https://github.com/App-vNext/Polly">Polly</a> library the retry policy can be set by either specify an `IEnumerable<TimeSpan>` or a delegate.
+
+To create a volatile subscription to a named stream that, if the subscription is dropped, attempts to resubscribe according to specified durations add the following code to your `Configure` method:
+
+            var settings = new SubscriptionSettings()
+                .SubscribeToStreams(streams =>
+                {
+                    //using an IEnumerable<TimeSpan>
+                    streams.Add(new CatchUpSubscription("deadletterchannel")
+                        .SetRetryPolicy(new[] {1.Seconds(), 3.Seconds(), 5.Seconds()}));
+                });
+
+If we wanted to specify an algorithm to allow for an exponential back-off we can pass in a delegate:
+
+            var settings = new SubscriptionSettings()
+                .SubscribeToStreams(streams =>
+                {
+					//using a delegate
+                    streams.Add(new CatchUpSubscription("deadletterchannel")
+                        .SetRetryPolicy(10.Retries(), 
+                                retryCounter => TimeSpan.FromSeconds(Math.Pow(2, retryCounter))));
+                });
+
+#### Configuring a Read Model Subscription ####
+
+As mentioned before, a read model subscription is built on top of a catch-up subscription. In addition to a catch-up subscription a read model storage must be specified. 
+
+So far, the only storage model that has been made available is <a href="http://redis.io/">Redis</a>:
+
+            var settings = new SubscriptionSettings()
+                .SubscribeToStreams(streams =>
+                {
+                    streams.Add(new ReadModelSubscription()
+                                    .SetRetryPolicy(new [] {1.Seconds(), 3.Seconds()})
+                                    .WithStorage(new ReadModelStorage(StorageType.Redis, "localhost:6379")));
+                });
+
+**Please note** that this code assumes that you have an instance of Redis installed on your local host and which is using port 6379.
+
+#### Populating a Read Model ####
+
+To populate a read model from EventStore you should **(1)** add a `ReadModelSubscription` as demonstrated in the previous code snippet, **(2)** create a view model class to represent a record in the read model, and then **(3)** instantiate a `ProjectionWriter`, specifying the type of the unique Id and the view model to be used, in the service you are using to handle events.
+
+When handling an event that corresponds to a new record being required in the read model - for example, `PurchaseOrderCreated` - then use the `Add` method to create a new instance of desired view model. When handling events that should update the state of a record in the read model then use the `Update` method to pass in the Id of the record to be updated as well as a delegate that mutates the appropriate properties of the view model:
+
+    public class PurchaseOrderService : Service
+    {
+        private IProjectionWriter<Guid, OrderViewModel> writer = 
+                        ProjectionWriterFactory.GetRedisClient<Guid, OrderViewModel>();
+
+        public object Any(PurchaseOrderCreated @event)
+        {
+            return writer.Add(new OrderViewModel(@event.Id));
+        }
+
+        public object Any(OrderLineItemsAdded @event)
+        {
+            return writer.Update(@event.OrderId, 
+                    vm => vm.LineItemCount += @event.OrderLineItems.Count);
+        }
+
+        public object Any(OrderStatusUpdated @event)
+        {
+            return writer.Update(@event.OrderId,
+                vm => vm.OrderStatus = @event.NewStatus);
+        }
+    }
 
 
-The developer can choose to map these handlers either explicitly through the fluent API of `HandlerMappings`:
+## Attributions ##
 
-```csharp
+This project leans partly on the following OS projects:
 
-            var mappings = new HandlerMappings()
-                                    .WithHandler<OrderCreatedHandler>()
-                                    .WithHandler<OrderUpdatedHandler>();
-``` 
+- <a href="https://github.com/mfelicio/NDomain">**NDomain**</a> by Manuel Felício
+- <a href="https://github.com/gnschenker/EventSourcing">**EventSourcing**</a> by Gabriel Shenker
+- <a href="https://github.com/EventStore/getting-started-with-event-store">**Getting-Started-With-Event-Store**</a> byJames Nugent 
 
-Or he/she can choose to let the plugin use assembly scannning to map all 
+
+
 

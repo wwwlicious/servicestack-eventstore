@@ -23,16 +23,13 @@
 
         public override void Configure(Container container)
         {
-            var settings = new EventStoreFeatureSettings()
-                                .SubscribeToStreams(s =>
-                                {
-                                    s.Add(new VolatileSubscription("alien-landings")
-                                            .SetRetryPolicy(5.Retries(), e => TimeSpan.FromSeconds(Math.Pow(2, e))));
-                                    s.Add(new PersistentSubscription("", "")
-                                            .SetRetryPolicy(new [] {1.Seconds(), 3.Seconds()}));
-                                    s.Add(new ReadModelSubscription());
-                                })
-                                .WithReadModel(new ReadModelStorage(StorageType.Redis, "127.0.0.1:6379"));
+            var settings = new SubscriptionSettings()
+                .SubscribeToStreams(streams =>
+                {
+                    streams.Add(new ReadModelSubscription()
+                                    .SetRetryPolicy(new [] {1.Seconds(), 3.Seconds()})
+                                    .WithStorage(new ReadModelStorage(StorageType.Redis, "localhost:6379")));
+                });
 
         var connection = new EventStoreConnectionSettings()
                                 .UserName("admin")
@@ -43,7 +40,7 @@
             LogManager.LogFactory = new ConsoleLogFactory();
 
             Plugins.Add(new MetadataFeature());
-            Plugins.Add(new EventStoreFeature(settings, connection));
+            Plugins.Add(new EventStoreFeature(connection, settings));
         }
     }
 

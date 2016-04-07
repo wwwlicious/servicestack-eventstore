@@ -1,4 +1,6 @@
-﻿namespace ServiceStack.EventStore.IntegrationTests.TestClasses
+﻿using Xunit.Sdk;
+
+namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 {
     using FluentAssertions;
     using Repository;
@@ -23,7 +25,6 @@
             fixture.AppHost.Container.Register(c => this).ReusedWithin(ReuseScope.Default);
         }
 
-        [Fact]
         // todo: how best to test handling events and streams?
         public async Task ConsumesEvent()
         {

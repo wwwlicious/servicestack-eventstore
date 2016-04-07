@@ -13,7 +13,7 @@ namespace ServiceStack.EventStore.ConnectionManagement
     /// </summary>
     public class EventStoreConnectionSettings
     {
-        public MonitorSettings MonitorSettings { get; set; }
+        internal MonitorSettings MonitorSettings { get; set; }
         private readonly Dictionary<string, object> settings = new Dictionary<string, object>();
         private readonly Validator validator = new Validator();
 
@@ -37,7 +37,7 @@ namespace ServiceStack.EventStore.ConnectionManagement
             }
         }
 
-        public string GetConnectionString()
+        internal string GetConnectionString()
         {
             validator.ValidateAndThrow(this);
 
@@ -47,7 +47,7 @@ namespace ServiceStack.EventStore.ConnectionManagement
             return connectionString.ToString();
         }
 
-        public string GetHttpEndpoint()
+        internal string GetHttpEndpoint()
         {
             return httpEndpoint;
         }
@@ -58,7 +58,7 @@ namespace ServiceStack.EventStore.ConnectionManagement
             return this;
         }
 
-        public string GetTcpEndpoint()
+        internal string GetTcpEndpoint()
         {
             return tcpEndpoint;
         }

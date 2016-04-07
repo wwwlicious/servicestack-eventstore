@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>$id$</id>
     <version>$version$</version>
@@ -7,10 +7,23 @@
     <authors>$author$</authors>
     <owners>$author$</owners>
     <licenseUrl>https://www.mozilla.org/en-US/MPL/2.0/</licenseUrl>
+	<projectUrl>https://github.com/MacLeanElectrical</projectUrl>
+	<iconUrl>https://servicestack.net/img/logo-32.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Initial release of ServiceStack.EventStore</releaseNotes>
+    <releaseNotes>Initial release.</releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>ServiceStack EventStore</tags>
+    <dependencies>
+	  <dependency id="EventStore.Client" version="3.5.2"/>
+	  <dependency id="Polly" version="4.1.2"/>
+	  <dependency id="ServiceStack" version="4.0.54"/>
+	  <dependency id="ServiceStack.Client" version="4.0.54"/>
+	  <dependency id="ServiceStack.Common" version="4.0.54"/>
+	  <dependency id="ServiceStack.Interfaces" version="4.0.54"/>
+	  <dependency id="ServiceStack.OrmLite" version="4.0.54"/>
+	  <dependency id="ServiceStack.Redis" version="4.0.54"/>
+	  <dependency id="ServiceStack.Text" version="4.0.54"/>
+    </dependencies>
   </metadata>
 </package>

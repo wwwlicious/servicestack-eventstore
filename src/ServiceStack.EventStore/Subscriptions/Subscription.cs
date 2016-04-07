@@ -19,9 +19,9 @@ namespace ServiceStack.EventStore.Subscriptions
             SubscriptionGroup = subscriptionGroup;
         }
 
-        public string StreamId { get; }
-        public string SubscriptionGroup { get; }
-        public RetryPolicy RetryPolicy { get; set; }
+        internal string StreamId { get; }
+        internal string SubscriptionGroup { get; }
+        internal RetryPolicy RetryPolicy { get; set; }
 
         public Subscription SetRetryPolicy(IEnumerable<TimeSpan> durations)
         {
