@@ -49,18 +49,6 @@ Additionally, you can take advantage of the ServiceStack `MetadataFeature` to pr
 
 There are four different kinds of subscription to streams that ServiceStack.EventStore can create:
 
-<style type="text/css">
-.tg  {border-collapse:collapse;border-spacing:0;border-color:#aabcfe;}
-.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#aabcfe;color:#669;background-color:#e8edff;}
-.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#aabcfe;color:#039;background-color:#b9c9fe;}
-.tg .tg-n9nb{color:#666699;vertical-align:top}
-.tg .tg-qv16{font-weight:bold;font-size:16px;text-align:center;vertical-align:top}
-.tg .tg-e3zv{font-weight:bold}
-.tg .tg-qnmb{font-weight:bold;font-size:16px;text-align:center}
-.tg .tg-9hbo{font-weight:bold;vertical-align:top}
-.tg .tg-yw4l{vertical-align:top}
-.tg .tg-381c{color:#666699}
-</style>
 <table class="tg">
   <tr>
     <th class="tg-qnmb">Subscription Type</th>
