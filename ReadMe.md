@@ -2,7 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/v9qd6kso0bkc5spf/branch/master?svg=true)](https://ci.appveyor.com/project/wwwlicious/servicestack-eventstore/branch/master)
 
-### A plugin for [ServiceStack](https://servicestack.net/) that provides a [message gateway](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessagingGateway.html) to [EventStore](https://geteventstore.com/) streams. ###
+A plugin for [ServiceStack](https://servicestack.net/) that provides a [message gateway](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessagingGateway.html) to [EventStore](https://geteventstore.com/) streams.
 
 By adding this plugin to an application, such as a Windows service, the application is able to connect to EventStore; subscribe to and handle [events](http://www.enterpriseintegrationpatterns.com/patterns/messaging/EventMessage.html) from named [streams](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageChannel.html); persist an aggregate to, and rehydrate it from, a stream, as well as populating a read model.
 
@@ -14,7 +14,10 @@ You can verify that EventStore is running by browsing to port **2113** on the ma
 
 ## Getting Started ##
 
-Add a reference to **ServiceStack.EventStore** in your project. 
+Install the package [https://www.nuget.org/packages/ServiceStack.EventStore](https://www.nuget.org/packages/ServiceStack.EventStore/)
+```bash
+Install-Package ServiceStack.EventStore
+```
 
 ### Setting up a Connection to EventStore ###
 Add the following code to the `Configure` method in your `AppHost` class (this class is created automatically for you when you use one of the ServiceStack project templates):
@@ -23,7 +26,7 @@ Add the following code to the `Configure` method in your `AppHost` class (this c
 public override void Configure(Container container)
 {
 	var connection = new EventStoreConnectionSettings()
-   							.UserName("admin")
+   					.UserName("admin")
             				.Password("changeit")
             				.TcpEndpoint("localhost:1113");
 	
