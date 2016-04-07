@@ -1,14 +1,21 @@
-﻿namespace ServiceStack.EventStore.IntegrationTests
+﻿// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+namespace ServiceStack.EventStore.IntegrationTests
 {
-    using Funq;
     using ConnectionManagement;
-    using Resilience;
-    using Subscriptions;
-    using Logging;
-    using System;
+
     using FluentAssertions;
+
+    using Funq;
+
+    using Logging;
+
     using Main;
+
     using Projections;
+
+    using Subscriptions;
 
     public class TestAppHost : AppHostHttpListenerBase
     {
@@ -18,7 +25,6 @@
         /// </summary>
         public TestAppHost() : base("EventStoreListener", typeof(TestAppHost).Assembly)
         {
-
         }
 
         public override void Configure(Container container)

@@ -1,29 +1,40 @@
-﻿namespace ServiceStack.EventStore.IntegrationTests.TestClasses
+﻿// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 {
     using System;
-    using FluentAssertions;
-    using TestDomain;
-    using Repository;
-    using Xunit;
-    using Exceptions;
-    using Types;
-    using Extensions;
-    using Xunit.Abstractions;
     using System.Diagnostics;
     using System.Threading.Tasks;
+
+    using Exceptions;
+
+    using Extensions;
+
+    using FluentAssertions;
+
     using global::EventStore.ClientAPI;
 
-    //NOTE: These integration tests require EventStore to be running locally!
+    using Repository;
+
+    using TestDomain;
+
+    using Types;
+
+    using Xunit;
+    using Xunit.Abstractions;
+
+    // NOTE: These integration tests require EventStore to be running locally!
     [Collection("ServiceStackHostCollection")]
     [Trait("Category", "Integration")]
     public class AggregateTests
     {
         private readonly IEventStoreRepository eventStore;
+
         private readonly ITestOutputHelper testOutput;
 
         public AggregateTests(ServiceStackHostFixture fixture, ITestOutputHelper output)
         {
-
             eventStore = fixture.AppHost.Container.Resolve<IEventStoreRepository>();
             testOutput = output;
         }
@@ -33,7 +44,7 @@
         {
             var flightToBePersisted = new Flight();
 
-            //Act
+            // Act
             flightToBePersisted.UpdateFlightNumber("CQH8821");
             flightToBePersisted.SetEstimatedDepartureTime(DateTime.UtcNow.AddHours(1));
 
@@ -41,7 +52,7 @@
 
             var flightToBeRehydrated = await eventStore.GetByIdAsync<Flight>(flightToBePersisted.Id);
 
-            //Assert
+            // Assert
             flightToBeRehydrated.Id.Should().Be(flightToBePersisted.Id);
         }
 
@@ -50,31 +61,33 @@
         {
             var flight = new Flight();
 
-            //Act
+            // Act
             flight.UpdateDestination("Malaga");
-            //Assert
+
+            // Assert
             flight.State.Version.Should().Be(2);
 
-            //Act
+            // Act
             flight.UpdateFlightNumber("BA1987");
-            //Assert
+
+            // Assert
             flight.State.Version.Should().Be(3);
         }
 
         [Fact]
         public void AggregateStateIsCorrectAfterApplyingEvents()
         {
-            //Arrange
+            // Arrange
             const string testDestination = "Malaga";
             const string testFlightNumber = "BA1987";
 
             var flight = new Flight();
 
-            //Act
+            // Act
             flight.UpdateDestination(testDestination);
             flight.UpdateFlightNumber(testFlightNumber);
 
-            //Assert
+            // Assert
             flight.State.Destination.Should().Be(testDestination);
             flight.State.FlightNumber.Should().Be(testFlightNumber);
         }
@@ -117,7 +130,9 @@
             var correctVersion = flightToBePersisted.State.Version;
             var incorrectVersion = correctVersion.Add(1);
 
-            await Assert.ThrowsAsync<AggregateVersionException>(() => eventStore.GetByIdAsync<Flight>(flightToBePersisted.Id, incorrectVersion));
+            await
+                Assert.ThrowsAsync<AggregateVersionException>(
+                    () => eventStore.GetByIdAsync<Flight>(flightToBePersisted.Id, incorrectVersion));
         }
 
         // todo: currently no way of reading additional headers (other than CLR type) from events
@@ -130,11 +145,13 @@
             flight.UpdateFlightNumber("LT7987");
             flight.SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(67));
 
-            await eventStore.SaveAsync(flight, headers =>
-            {
-                headers.Add("User", "Lil'Joey Brown");
-                headers.Add("Other", "SomeImportantInfo");
-            });
+            await eventStore.SaveAsync(
+                flight, 
+                headers =>
+                    {
+                        headers.Add("User", "Lil'Joey Brown");
+                        headers.Add("Other", "SomeImportantInfo");
+                    });
 
             await eventStore.GetByIdAsync<Flight>(flight.Id);
         }
@@ -182,7 +199,7 @@
 
             var newFlight = new Flight();
 
-            //Act
+            // Act
             newFlight.UpdateDestination(originalDestination);
             newFlight.UpdateFlightNumber(originalFlightNumber);
 
@@ -197,7 +214,7 @@
 
             var secondRehydration = await eventStore.GetByIdAsync<Flight>(newFlight.Id);
 
-            //Assert
+            // Assert
             secondRehydration.State.Destination.Should().Be(newDestination);
             secondRehydration.State.FlightNumber.Should().Be(newFlightNumber);
         }
@@ -213,7 +230,9 @@
         [Fact]
         public Task ThrowsCorrectExceptionWhenLoadingNonPersistedAggregate()
         {
-            return Assert.ThrowsAsync<AggregateNotFoundException>(() => eventStore.GetByIdAsync<Flight>(Guid.NewGuid()));
+            return
+                Assert.ThrowsAsync<AggregateNotFoundException>(
+                    () => eventStore.GetByIdAsync<Flight>(Guid.NewGuid()));
         }
 
         [Fact]
@@ -222,14 +241,16 @@
             var flight = new Flight();
             var streamName = StreamName(flight);
 
-            //Act
+            // Act
             flight.SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(23));
             await eventStore.SaveAsync(flight);
 
-            //use the eventstore connection directly
+            // use the eventstore connection directly
             await eventStore.Connection.DeleteStreamAsync(streamName, ExpectedVersion.Any);
 
-            await Assert.ThrowsAsync<AggregateNotFoundException>(() => eventStore.GetByIdAsync<Flight>(flight.Id));
+            await
+                Assert.ThrowsAsync<AggregateNotFoundException>(
+                    () => eventStore.GetByIdAsync<Flight>(flight.Id));
         }
 
         [Fact]
@@ -239,12 +260,15 @@
             var flight = new Flight();
             var streamName = StreamName(flight);
 
-            //Act
+            // Act
             flight.SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(23));
             await eventStore.SaveAsync(flight);
-            await eventStore.Connection.DeleteStreamAsync(streamName, ExpectedVersion.Any, hardDelete);
+            await
+                eventStore.Connection.DeleteStreamAsync(streamName, ExpectedVersion.Any, hardDelete);
 
-            await Assert.ThrowsAsync<AggregateDeletedException>(() => eventStore.GetByIdAsync<Flight>(flight.Id));
+            await
+                Assert.ThrowsAsync<AggregateDeletedException>(
+                    () => eventStore.GetByIdAsync<Flight>(flight.Id));
         }
 
         [Fact]
@@ -252,7 +276,7 @@
         {
             var flightToBePersisted = new Flight();
 
-            //Act
+            // Act
             for (var i = 1; i <= 10; i++)
             {
                 flightToBePersisted.UpdateDestination($"Destination No: {i}");
@@ -263,7 +287,7 @@
 
             var rehydratedFlight = await eventStore.GetByIdAsync<Flight>(flightToBePersisted.Id, 5);
 
-            //Assert
+            // Assert
             rehydratedFlight.State.Version.Should().Be(5);
         }
 
@@ -272,7 +296,7 @@
         {
             var flightToBePersisted = new Flight();
 
-            //Act
+            // Act
             for (var i = 1; i <= 10; i++)
             {
                 flightToBePersisted.UpdateDestination($"Destination No: {i}");

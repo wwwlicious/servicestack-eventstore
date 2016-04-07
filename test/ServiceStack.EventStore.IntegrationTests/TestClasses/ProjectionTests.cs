@@ -1,4 +1,6 @@
-﻿using ServiceStack.EventStore.Projections;
+﻿// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 {
@@ -6,8 +8,6 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
     using Repository;
     using Xunit;
     using Xunit.Abstractions;
-    using FluentAssertions;
-    using TestDomain;
 
     [Collection("ServiceStackHostCollection")]
     [Trait("Category", "Integration")]
