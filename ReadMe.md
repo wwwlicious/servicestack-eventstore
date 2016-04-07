@@ -56,22 +56,22 @@ There are four different kinds of subscription to streams that ServiceStack.Even
     <th class="tg-qv16">Expected Parameters</th>
   </tr>
   <tr>
-    <td class="tg-9hbo">Volatile Subscription</td>
+    <td class="tg-9hbo">Volatile</td>
     <td class="tg-n9nb">Provides access to an EventStore volatile subscription which starts reading from the next event following connection on a named stream.</td>
     <td class="tg-yw4l">The stream name.</td>
   </tr>
   <tr>
-    <td class="tg-e3zv">Persistent Subscription</td>
+    <td class="tg-e3zv">Persistent</td>
     <td class="tg-381c">Provides access to an EventStore persistent subscription which supports the <a href="http://www.enterpriseintegrationpatterns.com/patterns/messaging/CompetingConsumers.html">competing consumer</a> messaging model on a named stream.</td>
     <td class="tg-yw4l">The stream name and the subscription group.</td>
   </tr>
   <tr>
-    <td class="tg-e3zv">Catch-Up Subscription</td>
+    <td class="tg-e3zv">Catch-Up</td>
     <td class="tg-031e">Provides access to an EventStore catch-up subscription which starts reading from either the beginning of a named stream or from a specified event number on that stream.</td>
     <td class="tg-yw4l">The stream name.</td>
   </tr>
   <tr>
-    <td class="tg-e3zv">Read Model Subscription</td>
+    <td class="tg-e3zv">Read Model</td>
     <td class="tg-031e">Also provides access to an EventStore catch-up subscription with the difference that it automatically subscribes to all ("$all" in EventStore) to allow a read model to be populated from selected events from different streams.</td>
     <td class="tg-yw4l">None.</td>
   </tr>
