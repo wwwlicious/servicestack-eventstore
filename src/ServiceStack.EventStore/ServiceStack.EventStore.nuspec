@@ -7,7 +7,7 @@
     <authors>$author$</authors>
     <owners>$author$</owners>
     <licenseUrl>https://www.mozilla.org/en-US/MPL/2.0/</licenseUrl>
-	<projectUrl>https://github.com/MacLeanElectrical</projectUrl>
+	<projectUrl>https://github.com/MacLeanElectrical/servicestack-eventstore</projectUrl>
 	<iconUrl>https://servicestack.net/img/logo-32.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>ServiceStack Plugin for event-sourced systems using EventStore</description>
@@ -15,15 +15,15 @@
     <copyright>Copyright 2016</copyright>
     <tags>ServiceStack EventStore</tags>
     <dependencies>
-	  <dependency id="EventStore.Client" version="3.5.2"/>
-	  <dependency id="Polly" version="4.1.2"/>
-	  <dependency id="ServiceStack" version="4.0.54"/>
-	  <dependency id="ServiceStack.Client" version="4.0.54"/>
-	  <dependency id="ServiceStack.Common" version="4.0.54"/>
-	  <dependency id="ServiceStack.Interfaces" version="4.0.54"/>
-	  <dependency id="ServiceStack.OrmLite" version="4.0.54"/>
-	  <dependency id="ServiceStack.Redis" version="4.0.54"/>
-	  <dependency id="ServiceStack.Text" version="4.0.54"/>
+	  <dependency id="EventStore.Client" version="[3.5.2, 4]"/>
+	  <dependency id="Polly" version="[4.1.2, 5)"/>
+	  <dependency id="ServiceStack" version="[4.0.54, 5)"/>
+	  <dependency id="ServiceStack.Client" version="[4.0.54, 5)"/>
+	  <dependency id="ServiceStack.Common" version="[4.0.54, 5)"/>
+	  <dependency id="ServiceStack.Interfaces" version="[4.0.54, 5)"/>
+	  <dependency id="ServiceStack.OrmLite" version="[4.0.54, 5)"/>
+	  <dependency id="ServiceStack.Redis" version="[4.0.54, 5)"/>
+	  <dependency id="ServiceStack.Text" version="[4.0.54, 5)"/>
     </dependencies>
   </metadata>
 </package>
