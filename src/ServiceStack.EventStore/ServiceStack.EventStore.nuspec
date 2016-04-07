@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <metadata>
-    <id>$id$</id>
+    <id>ServiceStack.EventStore</id>
     <version>$version$</version>
     <title>$title$</title>
     <authors>$author$</authors>
@@ -10,7 +10,7 @@
 	<projectUrl>https://github.com/MacLeanElectrical</projectUrl>
 	<iconUrl>https://servicestack.net/img/logo-32.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
+    <description>ServiceStack Plugin for event-sourced systems using EventStore</description>
     <releaseNotes>Initial release.</releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>ServiceStack EventStore</tags>

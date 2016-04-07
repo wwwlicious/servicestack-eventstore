@@ -25,7 +25,7 @@ namespace ServiceStack.EventStore.Resilience
         /// <param name="dropReason">The reason why the subscription was dropped.</param>
         /// <param name="exceptionMessage">The exception message provided by EventStore.</param>
         /// <param name="compensatingAction">The action to take in order to handle the subscription being dropped.</param>
-        /// <returns></returns>
+        /// <returns>An asynchronous Task.</returns>
         public static async Task Handle(DroppedSubscription subscription, Func<Task> compensatingAction)
         {
             var message = subscription.ExceptionMessage;
