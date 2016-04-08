@@ -14,16 +14,16 @@ namespace ServiceStack.EventStore.Types
     /// </summary>
     public abstract class Aggregate
     {
-        protected List<IAggregateEvent> changes;
+        protected List<dynamic> changes;
 
         protected Aggregate(Guid id, IState state)
         {
             Id = id;
             State = state;
-            changes = new List<IAggregateEvent>();
+            changes = new List<dynamic>();
         }
 
-        protected void Causes(IAggregateEvent @event)
+        protected void Causes<T>(T @event)
         {
             changes.Add(@event);
             ApplyEvent(@event);
@@ -36,7 +36,7 @@ namespace ServiceStack.EventStore.Types
 
         public IState State { get; }
 
-        public IReadOnlyList<IAggregateEvent> Changes => changes.AsReadOnly();
+        public IReadOnlyList<dynamic> Changes => changes.AsReadOnly();
 
         /// <summary>
         /// Clears committed domain events. Used after persisting an aggregate.
@@ -46,7 +46,7 @@ namespace ServiceStack.EventStore.Types
             changes.Clear();
         }
 
-        public abstract void ApplyEvent(IAggregateEvent @event);
+        public abstract void ApplyEvent(dynamic @event);
     }
 
     public abstract class Aggregate<TState> : Aggregate where TState : State, new()
@@ -58,7 +58,7 @@ namespace ServiceStack.EventStore.Types
 
         public new TState State { get; }
 
-        public override void ApplyEvent(IAggregateEvent @event)
+        public override void ApplyEvent(dynamic @event)
         {
             State.Apply(@event);
         }

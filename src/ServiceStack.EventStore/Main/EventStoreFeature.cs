@@ -1,11 +1,11 @@
 ﻿// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
-using System.Linq;
 
 namespace ServiceStack.EventStore.Main
 {
     using System;
+    using System.Linq;
     using System.Collections.Generic;
     using global::EventStore.ClientAPI;
     using Funq;
@@ -18,13 +18,15 @@ namespace ServiceStack.EventStore.Main
     using Redis;
     using Events;
     using Projections;
+    using System.Reflection;
 
     public class EventStoreFeature: IPlugin
     {
-        private readonly SubscriptionSettings featureSettings;
+        private readonly SubscriptionSettings subscriptionSettings;
         private Container container;
         private readonly ILog log;
         private readonly EventStoreConnectionSettings connectionSettings;
+        private readonly Assembly[] assembliesWithEvents;
 
         private readonly Dictionary<string, Type> consumers = new Dictionary<string, Type>
         {
@@ -34,15 +36,15 @@ namespace ServiceStack.EventStore.Main
             {"ReadModelSubscription", typeof(ReadModelConsumer)}
         };
 
-        public EventStoreFeature(EventStoreConnectionSettings connectionSettings): 
-            this(connectionSettings, new SubscriptionSettings()) { }
+        public EventStoreFeature(EventStoreConnectionSettings connectionSettings, params Assembly[] assembliesWithEvents) : 
+            this(connectionSettings, new SubscriptionSettings(), assembliesWithEvents) { }
 
-        public EventStoreFeature(EventStoreConnectionSettings connectionSettings, SubscriptionSettings featureSettings)
+        public EventStoreFeature(EventStoreConnectionSettings connectionSettings, SubscriptionSettings subscriptionSettings, params Assembly[] assembliesWithEvents)
         {
-            this.featureSettings = featureSettings;
+            this.assembliesWithEvents = assembliesWithEvents ?? new[] {Assembly.GetExecutingAssembly()};
+            this.subscriptionSettings = subscriptionSettings;
             this.connectionSettings = connectionSettings;
-            EventTypes.ScanForAggregateEvents();
-            EventTypes.ScanForServiceEvents();
+            EventTypes.ScanForEvents(assembliesWithEvents);
             log = LogManager.GetLogger(GetType());
         }
 
@@ -65,7 +67,7 @@ namespace ServiceStack.EventStore.Main
 
             try
             {
-                foreach (var subscription in featureSettings.Subscriptions)
+                foreach (var subscription in subscriptionSettings.Subscriptions)
                 {
                     var consumer = (StreamConsumer)container.TryResolve(consumers[subscription.GetType().Name]);
                     await consumer.ConnectToSubscription(subscription).ConfigureAwait(false);
@@ -98,7 +100,7 @@ namespace ServiceStack.EventStore.Main
             };
 
             var readModelSubscription =
-                featureSettings.Subscriptions
+                subscriptionSettings.Subscriptions
                     .FirstOrDefault(s => s.GetType() == typeof (ReadModelSubscription))
                     .ConvertTo<ReadModelSubscription>();
 

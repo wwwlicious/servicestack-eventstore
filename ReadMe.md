@@ -42,7 +42,7 @@ public override void Configure(Container container)
 
 ### Subscribing to Named Streams ###
 
-There are four different kinds of subscription to streams that ServiceStack.EventStore can create:
+There are four different kinds of subscriptions to streams that ServiceStack.EventStore can create:
 
 <table class="tg">
   <tr>
@@ -96,6 +96,31 @@ public override void Configure(Container container)
 }
 ```
 
+#### Working with Events ####
+
+
+
+#### Publishing Events ####
+
+By adding the ServiceStack.EventStore package to your project you can access the `EventStoreRepository` through constructor injection:
+
+```csharp
+
+    public class FlightService: ServiceStack.Service
+    {
+        private readonly IEventStoreRepository repo;
+        
+        public void FlightService(IEventStoreRepository repo)
+        {
+            this.repo = repo;    
+        }   
+        
+    }
+
+```
+
+You can then 
+
 #### Handling Events ####
 
 This plugin makes use of ServiceStack's architecture to route events from EventStore streams to their handlers which are implemented as methods on a service class: 
@@ -132,14 +157,14 @@ var settings = new SubscriptionSettings()
                         	.SetRetryPolicy(new[] {1.Seconds(), 3.Seconds(), 5.Seconds()}));
                 	});
 ```
-Alternatively, we can also tell the pluimn to use an <a href="https://en.wikipedia.org/wiki/Exponential_backoff">exponential back-off</a> to multiplicatively increase the duration to wait, for a specified total number of retry attempts, before attempting to resubscribe:
+Alternatively, we can also tell the plugin to use an <a href="https://en.wikipedia.org/wiki/Exponential_backoff">exponential back-off</a> to multiplicatively increase the duration to wait, for a specified total number of retry attempts, before attempting to resubscribe:
 
 ```csharp
 var settings = new SubscriptionSettings()
 	                .SubscribeToStreams(streams =>
     	            {
 						// using a delegate
-                    	streams.Add(new CatchUpSubscription("deadletterchannel")
+                    	streams.Add(new VolatileSubscription("deadletterchannel")
                         			.SetRetryPolicy(
                         				10.Retries(), 
                                 		retryCounter => TimeSpan.FromSeconds(Math.Pow(2, retryCounter)))
@@ -148,9 +173,11 @@ var settings = new SubscriptionSettings()
 ```
 #### Configuring a Read Model Subscription ####
 
-As mentioned before, a read model subscription is built on top of a catch-up subscription. In addition to a catch-up subscription a read model storage must be specified. 
+As mentioned previously, a read model subscription is similar to a catch-up subscription with the difference being that a read model subscription subscribes to all streams in EventStore (to the `$all` projection) and requires that storage for the read model be specified. 
 
-So far, the only storage model that has been made available is <a href="http://redis.io/">Redis</a>:
+A read model is essentially a projection of all events, or a subset thereof, that provides a stateful view of these events in a way that adds value to the end-users of the system.    
+
+Thus far, the only storage model that has been made available is <a href="http://redis.io/">Redis</a>:
 
 ```csharp
 var settings = new SubscriptionSettings()
@@ -161,11 +188,17 @@ var settings = new SubscriptionSettings()
                                     .WithStorage(new ReadModelStorage(StorageType.Redis, "localhost:6379")));
 	                });
 ```
-**Please note** that this code assumes that you have an instance of Redis installed on your local host and which is using port <a href="http://localhost:6379/">**6379**</a>. Windows users can download the latest version of Redis from <a href="https://github.com/MSOpenTech/redis/releases">MSOpenTech</a> or install it from <a href="https://chocolatey.org/packages/redis-64/">Chocolatey<a/>.
+**Please note** that this code sample assumes that you have an instance of Redis installed on your local host which is using port <a href="http://localhost:6379/">**6379**</a>. Windows users can download the latest version of Redis from <a href="https://github.com/MSOpenTech/redis/releases">MSOpenTech</a> or install it from <a href="https://chocolatey.org/packages/redis-64/">Chocolatey<a/>.
 
 #### Populating a Read Model ####
 
-To populate a read model from EventStore you should **(1)** add a `ReadModelSubscription` as demonstrated in the previous code snippet, **(2)** create a view model class to represent a record in the read model, and then **(3)** instantiate a `ProjectionWriter`, specifying the type of the unique Id and the view model to be used, in the service you are using to handle events.
+To populate a read model from subscribed event streams you will need to do the following:
+
+* Create a `ReadModelSubscription` in the `Configure` method of the `AppHost`, as demonstrated above.
+* For each event type that 
+* Create a class that inherits from `ServiceStack.Service` and add methods that take in the type 
+* Create a view model class to represent a record in the read model. Potentially, this could be a hierarchical object graph that could be persisted as a JSON document in Redis (or RavenDB ) or as a set of rows in RDBMS tables.  
+* In the `Service` class where you h instantiate a `ProjectionWriter`, specifying the type of the unique Id and the view model to be used, in the service you are using to handle events.
 
 When handling an event that corresponds to a new record being required in the read model - for example, `PurchaseOrderCreated` - then use the `Add` method to create a new instance of desired view model. When handling events that should update the state of a record in the read model then use the `Update` method to pass in the Id of the record to be updated as well as a delegate that mutates the appropriate properties of the view model:
 

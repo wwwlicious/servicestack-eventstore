@@ -41,6 +41,7 @@
       <HintPath>..\packages\EventStore.Client.3.5.2\lib\net40\EventStore.ClientAPI.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Polly, Version=4.1.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Polly.4.1.2\lib\net45\Polly.dll</HintPath>
       <Private>True</Private>
@@ -115,7 +116,6 @@
     <Compile Include="Subscriptions\VolatileSubscription.cs" />
     <Compile Include="Subscriptions\PersistentSubscription.cs" />
     <Compile Include="Types\Event.cs" />
-    <Compile Include="Types\IAggregateEvent.cs" />
     <Compile Include="Types\InvalidMessage.cs" />
     <Compile Include="Idempotency\GuidUtility.cs" />
     <Compile Include="Consumers\StreamConsumer.cs" />

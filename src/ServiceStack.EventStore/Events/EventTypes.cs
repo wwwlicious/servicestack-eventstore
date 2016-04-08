@@ -5,11 +5,9 @@ namespace ServiceStack.EventStore.Events
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Reflection;
     using HelperClasses;
-    using Types;
 
     /// <summary>
     /// Contains a dictionary of DTOs that can be transformed from EventStore's ResolvedEvent
@@ -34,30 +32,14 @@ namespace ServiceStack.EventStore.Events
             return eventTypes.HasAny();
         }
 
-        public static void ScanForServiceEvents()
+        public static void ScanForEvents(IReadOnlyList<Assembly> assembliesWithEvents)
         {
-            var methods = HostContext.Metadata.ServiceTypes
-                                                    .SelectMany(t => t.GetMethods()
-                                                    .Where(m => m.IsPublic && m.Name == "Any"));
 
-            var parameters = methods.SelectMany(m => m.GetParameters().Where(p => p.ParameterType.IsClass));
-
-            foreach (var p in parameters)
+            foreach (var assembly in assembliesWithEvents)
             {
-                eventTypes.Add(p.ParameterType.Name, p.ParameterType);
-            }
-        }
-
-        public static void ScanForAggregateEvents()
-        {
-            var path = AppDomain.CurrentDomain.BaseDirectory;
-            var files = Directory.GetFiles(path, "*.dll");
-
-            foreach (var file in files)
-            {
-                var assembly = Assembly.LoadFrom(file);
-                var types = assembly.GetTypes()
-                                .Where(t => t.IsClass && t.HasInterface(typeof(IAggregateEvent)));
+                var types = Assembly.Load(assembly.GetName())
+                                    .GetTypes()
+                                    .Where(t => t.IsClass && t.IsVisible);
 
                 foreach (var type in types)
                 {

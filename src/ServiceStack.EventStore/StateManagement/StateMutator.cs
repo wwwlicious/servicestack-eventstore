@@ -7,7 +7,6 @@ namespace ServiceStack.EventStore.StateManagement
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using HelperClasses;
-    using Types;
 
     /// <summary>
     /// Factory for StateMutator objects
@@ -56,7 +55,7 @@ namespace ServiceStack.EventStore.StateManagement
         /// </summary>
         /// <param name="state">The current state of the aggregate.</param>
         /// <param name="event">The event to be applied to the state.</param>
-        public void Mutate(IState state, IAggregateEvent @event)
+        public void Mutate(IState state, dynamic @event)
         {
             Action<TState, object> eventMutator;
             eventMutators.TryGetValue(@event.GetType().Name, out eventMutator);

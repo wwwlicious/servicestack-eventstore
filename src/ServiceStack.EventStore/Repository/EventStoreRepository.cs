@@ -71,18 +71,20 @@ namespace ServiceStack.EventStore.Repository
             var streamName = getStreamName(aggregate.GetType(), aggregate.Id);
 
             var newEvents = aggregate.Changes.ToList();
+
             var originalVersion = aggregate.State.Version - newEvents.Count;
             var expectedVersion = originalVersion == InitialVersion
                                     ? ExpectedVersion.NoStream
                                     : originalVersion.Subtract(1);
 
-            var eventsToSave = newEvents.Select(@event => ToEventData(@event, headers)).ToList();
+            var events = newEvents.Select(@event => (EventData) ToEventData(@event, headers));
+            var eventToSave = events as IList<EventData> ?? events.ToList();
 
-            if (eventsToSave.Count < WritePageSize)
+            if (eventToSave.Count < WritePageSize)
             {
                 try
                 {
-                    await Connection.AppendToStreamAsync(streamName, expectedVersion, eventsToSave);
+                    await Connection.AppendToStreamAsync(streamName, expectedVersion, eventToSave);
                 }
                 catch (Exception exception)
                 { 
@@ -97,9 +99,9 @@ namespace ServiceStack.EventStore.Repository
                     {
                         var position = 0;
 
-                        while (position < eventsToSave.Count)
+                        while (position < eventToSave.Count)
                         {
-                            var pageEvents = eventsToSave.Skip(position).Take(WritePageSize);
+                            var pageEvents = eventToSave.Skip(position).Take(WritePageSize);
                             try
                             {
                                 await transaction.WriteAsync(pageEvents);
@@ -167,7 +169,7 @@ namespace ServiceStack.EventStore.Repository
                 sliceStart = currentSlice.NextEventNumber;
 
                 foreach (var evnt in currentSlice.Events)
-                    aggregate.ApplyEvent((IAggregateEvent) DeserializeEvent(evnt.OriginalEvent.Metadata, evnt.OriginalEvent.Data));
+                    aggregate.ApplyEvent(DeserializeEvent(evnt.OriginalEvent.Metadata, evnt.OriginalEvent.Data));
 
             } while (version > currentSlice.NextEventNumber && !currentSlice.IsEndOfStream);
 
