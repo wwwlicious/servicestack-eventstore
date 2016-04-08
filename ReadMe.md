@@ -20,7 +20,7 @@ Install-Package ServiceStack.EventStore
 ```
 
 ### Setting up a Connection to EventStore ###
-Add the following code to the `Configure` method in your `AppHost` class (this class is created automatically for you when you use one of the ServiceStack project templates). Additionally, you can take advantage of the ServiceStack `MetadataFeature` to provide a link to the EventStore admin UI by providing the HTTP address of the EventStore instance.
+Add the following code to the `Configure` method in your `AppHost` class (this class is created automatically when you use one of the ServiceStack project templates). Additionally, you can take advantage of the ServiceStack `MetadataFeature` to provide a link to the EventStore admin UI by providing the HTTP address of the EventStore instance:
 
 ```csharp
 public override void Configure(Container container)
@@ -52,7 +52,7 @@ There are four different kinds of subscriptions to streams that ServiceStack.Eve
   </tr>
   <tr>
     <td class="tg-9hbo">Volatile</td>
-    <td class="tg-n9nb">Provides access to an EventStore volatile subscription which starts reading from the next event following connection on a named stream.</td>
+    <td class="tg-n9nb">Provides access to an EventStore volatile subscription which starts reading from the next event published on a named stream following successful connection by the plugin.</td>
     <td class="tg-yw4l">The stream name.</td>
   </tr>
   <tr>
@@ -67,12 +67,12 @@ There are four different kinds of subscriptions to streams that ServiceStack.Eve
   </tr>
   <tr>
     <td class="tg-e3zv">Read Model</td>
-    <td class="tg-031e">Also provides access to an EventStore catch-up subscription with the difference that it automatically subscribes to all ("$all" in EventStore) to allow a read model to be populated from selected events from different streams.</td>
+    <td class="tg-031e">Also provides access to an EventStore catch-up subscription, with the difference that it automatically subscribes to all streams ("$all" in EventStore) to allow a read model to be populated from selected events from different streams.</td>
     <td class="tg-yw4l">None.</td>
   </tr>
 </table>
 
-Subscriptions can be created as follows in the `Configure` method:
+Subscriptions can be created as follows in the `Configure` method (we will cover read model subscriptions separately):
 
 ```csharp
 public override void Configure(Container container)
@@ -80,16 +80,15 @@ public override void Configure(Container container)
     var settings = new SubscriptionSettings()
 			        	.SubscribeToStreams(streams =>
             	    	{
-                	    	streams.Add(new CatchUpSubscription("stream_i_want_to_read_from_a_specified_event_number_onwards"));
-                            ...
-                            streams.Add(new VolatileSubscription("stream_i_want_to_read_from_now_onwards"));
-                            ...
-                            streams.Add(new PersistentSubscription("stream_i_want_to_read_with_competing_consumers", "subscription_group_name"));
-                            ...
-                            streams.Add(new ReadModelSubscription());
+            	    		//read a stream from the first event
+                	    	streams.Add(new CatchUpSubscription("stream_name"));
+                            //read a stream from this moment forward
+                            streams.Add(new VolatileSubscription("stream_name"));
+                            //receive events from a stream as a competing consumer
+                            streams.Add(new PersistentSubscription("stream_name", "subscription_group_name"));
                 		});
 
- 	...Connection set-up omitted
+ 	...connection set-up omitted
 
 	// Note the extra parameter being used when creating an instance of the EventStoreFeature
 	Plugins.Add(new EventStoreFeature(connection, settings));
@@ -98,7 +97,7 @@ public override void Configure(Container container)
 
 #### Working with Events ####
 
-
+Explanation pending.
 
 #### Publishing Events ####
 
@@ -118,8 +117,6 @@ By adding the ServiceStack.EventStore package to your project you can access the
     }
 
 ```
-
-You can then 
 
 #### Handling Events ####
 
@@ -145,9 +142,9 @@ public class PurchaseOrderService : Service
 ```
 #### Setting a Retry Policy ####
 
-When creating a subscription you can also specify the retry policy used by ServiceStack.EventStore in response to a subscription to EventStore being dropped. Since the retry functionality builds on the <a href="https://github.com/App-vNext/Polly">Polly</a> library the retry policy can be set by either specifying an `IEnumerable<TimeSpan>` or a delegate.
+When creating a subscription you can also specify the retry policy used by ServiceStack.EventStore in response to a subscription to EventStore being dropped. Since the retry functionality builds on the <a href="https://github.com/App-vNext/Polly">Polly</a> library, the retry policy can be set by either specifying an `IEnumerable<TimeSpan>` or a delegate.
 
-For example, in the `Configure` method we can specify a series of `TimeSpan`s that tell the plugin that if the specified subscription is dropped then wait one second before retrying the subscription. And then three seconds after that. And then five seconds after that:
+For example, in the `Configure` method we can specify a series of `TimeSpan`s that tell the plugin that in the event of a specified subscription being dropped to wait one second before retrying the subscription. And then three seconds after that. And then five seconds after that:
 
 ```csharp
 var settings = new SubscriptionSettings()
@@ -157,7 +154,7 @@ var settings = new SubscriptionSettings()
                         	.SetRetryPolicy(new[] {1.Seconds(), 3.Seconds(), 5.Seconds()}));
                 	});
 ```
-Alternatively, we can also tell the plugin to use an <a href="https://en.wikipedia.org/wiki/Exponential_backoff">exponential back-off</a> to multiplicatively increase the duration to wait, for a specified total number of retry attempts, before attempting to resubscribe:
+Alternatively, we can also tell the plugin to use an <a href="https://en.wikipedia.org/wiki/Exponential_backoff">exponential back-off</a> to multiplicatively increase the time to wait, for a specified maximum number of retry attempts, before attempting to resubscribe:
 
 ```csharp
 var settings = new SubscriptionSettings()
@@ -173,11 +170,11 @@ var settings = new SubscriptionSettings()
 ```
 #### Configuring a Read Model Subscription ####
 
-As mentioned previously, a read model subscription is similar to a catch-up subscription with the difference being that a read model subscription subscribes to all streams in EventStore (to the `$all` projection) and requires that storage for the read model be specified. 
+As mentioned previously, a read model subscription is similar to a catch-up subscription, with the difference being that a read model subscription subscribes to **all** streams in EventStore (to the `$all` projection) and, further, requires that a storage mechanism for the read model be specified. 
 
-A read model is essentially a projection of all events, or a subset thereof, that provides a stateful view of these events in a way that adds value to the end-users of the system.    
+A read model is essentially a projection of all events, or a subset thereof, that provides a stateful view of these events in a way that adds value to the end-users of the system.     
 
-Thus far, the only storage model that has been made available is <a href="http://redis.io/">Redis</a>:
+Currently, the only storage model that is available is <a href="http://redis.io/">Redis</a>:
 
 ```csharp
 var settings = new SubscriptionSettings()
@@ -192,13 +189,15 @@ var settings = new SubscriptionSettings()
 
 #### Populating a Read Model ####
 
-To populate a read model from subscribed event streams you will need to do the following:
+To populate a read model from subscribed event streams you need to do the following:
 
 * Create a `ReadModelSubscription` in the `Configure` method of the `AppHost`, as demonstrated above.
-* For each event type that 
-* Create a class that inherits from `ServiceStack.Service` and add methods that take in the type 
+* For each event type that you wish to consume from EventStore create a class. There is no need for such a class to implement an interface.
+* Create a class that inherits from `ServiceStack.Service` and add methods that take in the desired CLR event types. 
 * Create a view model class to represent a record in the read model. Potentially, this could be a hierarchical object graph that could be persisted as a JSON document in Redis (or RavenDB ) or as a set of rows in RDBMS tables.  
-* In the `Service` class where you h instantiate a `ProjectionWriter`, specifying the type of the unique Id and the view model to be used, in the service you are using to handle events.
+* In the `Service` class instantiate a `ProjectionWriter`, specifying the type of the unique Id and the view model to be used.
+
+#### Creating a Projection ####
 
 When handling an event that corresponds to a new record being required in the read model - for example, `PurchaseOrderCreated` - then use the `Add` method to create a new instance of desired view model. When handling events that should update the state of a record in the read model then use the `Update` method to pass in the Id of the record to be updated as well as a delegate that mutates the appropriate properties of the view model:
 
