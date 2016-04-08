@@ -113,7 +113,7 @@ public override void Configure(Container container)
 
 This plugin makes use of ServiceStack's architecture to route events from EventStore streams to their handlers which are implemented as methods on a service class: 
 
-![Routing Events](assets\RoutingEvents.png)
+![Routing Events](https://github.com/MacLeanElectrical/servicestack-eventstore/blob/master/assets/RoutingEvents.png)
 
 To handle an event on a stream to which you have subscribed simply create a class that inherits from `ServiceStack.Service` and add an endpoint for the event you wish to handle:
 
