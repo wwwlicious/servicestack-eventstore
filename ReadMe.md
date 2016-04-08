@@ -42,7 +42,7 @@ public override void Configure(Container container)
                             .UserName("admin")
                             .Password("changeit")
                             .TcpEndpoint("localhost:1113")
-							.HttpEndpoint(localhost:2113");
+							.HttpEndpoint("localhost:2113");
     
     Plugins.Add(new EventStoreFeature(connection));
     Plugins.Add(new MetadataFeature());
