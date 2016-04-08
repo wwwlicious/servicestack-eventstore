@@ -20,7 +20,7 @@ Install-Package ServiceStack.EventStore
 ```
 
 ### Setting up a Connection to EventStore ###
-Add the following code to the `Configure` method in your `AppHost` class (this class is created automatically for you when you use one of the ServiceStack project templates):
+Add the following code to the `Configure` method in your `AppHost` class (this class is created automatically for you when you use one of the ServiceStack project templates). Additionally, you can take advantage of the ServiceStack `MetadataFeature` to provide a link to the EventStore admin UI by providing the HTTP address of the EventStore instance.
 
 ```csharp
 public override void Configure(Container container)
@@ -28,26 +28,14 @@ public override void Configure(Container container)
 	var connection = new EventStoreConnectionSettings()
 					.UserName("admin")
 					.Password("changeit")
-					.TcpEndpoint("localhost:1113");
+					.TcpEndpoint("localhost:1113")
+                    .HttpEndpoint("localhost:2113");
 	
 	Plugins.Add(new EventStoreFeature(connection));
-}
-```
-Additionally, you can take advantage of the ServiceStack `MetadataFeature` to provide a link to the EventStore admin UI by providing the HTTP address of the EventStore instance:
-
-```csharp
-public override void Configure(Container container)
-{
-    var connection = new EventStoreConnectionSettings()
-					.UserName("admin")
-					.Password("changeit")
-					.TcpEndpoint("localhost:1113")
-					.HttpEndpoint("localhost:2113");
-    
-    Plugins.Add(new EventStoreFeature(connection));
     Plugins.Add(new MetadataFeature());
 }
 ```
+
 **Please note** that this sample assumes that:
 
 - EventStore is running on your **local host**. **1113** is the TCP port at which you can listen for events and **2113** is the HTTP port. These are the default ports that EventStore uses.
@@ -84,7 +72,7 @@ There are four different kinds of subscription to streams that ServiceStack.Even
   </tr>
 </table>
 
-A subscription can be created in the following way in the `Configure` method:
+Subscriptions can be created as follows in the `Configure` method:
 
 ```csharp
 public override void Configure(Container container)
@@ -92,7 +80,7 @@ public override void Configure(Container container)
     var settings = new SubscriptionSettings()
 			        	.SubscribeToStreams(streams =>
             	    	{
-                	    	streams.Add(new CatchUpSubscription("stream_i_want_to_read_from_a_specified_event_number"));
+                	    	streams.Add(new CatchUpSubscription("stream_i_want_to_read_from_a_specified_event_number_onwards"));
                             ...
                             streams.Add(new VolatileSubscription("stream_i_want_to_read_from_now_onwards"));
                             ...
@@ -108,14 +96,13 @@ public override void Configure(Container container)
 }
 ```
 
-
 #### Handling Events ####
 
 This plugin makes use of ServiceStack's architecture to route events from EventStore streams to their handlers which are implemented as methods on a service class: 
 
 ![Routing Events](https://github.com/MacLeanElectrical/servicestack-eventstore/blob/master/assets/RoutingEvents.png)
 
-To handle an event on a stream to which you have subscribed simply create a class that inherits from `ServiceStack.Service` and add an endpoint for the event you wish to handle:
+To handle an event on a stream to which you have subscribed simply create a class that inherits from `ServiceStack.Service` and add an endpoint for each event you wish to handle:
 
 ```csharp
 public class PurchaseOrderService : Service
@@ -135,21 +122,17 @@ public class PurchaseOrderService : Service
 
 When creating a subscription you can also specify the retry policy used by ServiceStack.EventStore in response to a subscription to EventStore being dropped. Since the retry functionality builds on the <a href="https://github.com/App-vNext/Polly">Polly</a> library the retry policy can be set by either specifying an `IEnumerable<TimeSpan>` or a delegate.
 
-To create a volatile subscription to a named stream that, if the subscription is dropped, attempts to resubscribe according to specified durations add the following code to your `Configure` method:
+For example, in the `Configure` method we can specify a series of `TimeSpan`s that tell the plugin that if the specified subscription is dropped then wait one second before retrying the subscription. And then three seconds after that. And then five seconds after that:
 
 ```csharp
 var settings = new SubscriptionSettings()
 		            .SubscribeToStreams(streams =>
         	        {
-            	        // using an IEnumerable<TimeSpan>
-                        // to wait 1 second before attempting to re-subscribe
-                        // and then 3 seconds after that
-                        //and then 5 seconds after that
                     	streams.Add(new VolatileSubscription("deadletterchannel")
                         	.SetRetryPolicy(new[] {1.Seconds(), 3.Seconds(), 5.Seconds()}));
                 	});
 ```
-If we wanted to specify an algorithm to allow for an <a href="https://en.wikipedia.org/wiki/Exponential_backoff">exponential back-off</a> we can pass in a delegate:
+Alternatively, we can also tell the pluimn to use an <a href="https://en.wikipedia.org/wiki/Exponential_backoff">exponential back-off</a> to multiplicatively increase the duration to wait, for a specified total number of retry attempts, before attempting to resubscribe:
 
 ```csharp
 var settings = new SubscriptionSettings()
