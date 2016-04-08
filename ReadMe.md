@@ -4,13 +4,13 @@
 
 A plugin for [ServiceStack](https://servicestack.net/) that provides a [message gateway](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessagingGateway.html) to [EventStore](https://geteventstore.com/) streams.
 
-By adding this plugin to an application, such as a Windows service, the application is able to connect to EventStore; subscribe to and handle [events](http://www.enterpriseintegrationpatterns.com/patterns/messaging/EventMessage.html) from named [streams](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageChannel.html); persist an aggregate to, and rehydrate it from, a stream, as well as populating a read model.
+By adding this plugin to an application, such as a Windows Service, the application is able to connect to EventStore; subscribe to and handle [events](http://www.enterpriseintegrationpatterns.com/patterns/messaging/EventMessage.html) from named [streams](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageChannel.html); persist an aggregate to, and rehydrate it from, a stream; as well as populating a read model.
 
 ## Requirements ##
 
 An instance of the EventStore server should be running on the network. Please follow the [installation](http://docs.geteventstore.com/introduction/) instructions provided by EventStore.
 
-You can verify that EventStore is running by browsing to port **2113** on the machine running the EventStore server.
+You can verify that EventStore is running by browsing to port <a href="http://localhost:2113/">**2113**</a> on the machine running the EventStore server.
 
 ## Getting Started ##
 
@@ -26,9 +26,9 @@ Add the following code to the `Configure` method in your `AppHost` class (this c
 public override void Configure(Container container)
 {
 	var connection = new EventStoreConnectionSettings()
-   					.UserName("admin")
-            				.Password("changeit")
-            				.TcpEndpoint("localhost:1113");
+					.UserName("admin")
+					.Password("changeit")
+					.TcpEndpoint("localhost:1113");
 	
 	Plugins.Add(new EventStoreFeature(connection));
 }
@@ -39,10 +39,10 @@ Additionally, you can take advantage of the ServiceStack `MetadataFeature` to pr
 public override void Configure(Container container)
 {
     var connection = new EventStoreConnectionSettings()
-                            .UserName("admin")
-                            .Password("changeit")
-                            .TcpEndpoint("localhost:1113")
-							.HttpEndpoint("localhost:2113");
+					.UserName("admin")
+					.Password("changeit")
+					.TcpEndpoint("localhost:1113")
+					.HttpEndpoint("localhost:2113");
     
     Plugins.Add(new EventStoreFeature(connection));
     Plugins.Add(new MetadataFeature());
@@ -50,7 +50,7 @@ public override void Configure(Container container)
 ```
 **Please note** that this sample assumes that:
 
-- EventStore is running on your **local host**. **1113** is the TCP port at which you can listen for events and **2113** is the HTTP port.
+- EventStore is running on your **local host**. **1113** is the TCP port at which you can listen for events and **2113** is the HTTP port. These are the default ports that EventStore uses.
 
 ### Subscribing to Named Streams ###
 
@@ -108,7 +108,7 @@ Multiple subscriptions can be added here.
 
 This plugin makes use of ServiceStack's architecture to route events from EventStore streams to their handlers. 
 
-To handle an event on a stream that you have subscribed to simply create a class that handles from `ServiceStack.Service` and add an end point for the event you wish to handle:
+To handle an event on a stream that you have subscribed to simply create a class that inherits from `ServiceStack.Service` and add an endpoint for the event you wish to handle:
 
 ```csharp
 public class PurchaseOrderService : Service
@@ -126,7 +126,7 @@ public class PurchaseOrderService : Service
 ```
 #### Setting a Retry Policy ####
 
-When creating a subscription you can also specify the retry policy used by ServiceStack.EventStore in response to a subscription to EventStore beimg dropped. Since the retry functionality builds on the <a href="https://github.com/App-vNext/Polly">Polly</a> library the retry policy can be set by either specify an `IEnumerable<TimeSpan>` or a delegate.
+When creating a subscription you can also specify the retry policy used by ServiceStack.EventStore in response to a subscription to EventStore being dropped. Since the retry functionality builds on the <a href="https://github.com/App-vNext/Polly">Polly</a> library the retry policy can be set by either specify an `IEnumerable<TimeSpan>` or a delegate.
 
 To create a volatile subscription to a named stream that, if the subscription is dropped, attempts to resubscribe according to specified durations add the following code to your `Configure` method:
 
@@ -139,7 +139,7 @@ var settings = new SubscriptionSettings()
                         	.SetRetryPolicy(new[] {1.Seconds(), 3.Seconds(), 5.Seconds()}));
                 	});
 ```
-If we wanted to specify an algorithm to allow for an exponential back-off we can pass in a delegate:
+If we wanted to specify an algorithm to allow for an <a href="https://en.wikipedia.org/wiki/Exponential_backoff">exponential back-off</a> we can pass in a delegate:
 
 ```csharp
 var settings = new SubscriptionSettings()
@@ -168,7 +168,7 @@ var settings = new SubscriptionSettings()
                                     .WithStorage(new ReadModelStorage(StorageType.Redis, "localhost:6379")));
 	                });
 ```
-**Please note** that this code assumes that you have an instance of Redis installed on your local host and which is using port 6379.
+**Please note** that this code assumes that you have an instance of Redis installed on your local host and which is using port <a href="http://localhost:6379/">**6379**</a>. Windows users can download the latest version of Redis from <a href="https://github.com/MSOpenTech/redis/releases">MSOpenTech</a> or install it from <a href="https://chocolatey.org/packages/redis-64/">Chocolatey<a/>.
 
 #### Populating a Read Model ####
 
@@ -203,12 +203,8 @@ public class PurchaseOrderService : Service
 
 ## Attributions ##
 
-This project leans partly on the following OS projects:
+This project leans gratefully on the following OS projects:
 
 - <a href="https://github.com/mfelicio/NDomain">**NDomain**</a> by Manuel Felício
 - <a href="https://github.com/gnschenker/EventSourcing">**EventSourcing**</a> by Gabriel Shenker
-- <a href="https://github.com/EventStore/getting-started-with-event-store">**Getting-Started-With-Event-Store**</a> byJames Nugent 
-
-
-
-
+- <a href="https://github.com/EventStore/getting-started-with-event-store">**Getting-Started-With-Event-Store**</a> by James Nugent 
