@@ -1,7 +1,7 @@
 # ServiceStack.EventStore #
 
 [![Build status](https://ci.appveyor.com/api/projects/status/v9qd6kso0bkc5spf/branch/master?svg=true)](https://ci.appveyor.com/project/wwwlicious/servicestack-eventstore/branch/master)
-[![NuGet](https://img.shields.io/nuget/v/Nuget.Core.svg?maxAge=2592000)](https://www.nuget.org/packages/ServiceStack.EventStore/)
+[![NuGet version](https://badge.fury.io/nu/ServiceStack.EventStore.svg)](https://badge.fury.io/nu/ServiceStack.EventStore)
 
 A plugin for [ServiceStack](https://servicestack.net/) that provides a [message gateway](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessagingGateway.html) to [EventStore](https://geteventstore.com/) streams.
 
@@ -61,7 +61,7 @@ There are four different kinds of subscriptions to streams that ServiceStack.Eve
   </tr>
   <tr>
     <td class="tg-e3zv">Persistent</td>
-    <td class="tg-381c">Provides access to an EventStore persistent subscription, which supports the <a href="http://www.enterpriseintegrationpatterns.com/patterns/messaging/CompetingConsumers.html">competing consumer</a> messaging model on a named stream.</td>
+    <td class="tg-381c">Provides access to an EventStore persistent subscription, which supports the [competing consumers](http://www.enterpriseintegrationpatterns.com/patterns/messaging/CompetingConsumers.html) messaging model on a named stream.</td>
     <td class="tg-yw4l">The stream name and the subscription group.</td>
   </tr>
   <tr>
@@ -101,7 +101,7 @@ public override void Configure(Container container)
 
 #### Modelling Events ####
 
-The content of events in EventStore is stored in JSON format. In a language based on the .Net CLR we implement each type of event that we want to work with as a class:
+The content of events in EventStore is stored in JSON format. In a language based on the .Net CLR we model each type of event that we want to work with as a class:
 ```csharp
 public class OrderCreated
 {
@@ -109,7 +109,7 @@ public class OrderCreated
    	public DateTime Created {get; set;}
 }
 ```
-There is no need for such a class to implement a particular interface. Rather, as you have seen, when registering the EventStore plugin we pass in a reference to the assembly (or assemblies) that contain the relevant classes:
+There is no need for such a class to implement a particular interface or inherit from a parent class. Rather, as you have seen, when registering the EventStore plugin we pass in a reference to the assembly (or assemblies) that contain the relevant classes:
 
 ```csharp
 public override void Configure(Container container)
@@ -134,11 +134,11 @@ public class FlightService: ServiceStack.Service
 	    this.repo = repo;    
 	}   
 	
-        public async Task DoSomething()
-        {
-            ...
-            await _repo.PublishAsync(new SomethingHappened(), "targetstream");
-        }
+	public async Task DoSomething()
+	{
+	    ...
+	    await _repo.PublishAsync(new SomethingHappened(), "targetstream");
+	}
 }
 
 ```
@@ -149,12 +149,13 @@ Additionally, we can set the headers for the event:
 
 public async Task DoSomething()
 {
+    ...
     await _repo.PublishAsync(new SomethingHappened(), "targetstream",
-        headers =>
-        {
-            headers.Add("CorrelationId", correlationId);
-            headers.Add("SitarPlayer", "Ustad Vilyat Khan");
-        });
+		        headers =>
+		        {
+		            headers.Add("CorrelationId", correlationId);
+		            headers.Add("SitarPlayer", "Ustad Vilyat Khan");
+		        });
 }
 ```
 #### Handling Events ####
@@ -170,20 +171,20 @@ public class PurchaseOrderService : Service
 {
     public object Any(PurchaseOrderCreated @event)
     {
-		...handle event
+		//handle event
     }
 
     public object Any(OrderLineItemsAdded @event)
     {
-		...handle event
+		//handle event
     }
 }
 ```
 #### Setting a Retry Policy ####
 
-When creating a subscription you can also specify the retry policy used by ServiceStack.EventStore in response to a subscription to EventStore being dropped. Since the retry functionality builds on the <a href="https://github.com/App-vNext/Polly">Polly</a> library, the retry policy can be set by either specifying an `IEnumerable<TimeSpan>` or a delegate.
+When creating a subscription you can also specify the retry policy used by ServiceStack.EventStore in response to a subscription to EventStore being dropped. Since the retry functionality builds on the <a href="https://github.com/App-vNext/Polly">Polly</a> library, the retry policy can be set by either specifying a parameter array `TimeSpan` or a delegate.
 
-For example, in the `Configure` method we can specify a series of `TimeSpan`s that tell the plugin that in the event of a specified subscription being dropped to wait one second before retrying the subscription. And then three seconds after that. And then five seconds after that:
+For example, in the `Configure` method we can specify a series of `TimeSpan`s that tell the plugin that in the event of a specified subscription being dropped it should wait one second before retrying the subscription. And then three seconds after that. And then five seconds after that:
 
 ```csharp
 var settings = new SubscriptionSettings()
@@ -206,13 +207,97 @@ var settings = new SubscriptionSettings()
                             		);
                     });
 ```
+
+#### Aggregates ####
+
+This plugin supports the event-sourced [aggregates](http://martinfowler.com/bliki/DDD_Aggregate.html) pattern whereby the state of an aggregate object is mutated by means of events that are raised in response to commands executed against that aggregate. 
+
+In many implementations of the event-sourced aggregate pattern to be found on the internet (such as [here](https://lostechies.com/gabrielschenker/2015/06/06/event-sourcing-applied-the-aggregate/), [here](http://danielwhittaker.me/2014/11/15/aggregate-root-cqrs-event-sourcing/), and [here](http://bit.ly/1YhgPCR)) the aggregate is modelled as a **single** class exposing (1) API methods that raise events in response to commands, (2) event handlers that mutate state in response to these events being raised, and (3) fields that hold that state. ServiceStack.EventStore, however, supports the modelling of a (logical) aggregate as two distinct classes with single responsibilities: a class that inherits from `Aggregate<TState>` and exposes command methods that are responsible for validation of the commands and raising events in response to them.
+
+An event is raised by using the `Causes<TEvent>` method:
+
+```csharp
+public class Flight : Aggregate<FlightState>
+{
+	public Flight(Guid id) : base(id)
+	{
+	}
+	
+	public Flight(): base(Guid.NewGuid())
+	{
+	    Causes(new FlightCreated(Id));
+	}
+	
+	public void UpdateFlightNumber(string newFlightNumber)
+	{
+		if (!string.IsNullOrEmpty(destination))
+			Causes(new FlightNumberUpdated(newFlightNumber));
+	}
+	
+	public void UpdateDestination(string destination)
+	{
+		if (!string.IsNullOrEmpty(destination))
+			Causes(new DestinationChanged(destination));
+	}
+}
+
+```
+
+And a class that inherits from `State` that encapsulates the state of the aggregate and implements handlers for the events raised and mutates the state. An event `SomethingHappened` raised in the class that inherits `Aggregate<TState>` is handled by simply implementing a method `On(SomethingHappened @event)`. The state of an aggregate should almost always be mutated by means of raising events and for that reason it is recommended that the fields of a state object be set as `{get; private set;}`:
+
+```csharp
+public class FlightState : State
+{
+	public string FlightNumber { get; private set; }
+	public string Destination { get; private set; }
+	
+	public void On(FlightCreated @event)
+	{
+	}
+	
+	public void On(FlightNumberUpdated @event)
+	{
+	    FlightNumber = @event.NewFlightNumber;
+	}
+	
+	public void On(DestinationChanged @event)
+	{
+	    Destination = @event.Destination;
+	}
+}
+```
+
+
+```csharp
+
+public class FlightService
+{
+	private readonly IEventStoreRepository repo;
+	
+	public void FlightService(IEventStoreRepository repo)
+	{
+		this.repo = repo;
+	}
+	
+	public async Task CancelFlight(Guid flightId)
+	{
+		var flight = await repo.GetByIdAsync<Flight>(flightId)
+				       .ConfigureAwait(false);
+		
+		flight.UpdateDestination("Dingwall International Airport");
+		
+		await repo.SaveAsync(flight);
+	}
+}
+```
+
 #### Configuring a Read Model Subscription ####
 
 As mentioned previously, a read model subscription is similar to a catch-up subscription, with the difference being that a read model subscription subscribes to **all** streams in EventStore (to the `$all` projection) and, further, requires that a storage mechanism for the read model be specified. 
 
 A read model is essentially a projection of all events, or a subset thereof, that provides a stateful view of these events in a way that adds value to the end-users of the system.     
 
-Currently, the only storage model that is available is <a href="http://redis.io/">Redis</a>:
+Currently, the only storage model that is available is [Redis](http://redis.io/):
 
 ```csharp
 var settings = new SubscriptionSettings()
@@ -223,7 +308,7 @@ var settings = new SubscriptionSettings()
                                     .WithStorage(new ReadModelStorage(StorageType.Redis, "localhost:6379")));
 	                });
 ```
-**Please note** that this code sample assumes that you have an instance of Redis installed on your local host which is using port <a href="http://localhost:6379/">**6379**</a>. Windows users can download the latest version of Redis from <a href="https://github.com/MSOpenTech/redis/releases">MSOpenTech</a> or install it from <a href="https://chocolatey.org/packages/redis-64/">Chocolatey<a/>.
+**Please note** that this code sample assumes that you have an instance of Redis installed on your local host which is using port <a [**6379**](http://localhost:6379/). Windows users can download the latest version of Redis from [MSOpenTech](https://github.com/MSOpenTech/redis/releases) or install it from [Chocolatey](https://chocolatey.org/packages/redis-64/).
 
 #### Populating a Read Model ####
 
@@ -268,6 +353,6 @@ public class PurchaseOrderService : Service
 
 This project leans gratefully on the following OS projects:
 
-- <a href="https://github.com/mfelicio/NDomain">**NDomain**</a> by Manuel Felício
-- <a href="https://github.com/gnschenker/EventSourcing">**EventSourcing**</a> by Gabriel Shenker
-- <a href="https://github.com/EventStore/getting-started-with-event-store">**Getting-Started-With-Event-Store**</a> by James Nugent 
+- [**NDomain**](https://github.com/mfelicio/NDomain) by Manuel Felício
+- [**EventSourcing**](https://github.com/gnschenker/EventSourcing) by Gabriel Shenker
+- [**Getting-Started-With-Event-Store**](https://github.com/EventStore/getting-started-with-event-store) by James Nugent 
