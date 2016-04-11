@@ -61,7 +61,7 @@ There are four different kinds of subscriptions to streams that ServiceStack.Eve
   </tr>
   <tr>
     <td class="tg-e3zv">Persistent</td>
-    <td class="tg-381c">Provides access to an EventStore persistent subscription, which supports the [competing consumers](http://www.enterpriseintegrationpatterns.com/patterns/messaging/CompetingConsumers.html) messaging model on a named stream.</td>
+    <td class="tg-381c">Provides access to an EventStore persistent subscription, which supports the competing consumers messaging model on a named stream.</td>
     <td class="tg-yw4l">The stream name and the subscription group.</td>
   </tr>
   <tr>
@@ -127,17 +127,17 @@ By adding the ServiceStack.EventStore package to your project we can access the 
 
 public class FlightService: ServiceStack.Service
 {
-	private readonly IEventStoreRepository repo;
+	private readonly IEventStoreRepository repository;
 	
 	public void FlightService(IEventStoreRepository repo)
 	{
-	    this.repo = repo;    
+	    this.repository = repo;    
 	}   
 	
 	public async Task DoSomething()
 	{
 	    ...
-	    await _repo.PublishAsync(new SomethingHappened(), "targetstream");
+	    await repository.PublishAsync(new SomethingHappened(), "targetstream");
 	}
 }
 
@@ -210,7 +210,11 @@ var settings = new SubscriptionSettings()
 
 #### Aggregates ####
 
-This plugin supports the event-sourced [aggregates](http://martinfowler.com/bliki/DDD_Aggregate.html) pattern whereby the state of an aggregate object is mutated by means of events that are raised in response to commands executed against that aggregate. 
+This plugin supports the event-sourced [aggregates](http://martinfowler.com/bliki/DDD_Aggregate.html) pattern whereby the state of an aggregate object is mutated by means of events that are raised in response to commands executed against that aggregate. Every event is raised in response to a command is held in memory until the aggregate is persisted to the event store. Following the event-sourcing mode, it is not the state of the aggregate that is persisted but, rather, the events which have led the aggregate to be in its current state. 
+
+When the aggregate is loaded (or 'rehydrated' in the parlance of event sourcing), again, it is not the state as such of the aggregate that is loaded but, rather, the events which were previously persisted to the event store. These events are re-applied to the aggregate (in exactly the same way they were when the original commands were executed) to reach the proper state of the aggregate. As Greg Young has reiterated "Current State is a [left fold](https://en.wikipedia.org/wiki/Fold_%28higher-order_function%29) of previous facts". 
+
+![Event Sourced Aggregate](https://github.com/MacLeanElectrical/servicestack-eventstore/blob/master/assets/Aggregate.png)
 
 In many implementations of the event-sourced aggregate pattern to be found on the internet (such as [here](https://lostechies.com/gabrielschenker/2015/06/06/event-sourcing-applied-the-aggregate/), [here](http://danielwhittaker.me/2014/11/15/aggregate-root-cqrs-event-sourcing/), and [here](http://bit.ly/1YhgPCR)) the aggregate is modelled as a **single** class exposing (1) API methods that raise events in response to commands, (2) event handlers that mutate state in response to these events being raised, and (3) fields that hold that state. ServiceStack.EventStore, however, supports the modelling of a (logical) aggregate as two distinct classes with single responsibilities: a class that inherits from `Aggregate<TState>` and exposes command methods that are responsible for validation of the commands and raising events in response to them.
 
@@ -308,7 +312,7 @@ var settings = new SubscriptionSettings()
                                     .WithStorage(new ReadModelStorage(StorageType.Redis, "localhost:6379")));
 	                });
 ```
-**Please note** that this code sample assumes that you have an instance of Redis installed on your local host which is using port <a [**6379**](http://localhost:6379/). Windows users can download the latest version of Redis from [MSOpenTech](https://github.com/MSOpenTech/redis/releases) or install it from [Chocolatey](https://chocolatey.org/packages/redis-64/).
+**Please note** that this code sample assumes that you have an instance of Redis installed on your local host which is using port [**6379**](http://localhost:6379/). Windows users can download the latest version of Redis from [MSOpenTech](https://github.com/MSOpenTech/redis/releases) or install it from [Chocolatey](https://chocolatey.org/packages/redis-64/).
 
 #### Populating a Read Model ####
 
