@@ -14,13 +14,13 @@ namespace ServiceStack.EventStore.Projections
     /// </summary>
     /// <typeparam name="TId"></typeparam>
     /// <typeparam name="TViewModel"></typeparam>
-    public class RedisProjectionWriter<TId, TViewModel> : IProjectionWriter<TId, TViewModel> 
+    public class RedisReadModelWriter<TId, TViewModel> : IReadModelWriter<TId, TViewModel> 
                                                             where TId : struct 
                                                             where TViewModel : class
     {
         private readonly IRedisClient redisClient;
 
-        public RedisProjectionWriter(IRedisClientsManager redis)
+        public RedisReadModelWriter(IRedisClientsManager redis)
         {
             redisClient = redis.GetClient();
         }

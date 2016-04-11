@@ -31,7 +31,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
         {
             var weeGreenMenLanded = new WeeGreenMenLanded(14);
 
-            await eventStore.PublishAsync(weeGreenMenLanded);
+            await eventStore.PublishAsync(weeGreenMenLanded, "");
             await Task.Delay(10000);
 
             eventFired.Should().BeTrue();

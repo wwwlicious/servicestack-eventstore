@@ -12,7 +12,7 @@ namespace ServiceStack.EventStore.Projections
     /// </summary>
     /// <typeparam name="TId">The type parameter of the unique Id of the view model.</typeparam>
     /// <typeparam name="TViewModel">The type of the view model.</typeparam>
-    public interface IProjectionWriter<in TId, TViewModel> where TId: struct 
+    public interface IReadModelWriter<in TId, TViewModel> where TId: struct 
                                                            where TViewModel : class 
     {
         Task Add(TViewModel item);

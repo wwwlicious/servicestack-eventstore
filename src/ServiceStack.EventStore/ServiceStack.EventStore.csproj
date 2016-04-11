@@ -86,10 +86,10 @@
     <Compile Include="ConnectionManagement\IMonitorSettings.cs" />
     <Compile Include="Consumers\ReadModelConsumer.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
-    <Compile Include="Factories\ProjectionWriterFactory.cs" />
+    <Compile Include="Factories\ReadModelWriterFactory.cs" />
     <Compile Include="Projections\StorageType.cs" />
-    <Compile Include="Projections\IProjectionWriter.cs" />
-    <Compile Include="Projections\RedisProjectionWriter.cs" />
+    <Compile Include="Projections\IReadModelWriter.cs" />
+    <Compile Include="Projections\RedisReadModelWriter.cs" />
     <Compile Include="Projections\ReadModelStorage.cs" />
     <Compile Include="Resilience\RetryExtensions.cs" />
     <Compile Include="Resilience\RetryType.cs" />

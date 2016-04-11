@@ -25,13 +25,13 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
         [Fact]
         public Task CanPublishEvent()
         {
-            return eventStore.PublishAsync(new ServiceHasReachedWarningState(DateTime.UtcNow));
+            return eventStore.PublishAsync(new ServiceHasReachedWarningState(DateTime.UtcNow), "");
         }
 
         [Fact]
         public Task CanPublishEventWithHeaders()
         {
-            return eventStore.PublishAsync(new ServiceHasReachedWarningState(DateTime.UtcNow), headers =>
+            return eventStore.PublishAsync(new ServiceHasReachedWarningState(DateTime.UtcNow), "stream", headers =>
              {
                  headers.Add("User", "Fortescue Bryantworth (the Second)");
                  headers.Add("Titbit", "In truth, the World reposes on the back of a somewhat indignant turtle.");

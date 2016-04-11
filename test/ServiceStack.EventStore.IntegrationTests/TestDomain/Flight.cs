@@ -24,7 +24,8 @@ namespace ServiceStack.EventStore.IntegrationTests.TestDomain
 
         public void UpdateDestination(string destination)
         {
-            Causes(new DestinationChanged(destination));
+            if (!string.IsNullOrEmpty(destination))
+                Causes(new DestinationChanged(destination));
         }
 
         public void SetEstimatedDepartureTime(DateTime dateTime)
