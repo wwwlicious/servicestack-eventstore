@@ -22,7 +22,7 @@ namespace ServiceStack.EventStore.Subscriptions
         internal string SubscriptionGroup { get; }
         internal RetryPolicy RetryPolicy { get; set; }
 
-        public Subscription SetRetryPolicy(IEnumerable<TimeSpan> durations)
+        public Subscription SetRetryPolicy(params TimeSpan[] durations)
         {
             RetryPolicy = new RetryPolicy(durations);
             return this;

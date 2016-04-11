@@ -11,7 +11,7 @@ namespace ServiceStack.EventStore.Resilience
     /// </summary>
     public class RetryPolicy
     {
-        public RetryPolicy(IEnumerable<TimeSpan> sleepDurations)
+        public RetryPolicy(params TimeSpan[] sleepDurations)
         {
             SleepDurations = sleepDurations;
             RetryType = RetryType.Durations;

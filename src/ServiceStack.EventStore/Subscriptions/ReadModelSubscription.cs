@@ -19,7 +19,7 @@ namespace ServiceStack.EventStore.Subscriptions
         {
         }
 
-        public new ReadModelSubscription SetRetryPolicy(IEnumerable<TimeSpan> durations)
+        public new ReadModelSubscription SetRetryPolicy(params TimeSpan[] durations)
         {
             return (ReadModelSubscription) base.SetRetryPolicy(durations);
         }

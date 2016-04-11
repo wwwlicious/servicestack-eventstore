@@ -44,10 +44,8 @@ namespace ServiceStack.EventStore.Repository
 
         public IEventStoreConnection Connection { get; }
 
-        public async Task PublishAsync(Event @event, Action<IDictionary<string, object>> updateHeaders = null)
+        public async Task PublishAsync<T>(T @event, string streamName, Action<IDictionary<string, object>> updateHeaders = null)
         {
-            var streamName = @event.StreamName;
-
             var headers = new Dictionary<string, object>();
 
             updateHeaders?.Invoke(headers);

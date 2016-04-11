@@ -13,7 +13,7 @@ namespace ServiceStack.EventStore.Repository
     {
         Task SaveAsync(Aggregate aggregate, Action<IDictionary<string, object>> updateHeaders = null);
 
-        Task PublishAsync(Event @event, Action<IDictionary<string, object>> updateHeaders = null);
+        Task PublishAsync<TEvent>(TEvent @event, string streamName, Action<IDictionary<string, object>> updateHeaders = null);
 
         Task<TAggregate> GetByIdAsync<TAggregate>(Guid id, int version) where TAggregate : Aggregate;
 
