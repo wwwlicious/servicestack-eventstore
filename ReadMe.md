@@ -1,6 +1,7 @@
 # ServiceStack.EventStore #
 
 [![Build status](https://ci.appveyor.com/api/projects/status/v9qd6kso0bkc5spf/branch/master?svg=true)](https://ci.appveyor.com/project/wwwlicious/servicestack-eventstore/branch/master)
+[![NuGet](https://img.shields.io/nuget/v/Nuget.Core.svg?maxAge=2592000)](https://www.nuget.org/packages/ServiceStack.EventStore/)
 
 A plugin for [ServiceStack](https://servicestack.net/) that provides a [message gateway](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessagingGateway.html) to [EventStore](https://geteventstore.com/) streams.
 
@@ -14,13 +15,13 @@ You can verify that EventStore is running by browsing to port <a href="http://lo
 
 ## Getting Started ##
 
-Install the package [https://www.nuget.org/packages/ServiceStack.EventStore](https://www.nuget.org/packages/ServiceStack.EventStore/)
+Install the package from [Nuget](https://www.nuget.org/packages/ServiceStack.EventStore/)
 ```bash
 Install-Package ServiceStack.EventStore
 ```
 
 ### Setting up a Connection to EventStore ###
-Add the following code to the `Configure` method in your `AppHost` class (this class is created automatically when you use one of the ServiceStack project templates). Additionally, you can take advantage of the ServiceStack `MetadataFeature` to provide a link to the EventStore admin UI by providing the HTTP address of the EventStore instance:
+Add the following code to the `Configure` method in the `AppHost` class (this class is created automatically when you use one of the ServiceStack project templates). Additionally, you can take advantage of the ServiceStack `MetadataFeature` to provide a link to the EventStore admin UI by providing the HTTP address of the EventStore instance:
 
 ```csharp
 public override void Configure(Container container)
@@ -30,8 +31,11 @@ public override void Configure(Container container)
 					.Password("changeit")
 					.TcpEndpoint("localhost:1113")
                     .HttpEndpoint("localhost:2113");
-	
-	Plugins.Add(new EventStoreFeature(connection));
+                    
+	//Register the EventStore plugin with ServiceStack, passing in the connection 
+	//and the assembly that contains the CLR events (see below)
+	Plugins.Add(new EventStoreFeature(connection, typeof(ClrEvent).Assembly)); 
+	//Optionally register the Metadata plugin
     Plugins.Add(new MetadataFeature());
 }
 ```
@@ -52,22 +56,22 @@ There are four different kinds of subscriptions to streams that ServiceStack.Eve
   </tr>
   <tr>
     <td class="tg-9hbo">Volatile</td>
-    <td class="tg-n9nb">Provides access to an EventStore volatile subscription which starts reading from the next event published on a named stream following successful connection by the plugin.</td>
+    <td class="tg-n9nb">Provides access to an EventStore volatile subscription, which starts reading from the next event published on a named stream following successful connection by the plugin.</td>
     <td class="tg-yw4l">The stream name.</td>
   </tr>
   <tr>
     <td class="tg-e3zv">Persistent</td>
-    <td class="tg-381c">Provides access to an EventStore persistent subscription which supports the <a href="http://www.enterpriseintegrationpatterns.com/patterns/messaging/CompetingConsumers.html">competing consumer</a> messaging model on a named stream.</td>
+    <td class="tg-381c">Provides access to an EventStore persistent subscription, which supports the <a href="http://www.enterpriseintegrationpatterns.com/patterns/messaging/CompetingConsumers.html">competing consumer</a> messaging model on a named stream.</td>
     <td class="tg-yw4l">The stream name and the subscription group.</td>
   </tr>
   <tr>
     <td class="tg-e3zv">Catch-Up</td>
-    <td class="tg-031e">Provides access to an EventStore catch-up subscription which starts reading from either the beginning of a named stream or from a specified event number on that stream.</td>
+    <td class="tg-031e">Provides access to an EventStore catch-up subscription, which starts reading from either the beginning of a named stream or from a specified event number on that stream.</td>
     <td class="tg-yw4l">The stream name.</td>
   </tr>
   <tr>
     <td class="tg-e3zv">Read Model</td>
-    <td class="tg-031e">Also provides access to an EventStore catch-up subscription, with the difference that it automatically subscribes to all streams ("$all" in EventStore) to allow a read model to be populated from selected events from different streams.</td>
+    <td class="tg-031e">Also provides access to an EventStore catch-up subscription, with the difference that it automatically subscribes to **all** streams ("$all" in EventStore) to enable a read model to be populated from selected events from different streams.</td>
     <td class="tg-yw4l">None.</td>
   </tr>
 </table>
@@ -90,34 +94,69 @@ public override void Configure(Container container)
 
  	...connection set-up omitted
 
-	// Note the extra parameter being used when creating an instance of the EventStoreFeature
-	Plugins.Add(new EventStoreFeature(connection, settings));
+	// Note the extra 'settings' parameter being used when creating an instance of the EventStoreFeature
+	Plugins.Add(new EventStoreFeature(connection, settings, typeof(ClrEvent).Assembly));
 }
 ```
 
-#### Working with Events ####
+#### Modelling Events ####
 
-Explanation pending.
+The content of events in EventStore is stored in JSON format. In a language based on the .Net CLR we implement each type of event that we want to work with as a class:
+```csharp
+public class OrderCreated
+{
+	public Guid OrderId {get; set;}
+   	public DateTime Created {get; set;}
+}
+```
+There is no need for such a class to implement a particular interface. Rather, as you have seen, when registering the EventStore plugin we pass in a reference to the assembly (or assemblies) that contain the relevant classes:
+
+```csharp
+public override void Configure(Container container)
+{
+	...
+	Plugins.Add(new EventStoreFeature(connection, settings, typeof(SomeEvent).Assembly, typeof(AnotherEvent).Assembly);
+}
+```
 
 #### Publishing Events ####
 
-By adding the ServiceStack.EventStore package to your project you can access the `EventStoreRepository` through constructor injection:
+By adding the ServiceStack.EventStore package to your project we can access the `EventStoreRepository` through constructor injection and use it to publish asynchronously to a named stream:
 
 ```csharp
 
-    public class FlightService: ServiceStack.Service
-    {
-        private readonly IEventStoreRepository repo;
-        
-        public void FlightService(IEventStoreRepository repo)
+public class FlightService: ServiceStack.Service
+{
+	private readonly IEventStoreRepository repo;
+	
+	public void FlightService(IEventStoreRepository repo)
+	{
+	    this.repo = repo;    
+	}   
+	
+        public async Task DoSomething()
         {
-            this.repo = repo;    
-        }   
-        
-    }
+            ...
+            await _repo.PublishAsync(new SomethingHappened(), "targetstream");
+        }
+}
 
 ```
 
+Additionally, we can set the headers for the event:
+
+```csharp
+
+public async Task DoSomething()
+{
+    await _repo.PublishAsync(new SomethingHappened(), "targetstream",
+        headers =>
+        {
+            headers.Add("CorrelationId", correlationId);
+            headers.Add("SitarPlayer", "Ustad Vilyat Khan");
+        });
+}
+```
 #### Handling Events ####
 
 This plugin makes use of ServiceStack's architecture to route events from EventStore streams to their handlers which are implemented as methods on a service class: 
@@ -151,7 +190,7 @@ var settings = new SubscriptionSettings()
 		            .SubscribeToStreams(streams =>
         	        {
                     	streams.Add(new VolatileSubscription("deadletterchannel")
-                        	.SetRetryPolicy(new[] {1.Seconds(), 3.Seconds(), 5.Seconds()}));
+                        	.SetRetryPolicy(1.Seconds(), 3.Seconds(), 5.Seconds()));
                 	});
 ```
 Alternatively, we can also tell the plugin to use an <a href="https://en.wikipedia.org/wiki/Exponential_backoff">exponential back-off</a> to multiplicatively increase the time to wait, for a specified maximum number of retry attempts, before attempting to resubscribe:
@@ -160,7 +199,6 @@ Alternatively, we can also tell the plugin to use an <a href="https://en.wikiped
 var settings = new SubscriptionSettings()
 	                .SubscribeToStreams(streams =>
     	            {
-						// using a delegate
                     	streams.Add(new VolatileSubscription("deadletterchannel")
                         			.SetRetryPolicy(
                         				10.Retries(), 
@@ -181,7 +219,7 @@ var settings = new SubscriptionSettings()
                 	.SubscribeToStreams(streams =>
                 	{
                     	streams.Add(new ReadModelSubscription()
-                                    .SetRetryPolicy(new [] {1.Seconds(), 3.Seconds()})
+                                    .SetRetryPolicy(1.Seconds(), 3.Seconds())
                                     .WithStorage(new ReadModelStorage(StorageType.Redis, "localhost:6379")));
 	                });
 ```
