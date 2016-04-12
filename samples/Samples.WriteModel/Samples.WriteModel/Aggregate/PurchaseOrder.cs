@@ -1,9 +1,11 @@
-﻿namespace Samples.WriteModel
-{
-    using System;
-    using System.Collections.Generic;
-    using ServiceStack.EventStore.Types;
+﻿using System;
+using System.Collections.Generic;
+using Samples.WriteModel.Events;
+using Samples.WriteModel.Types;
+using ServiceStack.EventStore.Types;
 
+namespace Samples.WriteModel.Aggregate
+{
     public class PurchaseOrder : Aggregate<PurchaseOrderState>
     {
         public PurchaseOrder(Guid id) : base(id) { }
@@ -21,7 +23,7 @@
 
         public void UpdateStatus(string newStatus)
         {
-            if (!String.IsNullOrEmpty(newStatus))
+            if (!string.IsNullOrEmpty(newStatus))
                 Causes(new OrderStatusUpdated(newStatus));
         }
     }

@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
-using Samples.AWriteModel.ServiceModel.Events;
+using Samples.WriteModel.Events;
+using Samples.WriteModel.Types;
 using ServiceStack.EventStore.StateManagement;
 
-namespace Samples.AWriteModel.ServiceModel.Aggregate
+namespace Samples.WriteModel.Aggregate
 {
     public class PurchaseOrderState : State
     {

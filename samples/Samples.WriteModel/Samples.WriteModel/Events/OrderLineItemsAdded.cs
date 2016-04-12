@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Samples.WriteModel.Types;
 
-namespace Samples.WriteModel
+namespace Samples.WriteModel.Events
 {
     public class OrderLineItemsAdded
     {

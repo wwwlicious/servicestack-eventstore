@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Samples.AWriteModel.ServiceModel.Aggregate;
-
-namespace ServiceStack.AWriteModel.ServiceModel.Commands
+﻿namespace Samples.WriteModel.Commands
 {
+    using System;
+    using System.Collections.Generic;
+    using Types;
+
     public class CreatePurchaseOrder
     {
         public Guid CustomerId { get; set; }

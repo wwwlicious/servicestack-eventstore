@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Samples.AWriteModel.ServiceModel.Aggregate
+namespace Samples.WriteModel.Types
 {
     public class OrderLineItem
     {

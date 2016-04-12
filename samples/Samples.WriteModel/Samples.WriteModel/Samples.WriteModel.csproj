@@ -87,12 +87,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OrderLineItem.cs" />
-    <Compile Include="OrderLineItemsAdded.cs" />
-    <Compile Include="OrderStatusUpdated.cs" />
-    <Compile Include="PurchaseOrderCreated.cs" />
-    <Compile Include="PurchaseOrder.cs" />
-    <Compile Include="PurchaseOrderState.cs" />
+    <Compile Include="Commands\UpdateOrderStatus.cs" />
+    <Compile Include="Commands\CreatePurchaseOrder.cs" />
+    <Compile Include="Services\PurchaseOrderService.cs" />
+    <Compile Include="Types\OrderLineItem.cs" />
+    <Compile Include="Events\OrderLineItemsAdded.cs" />
+    <Compile Include="Events\OrderStatusUpdated.cs" />
+    <Compile Include="Events\PurchaseOrderCreated.cs" />
+    <Compile Include="Aggregate\PurchaseOrder.cs" />
+    <Compile Include="Aggregate\PurchaseOrderState.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestAppHost.cs" />

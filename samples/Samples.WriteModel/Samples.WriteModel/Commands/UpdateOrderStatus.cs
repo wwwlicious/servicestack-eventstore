@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace ServiceStack.AWriteModel.ServiceModel.Commands
+﻿namespace Samples.WriteModel.Commands
 {
+    using System;
+
     public class UpdateOrderStatus
     {
         public Guid OrderId { get; set; }

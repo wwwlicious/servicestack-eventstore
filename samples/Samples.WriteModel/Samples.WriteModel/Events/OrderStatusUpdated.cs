@@ -1,9 +1,8 @@
 ﻿using System;
-using ServiceStack.EventStore.Types;
 
-namespace Samples.AWriteModel.ServiceModel.Events
+namespace Samples.WriteModel.Events
 {
-    public class OrderStatusUpdated : IAggregateEvent
+    public class OrderStatusUpdated
     {
         public Guid OrderId { get; set; }
         public string NewStatus { get; }

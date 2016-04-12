@@ -1,7 +1,7 @@
-﻿namespace Samples.WriteModel
-{
-    using System;
+﻿using System;
 
+namespace Samples.WriteModel.Events
+{
     public class PurchaseOrderCreated
     {
         public Guid Id { get; }
