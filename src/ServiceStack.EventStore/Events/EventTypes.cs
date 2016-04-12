@@ -7,7 +7,6 @@ namespace ServiceStack.EventStore.Events
     using System;
     using System.Collections.Generic;
     using System.Reflection;
-    using HelperClasses;
     using Extensions;
 
     /// <summary>

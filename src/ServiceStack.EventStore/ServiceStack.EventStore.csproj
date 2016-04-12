@@ -85,7 +85,7 @@
     <Compile Include="ConnectionManagement\MonitorSettings.cs" />
     <Compile Include="ConnectionManagement\IMonitorSettings.cs" />
     <Compile Include="Consumers\ReadModelConsumer.cs" />
-    <Compile Include="Extensions\FunctionalExtensions.cs" />
+    <Compile Include="Extensions\AssemblyExtensions.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Factories\ReadModelWriterFactory.cs" />
     <Compile Include="Projections\StorageType.cs" />
@@ -103,7 +103,7 @@
     <Compile Include="Exceptions\AggregateNotFoundException.cs" />
     <Compile Include="Exceptions\AggregateVersionException.cs" />
     <Compile Include="Extensions\NumericExtensions.cs" />
-    <Compile Include="HelperClasses\IEnumerableExtensions.cs" />
+    <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="HelperClasses\New.cs" />
     <Compile Include="HelperClasses\ReflectionUtils.cs" />
     <Compile Include="Repository\EventStoreRepository.cs" />
