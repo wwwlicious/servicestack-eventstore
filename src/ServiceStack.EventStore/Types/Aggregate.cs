@@ -41,10 +41,7 @@ namespace ServiceStack.EventStore.Types
         /// <summary>
         /// Clears committed domain events. Used after persisting an aggregate.
         /// </summary>
-        public void ClearCommittedEvents()
-        {
-            changes.Clear();
-        }
+        public void ClearCommittedEvents() => changes.Clear();
 
         public abstract void ApplyEvent(dynamic @event);
     }
@@ -58,9 +55,6 @@ namespace ServiceStack.EventStore.Types
 
         public new TState State { get; }
 
-        public override void ApplyEvent(dynamic @event)
-        {
-            State.Apply(@event);
-        }
+        public override void ApplyEvent(dynamic @event) => State.Apply(@event);
     }
 }

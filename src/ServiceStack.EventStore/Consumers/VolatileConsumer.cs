@@ -42,9 +42,7 @@ namespace ServiceStack.EventStore.Consumers
             await HandleDroppedSubscription(subscriptionDropped);
         }
 
-        private async Task EventAppeared(EventStoreSubscription subscription, ResolvedEvent resolvedEvent)
-        {
+        private async Task EventAppeared(EventStoreSubscription subscription, ResolvedEvent resolvedEvent) => 
             await Dispatch(resolvedEvent);
-        }
     }
 }

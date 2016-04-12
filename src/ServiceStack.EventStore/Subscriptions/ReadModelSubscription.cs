@@ -15,19 +15,13 @@ namespace ServiceStack.EventStore.Subscriptions
     {
         private ReadModelStorage readModelStorage;
 
-        public ReadModelSubscription() : base(string.Empty, string.Empty)
-        {
-        }
+        public ReadModelSubscription() : base(string.Empty, string.Empty) { }
 
-        public new ReadModelSubscription SetRetryPolicy(params TimeSpan[] durations)
-        {
-            return (ReadModelSubscription) base.SetRetryPolicy(durations);
-        }
+        public new ReadModelSubscription SetRetryPolicy(params TimeSpan[] durations) => 
+            (ReadModelSubscription) base.SetRetryPolicy(durations);
 
-        public new ReadModelSubscription SetRetryPolicy(Retries maxNoOfRetries, Func<int, TimeSpan> provider)
-        {
-            return (ReadModelSubscription) base.SetRetryPolicy(maxNoOfRetries, provider);
-        }
+        public new ReadModelSubscription SetRetryPolicy(Retries maxNoOfRetries, Func<int, TimeSpan> provider) => 
+            (ReadModelSubscription) base.SetRetryPolicy(maxNoOfRetries, provider);
 
         public Subscription WithStorage(ReadModelStorage readModelStorage)
         {
@@ -35,9 +29,6 @@ namespace ServiceStack.EventStore.Subscriptions
             return this;
         }
 
-        internal ReadModelStorage Storage()
-        {
-            return readModelStorage;
-        }
+        internal ReadModelStorage Storage() => readModelStorage;
     }
 }

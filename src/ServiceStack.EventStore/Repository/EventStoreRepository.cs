@@ -126,10 +126,8 @@ namespace ServiceStack.EventStore.Repository
             aggregate.ClearCommittedEvents();
         }
 
-        public Task<TAggregate> GetByIdAsync<TAggregate>(Guid id) where TAggregate : Aggregate
-        {
-            return GetByIdAsync<TAggregate>(id, int.MaxValue);
-        }
+        public Task<TAggregate> GetByIdAsync<TAggregate>(Guid id) where TAggregate : Aggregate => 
+            GetByIdAsync<TAggregate>(id, int.MaxValue);
 
         public async Task<TAggregate> GetByIdAsync<TAggregate>(Guid id, int version) where TAggregate : Aggregate
         {
@@ -187,10 +185,8 @@ namespace ServiceStack.EventStore.Repository
             return JsonSerializer.DeserializeFromString(data.FromAsciiBytes(), type);
         }
 
-        private static TAggregate ConstructAggregate<TAggregate>(Guid id) where TAggregate : Aggregate
-        {
-            return New<TAggregate>.WithCtorParam<Guid>.Instance(id);
-        }
+        private static TAggregate ConstructAggregate<TAggregate>(Guid id) where TAggregate : Aggregate => 
+            New<TAggregate>.WithCtorParam<Guid>.Instance(id);
 
         private EventData ToEventData(object @event, IDictionary<string, object> headers)
         {

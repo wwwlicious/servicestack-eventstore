@@ -85,6 +85,7 @@
     <Compile Include="ConnectionManagement\MonitorSettings.cs" />
     <Compile Include="ConnectionManagement\IMonitorSettings.cs" />
     <Compile Include="Consumers\ReadModelConsumer.cs" />
+    <Compile Include="Extensions\FunctionalExtensions.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Factories\ReadModelWriterFactory.cs" />
     <Compile Include="Projections\StorageType.cs" />

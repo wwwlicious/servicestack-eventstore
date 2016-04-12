@@ -26,15 +26,11 @@ namespace ServiceStack.EventStore.StateManagement
         /// </summary>
         /// <param name="stateType"></param>
         /// <returns></returns>
-        public static IStateMutator For(Type stateType)
-        {
-            return mutators.GetOrAdd(stateType, t => CreateMutator(stateType));
-        }
+        public static IStateMutator For(Type stateType) => 
+            mutators.GetOrAdd(stateType, t => CreateMutator(stateType));
 
-        private static IStateMutator CreateMutator(Type stateType)
-        {
-            return New.CreateGenericInstance(typeof(StateMutator<>), stateType) as IStateMutator;
-        }
+        private static IStateMutator CreateMutator(Type stateType) => 
+            New.CreateGenericInstance(typeof(StateMutator<>), stateType) as IStateMutator;
     }
 
     /// <summary>

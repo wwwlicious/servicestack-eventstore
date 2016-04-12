@@ -38,14 +38,12 @@ namespace ServiceStack.EventStore.Consumers
 
         private async Task SubscriptionDropped(EventStorePersistentSubscriptionBase subscriptionBase, SubscriptionDropReason dropReason, Exception exception)
         {
-            var subscriptionDropped = new DroppedSubscription(this.subscription, exception.Message, dropReason);
+            var subscriptionDropped = new DroppedSubscription(subscription, exception.Message, dropReason);
 
             await HandleDroppedSubscription(subscriptionDropped);
         }
 
-        private async Task EventAppeared(EventStorePersistentSubscriptionBase @base, ResolvedEvent resolvedEvent)
-        {
+        private async Task EventAppeared(EventStorePersistentSubscriptionBase @base, ResolvedEvent resolvedEvent) => 
             await Dispatch(resolvedEvent);
-        }
     }
 }

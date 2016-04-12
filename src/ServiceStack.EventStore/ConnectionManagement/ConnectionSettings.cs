@@ -46,10 +46,7 @@ namespace ServiceStack.EventStore.ConnectionManagement
             return connectionString.ToString();
         }
 
-        internal string GetHttpEndpoint()
-        {
-            return httpEndpoint;
-        }
+        internal string GetHttpEndpoint() => httpEndpoint;
 
         public EventStoreConnectionSettings HttpEndpoint(string endpoint)
         {
@@ -57,10 +54,7 @@ namespace ServiceStack.EventStore.ConnectionManagement
             return this;
         }
 
-        internal string GetTcpEndpoint()
-        {
-            return tcpEndpoint;
-        }
+        internal string GetTcpEndpoint() => tcpEndpoint;
 
         public EventStoreConnectionSettings TcpEndpoint(string endpoint)
         {

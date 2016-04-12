@@ -1,6 +1,7 @@
 ﻿// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 namespace ServiceStack.EventStore.Consumers
 {
     using Resilience;
@@ -45,14 +46,10 @@ namespace ServiceStack.EventStore.Consumers
             }
         }
 
-        protected async Task HandleDroppedSubscription(DroppedSubscription subscriptionDropped)
-        {
+        protected async Task HandleDroppedSubscription(DroppedSubscription subscriptionDropped) => 
             await DroppedSubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscription(subscription));
-        }
 
-        private static bool IsSystemEvent(ResolvedEvent resolvedEvent)
-        {
-            return resolvedEvent.OriginalEvent.EventType.StartsWith("$");
-        }
+        private static bool IsSystemEvent(ResolvedEvent resolvedEvent) => 
+            resolvedEvent.OriginalEvent.EventType.StartsWith("$");
     }
 }

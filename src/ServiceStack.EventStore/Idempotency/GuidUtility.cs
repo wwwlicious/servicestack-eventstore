@@ -19,10 +19,7 @@ namespace ServiceStack.EventStore.Idempotency
         /// <param name="name">The name (within that namespace).</param>
         /// <returns>A UUID derived from the namespace and name.</returns>
         /// <remarks>See <a href="http://code.logos.com/blog/2011/04/generating_a_deterministic_guid.html">Generating a deterministic GUID</a>.</remarks>
-        public static Guid Create(Guid namespaceId, string name)
-        {
-            return Create(namespaceId, name, 5);
-        }
+        public static Guid Create(Guid namespaceId, string name) => Create(namespaceId, name, 5);
 
         /// <summary>
         /// Creates a name-based UUID using the algorithm from RFC 4122 §4.3.

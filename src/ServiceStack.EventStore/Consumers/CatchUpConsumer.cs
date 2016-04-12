@@ -38,19 +38,13 @@ namespace ServiceStack.EventStore.Consumers
         private async Task SubscriptionDropped(EventStoreCatchUpSubscription subscription, SubscriptionDropReason dropReason, Exception exception)
         {
             var subscriptionDropped = new DroppedSubscription(this.subscription, exception.Message, dropReason);
-
             await HandleDroppedSubscription(subscriptionDropped);
         }
 
-        private Task LiveProcessingStarted(EventStoreCatchUpSubscription @event)
-        {
-            return Task.Run(() => log.Info($"Caught up on {@event.StreamId} at {DateTime.UtcNow}"));
-        }
+        private Task LiveProcessingStarted(EventStoreCatchUpSubscription @event) => 
+            Task.Run(() => log.Info($"Caught up on {@event.StreamId} at {DateTime.UtcNow}"));
 
-        private async Task EventAppeared(EventStoreCatchUpSubscription subscription, ResolvedEvent resolvedEvent)
-        {
+        private async Task EventAppeared(EventStoreCatchUpSubscription subscription, ResolvedEvent resolvedEvent) => 
             await Dispatch(resolvedEvent);
-        }
-
     }
 }

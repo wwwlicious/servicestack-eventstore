@@ -41,34 +41,22 @@ namespace ServiceStack.EventStore.ConnectionManagement
             connection.Closed += new EventHandler<ClientClosedEventArgs>(settings.OnClosed ?? DefaultOnClosed);
         }
 
-        private void DefaultOnClosed(object sender, ClientClosedEventArgs args)
-        {
+        private void DefaultOnClosed(object sender, ClientClosedEventArgs args) => 
             log.Warn($"Connection closed: {args.Reason}");
-        }
 
-        private void DefaultOnReconnecting(object sender, ClientReconnectingEventArgs args)
-        {
+        private void DefaultOnReconnecting(object sender, ClientReconnectingEventArgs args) => 
             log.Info("Attempting to connect to EventStore");
-        }
 
-        private void DefaultOnErrorOccurred(object sender, ClientErrorEventArgs args)
-        {
+        private void DefaultOnErrorOccurred(object sender, ClientErrorEventArgs args) => 
             log.Fatal("A connection error occurred");
-        }
 
-        private void DefaultOnAuthenticationFailed(object sender, ClientAuthenticationFailedEventArgs args)
-        {
+        private void DefaultOnAuthenticationFailed(object sender, ClientAuthenticationFailedEventArgs args) => 
             log.Fatal("Authentication failed");
-        }
 
-        private void DefaultOnDisconnected(object sender, ClientConnectionEventArgs args)
-        {
+        private void DefaultOnDisconnected(object sender, ClientConnectionEventArgs args) => 
             log.Warn("Disconnected from EventStore");
-        }
 
-        private void DefaultOnConnected(object sender, ClientConnectionEventArgs args)
-        {
+        private void DefaultOnConnected(object sender, ClientConnectionEventArgs args) => 
             log.Info("Connected to EventStore");
-        }
     }
 }

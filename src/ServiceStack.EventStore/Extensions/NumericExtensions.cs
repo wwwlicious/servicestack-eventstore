@@ -8,24 +8,12 @@ namespace ServiceStack.EventStore.Extensions
     /// </summary>
     public static class NumericExtensions
     {
-        public static int Add(this int firstAddend, int secondAddend)
-        {
-            return firstAddend + secondAddend;
-        }
+        public static int Add(this int firstAddend, int secondAddend) => firstAddend + secondAddend;
 
-        public static int Subtract(this int minuend, int subtrahend)
-        {
-            return minuend - subtrahend;
-        }
+        public static int Subtract(this int minuend, int subtrahend) => minuend - subtrahend;
 
-        public static int MultiplyBy(this int multiplicand, int multiplier)
-        {
-            return multiplicand * multiplier;
-        }
+        public static int MultiplyBy(this int multiplicand, int multiplier) => multiplicand * multiplier;
 
-        public static int DivideBy(this int dividend, int divisor)
-        {
-            return dividend / divisor;
-        }
+        public static int DivideBy(this int dividend, int divisor) => dividend / divisor;
     }
 }
