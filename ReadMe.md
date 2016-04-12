@@ -180,6 +180,19 @@ public class PurchaseOrderService : Service
     }
 }
 ```
+
+Headers for an event can be retrieved through the `Headers` property of the `Request` object that ServiceStack exposes in any class that inherits from `Service`:
+
+```csharp
+public class PurchaseOrderService: Service
+{
+	public object Any(PurchaseOrderCreated @event)
+	{
+		var correlationId = Request.Headers["CorrelationId"];
+		//handle event
+	}
+}
+```
 #### Setting a Retry Policy ####
 
 When creating a subscription you can also specify the retry policy used by ServiceStack.EventStore in response to a subscription to EventStore being dropped. Since the retry functionality builds on the <a href="https://github.com/App-vNext/Polly">Polly</a> library, the retry policy can be set by either specifying a parameter array `TimeSpan` or a delegate.
