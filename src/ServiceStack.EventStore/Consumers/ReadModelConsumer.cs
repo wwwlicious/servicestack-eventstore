@@ -33,11 +33,8 @@ namespace ServiceStack.EventStore.Consumers
             }
         }
 
-        private async void SubscriptionDropped(EventStoreCatchUpSubscription eventStoreCatchUpSubscription, SubscriptionDropReason subscriptionDropReason, Exception exception)
-        {
-            var subscriptionDropped = new DroppedSubscription(subscription, exception.Message, subscriptionDropReason);
-            await HandleDroppedSubscription(subscriptionDropped);
-        }
+        private async void SubscriptionDropped(EventStoreCatchUpSubscription eventStoreCatchUpSubscription, SubscriptionDropReason subscriptionDropReason, Exception exception) => 
+            await HandleDroppedSubscription(new DroppedSubscription(subscription, exception.Message, subscriptionDropReason));
 
         private void LiveProcessingStarted(EventStoreCatchUpSubscription eventStoreCatchUpSubscription) => 
             log.Info("Read model now caught-up");

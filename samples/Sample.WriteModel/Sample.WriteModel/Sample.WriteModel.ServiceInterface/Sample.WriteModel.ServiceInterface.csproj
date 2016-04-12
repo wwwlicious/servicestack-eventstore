@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -7,11 +7,10 @@
     <ProjectGuid>{130DED02-5984-487C-93DD-0D264EED140E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Sample.AReadModel.ServiceInterface</RootNamespace>
-    <AssemblyName>Sample.AReadModel.ServiceInterface</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <RootNamespace>Sample.WriteModel.ServiceInterface</RootNamespace>
+    <AssemblyName>Sample.WriteModel.ServiceInterface</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -73,20 +72,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PurchaseOrderService.cs" />
+    <Compile Include="MyServices.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\ServiceStack.EventStore\ServiceStack.EventStore.csproj">
-      <Project>{4f92796a-4db7-4df7-beae-decc5602ecb9}</Project>
-      <Name>ServiceStack.EventStore</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Sample.AReadModel.ServiceModel\Sample.AReadModel.ServiceModel.csproj">
+    <ProjectReference Include="..\Sample.WriteModel.ServiceModel\Sample.WriteModel.ServiceModel.csproj">
       <Project>{8D6DE92C-637E-4433-9810-98D7FBCEA6BA}</Project>
-      <Name>Sample.AReadModel.ServiceModel</Name>
+      <Name>Sample.WriteModel.ServiceModel</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

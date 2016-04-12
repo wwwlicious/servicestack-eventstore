@@ -8,8 +8,8 @@
 
     public class PurchaseOrderService : Service
     {
-        private readonly IProjectionWriter<Guid, OrderViewModel> writer = 
-                        ProjectionWriterFactory.GetRedisClient<Guid, OrderViewModel>();
+        private readonly IReadModelWriter<Guid, OrderViewModel> writer = 
+                        ReadModelWriterFactory.GetRedisWriter<Guid, OrderViewModel>();
 
         public object Any(PurchaseOrderCreated @event)
         {

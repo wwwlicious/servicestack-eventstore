@@ -1,6 +1,7 @@
 ﻿// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 namespace ServiceStack.EventStore.Dispatcher
 {
     using System;
@@ -11,6 +12,7 @@ namespace ServiceStack.EventStore.Dispatcher
     using System.Threading.Tasks;
     using Host;
     using Events;
+    using Extensions;
 
     /// <summary>
     /// Mediator class that transforms a ResolvedEvent from EventStore into a CLR type
@@ -30,8 +32,9 @@ namespace ServiceStack.EventStore.Dispatcher
 
         public async Task<bool> Dispatch(ResolvedEvent @event)
         {
-            var jsonObj = JsonObject.Parse(@event.Event.Metadata.FromAsciiBytes());
-            var clrEventType = jsonObj.Get(EventClrTypeHeader);
+            var headers = JsonObject.Parse(@event.Event.Metadata.FromAsciiBytes())
+                                    .ToNameValueCollection();
+            var clrEventType = headers.Get(EventClrTypeHeader);
 
             Type type;
 
@@ -41,7 +44,9 @@ namespace ServiceStack.EventStore.Dispatcher
 
                 try
                 {
-                    await HostContext.ServiceController.ExecuteAsync(typedEvent, new BasicRequest());
+                    var request = new BasicRequest();
+                    request.Headers.AddAll(headers);
+                    await HostContext.ServiceController.ExecuteAsync(typedEvent, request);
                 }
                 catch (Exception e)
                 {
