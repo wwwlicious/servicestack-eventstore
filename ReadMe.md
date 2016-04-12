@@ -337,15 +337,15 @@ To populate a read model from subscribed event streams you need to do the follow
 * Create a view model class to represent a record in the read model. Potentially, this could be a hierarchical object graph that could be persisted as a JSON document in Redis (or RavenDB ) or as a set of rows in RDBMS tables.  
 * In the `Service` class instantiate a `ProjectionWriter`, specifying the type of the unique Id and the view model to be used.
 
-#### Creating a Projection ####
+#### Creating a Read Model ####
 
 When handling an event that corresponds to a new record being required in the read model - for example, `PurchaseOrderCreated` - then use the `Add` method to create a new instance of desired view model. When handling events that should update the state of a record in the read model then use the `Update` method to pass in the Id of the record to be updated as well as a delegate that mutates the appropriate properties of the view model:
 
 ```csharp
 public class PurchaseOrderService : Service
 {
-    private IProjectionWriter<Guid, OrderViewModel> writer = 
-                        ProjectionWriterFactory.GetRedisClient<Guid, OrderViewModel>();
+    private IReadModelWriter<Guid, OrderViewModel> writer = 
+                        ReadModelWriterFactory.GetRedisWriter<Guid, OrderViewModel>();
 
     public object Any(PurchaseOrderCreated @event)
     {
