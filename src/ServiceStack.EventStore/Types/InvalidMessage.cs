@@ -9,9 +9,9 @@ namespace ServiceStack.EventStore.Types
     /// <summary>
     /// Represents a message that cannot be deserialized.
     /// </summary>
-    internal class InvalidMessage : Event
+    internal class InvalidMessage 
     {
-        public InvalidMessage(RecordedEvent originalEvent) : base("invalidmessages")
+        public InvalidMessage(RecordedEvent originalEvent)
         {
             OriginalEventId = originalEvent.EventId;
             OriginalData = originalEvent.Data.FromAsciiBytes();

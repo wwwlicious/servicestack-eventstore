@@ -115,7 +115,6 @@
     <Compile Include="Subscriptions\CatchUpSubscription.cs" />
     <Compile Include="Subscriptions\VolatileSubscription.cs" />
     <Compile Include="Subscriptions\PersistentSubscription.cs" />
-    <Compile Include="Types\Event.cs" />
     <Compile Include="Types\InvalidMessage.cs" />
     <Compile Include="Idempotency\GuidUtility.cs" />
     <Compile Include="Consumers\StreamConsumer.cs" />

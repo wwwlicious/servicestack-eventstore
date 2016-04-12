@@ -6,11 +6,11 @@ using ServiceStack.EventStore.Types;
 
 namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 {
-    public class ServiceHasReachedWarningState : Event
+    public class ServiceHasReachedWarningState 
     {
         public DateTime WarningReached { get; }
 
-        public ServiceHasReachedWarningState(DateTime warningReached): base("healthmessages")
+        public ServiceHasReachedWarningState(DateTime warningReached)
         {
             WarningReached = warningReached;
         }
