@@ -9,34 +9,36 @@ namespace ServiceStack.EventStore.IntegrationTests.TestDomain
 
     public class Flight : Aggregate<FlightState>
     {
-        public Flight(Guid id) : base(id)
-        {
-        }
+        public Flight(Guid id) : base(id) { }
 
         public Flight(): base(Guid.NewGuid())
         {
             Causes(new FlightCreated(Id));
         }
 
-        public void UpdateFlightNumber(string newFlightNumber)
+        public Flight UpdateFlightNumber(string newFlightNumber)
         {
             Causes(new FlightNumberUpdated(newFlightNumber));
+            return this;
         }
 
-        public void UpdateDestination(string destination)
+        public Flight UpdateDestination(string destination)
         {
             if (!string.IsNullOrEmpty(destination))
                 Causes(new DestinationChanged(destination));
+            return this;
         }
 
-        public void SetEstimatedDepartureTime(DateTime dateTime)
+        public Flight SetEstimatedDepartureTime(DateTime dateTime)
         {
             Causes(new EDTUpdated(dateTime));
+            return this;
         }
 
-        public void AddBaggageToHold(int noOfBags)
+        public Flight AddBaggageToHold(int noOfBags)
         {
             Causes(new BaggageAdded(noOfBags));
+            return this;
         }
     }
 }

@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Sample.WriteModel")]
+[assembly: AssemblyTitle("Samples.WriteModel")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Sample.WriteModel")]
-[assembly: AssemblyCopyright("Copyright © 2014")]
+[assembly: AssemblyProduct("Samples.WriteModel")]
+[assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("19961cab-3210-4a52-8bc1-39e912c5d702")]
+[assembly: Guid("6c366ca3-988c-4a18-adfc-f4b98109f323")]
 
 // Version information for an assembly consists of the following four values:
 //

@@ -6,21 +6,13 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
     using System;
     using System.Diagnostics;
     using System.Threading.Tasks;
-
     using Exceptions;
-
     using Extensions;
-
     using FluentAssertions;
-
     using global::EventStore.ClientAPI;
-
     using Repository;
-
     using TestDomain;
-
     using Types;
-
     using Xunit;
     using Xunit.Abstractions;
 
@@ -42,13 +34,13 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
         [Fact]
         public async Task AnAggregateCanBeSavedAndRehydrated()
         {
-            var flightToBePersisted = new Flight();
-
             // Act
-            flightToBePersisted.UpdateFlightNumber("CQH8821");
-            flightToBePersisted.SetEstimatedDepartureTime(DateTime.UtcNow.AddHours(1));
-
-            await eventStore.SaveAsync(flightToBePersisted);
+            var flightToBePersisted = 
+                    await new Flight()
+                                .UpdateFlightNumber("CQH8821")
+                                .SetEstimatedDepartureTime(DateTime.UtcNow.AddHours(1))
+                                .SaveAsync(eventStore)
+                                .ConfigureAwait(false);
 
             var flightToBeRehydrated = await eventStore.GetByIdAsync<Flight>(flightToBePersisted.Id);
 
@@ -81,11 +73,10 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             const string testDestination = "Malaga";
             const string testFlightNumber = "BA1987";
 
-            var flight = new Flight();
-
-            // Act
-            flight.UpdateDestination(testDestination);
-            flight.UpdateFlightNumber(testFlightNumber);
+            //Act
+            var flight = new Flight()
+                                .UpdateDestination(testDestination)
+                                .UpdateFlightNumber(testFlightNumber);
 
             // Assert
             flight.State.Destination.Should().Be(testDestination);
@@ -120,12 +111,13 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
         [Fact]
         public async Task ThrowsOnRequestingSpecificVersionHigherThanExists()
         {
-            var flightToBePersisted = new Flight();
-            flightToBePersisted.UpdateDestination("Grimthorpe");
-            flightToBePersisted.UpdateFlightNumber("XY6876");
-            flightToBePersisted.SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(134));
-
-            await eventStore.SaveAsync(flightToBePersisted);
+            var flightToBePersisted = 
+                await new Flight()
+                        .UpdateDestination("Grimthorpe")
+                        .UpdateFlightNumber("XY6876")
+                        .SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(134))
+                        .SaveAsync(eventStore)
+                        .ConfigureAwait(false);
 
             var correctVersion = flightToBePersisted.State.Version;
             var incorrectVersion = correctVersion.Add(1);
@@ -135,23 +127,20 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
                     () => eventStore.GetByIdAsync<Flight>(flightToBePersisted.Id, incorrectVersion));
         }
 
-        // todo: currently no way of reading additional headers (other than CLR type) from events
         [Fact]
         public async Task CanAddHeadersToAggregateEvents()
         {
-            var flight = new Flight();
-
-            flight.UpdateDestination("La Palma");
-            flight.UpdateFlightNumber("LT7987");
-            flight.SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(67));
-
-            await eventStore.SaveAsync(
-                flight, 
-                headers =>
-                    {
-                        headers.Add("User", "Lil'Joey Brown");
-                        headers.Add("Other", "SomeImportantInfo");
-                    });
+            var flight = 
+                await new Flight()
+                            .UpdateDestination("La Palma")
+                            .UpdateFlightNumber("LT7987")
+                            .SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(67))
+                            .SaveAsync(eventStore, headers =>
+                            {
+                                headers.Add("User", "Lil'Joey Brown");
+                                headers.Add("Other", "SomeImportantInfo");
+                            })
+                            .ConfigureAwait(false);
 
             await eventStore.GetByIdAsync<Flight>(flight.Id);
         }
@@ -200,19 +189,21 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             var newFlight = new Flight();
 
             // Act
-            newFlight.UpdateDestination(originalDestination);
-            newFlight.UpdateFlightNumber(originalFlightNumber);
+            await newFlight
+                    .UpdateDestination(originalDestination)
+                    .UpdateFlightNumber(originalFlightNumber)
+                    .SaveAsync(eventStore)
+                    .ConfigureAwait(false);
 
-            await eventStore.SaveAsync(newFlight);
+            var firstRehydration = await eventStore.GetByIdAsync<Flight>(newFlight.Id).ConfigureAwait(false);
 
-            var firstRehydration = await eventStore.GetByIdAsync<Flight>(newFlight.Id);
+            await firstRehydration
+                    .UpdateDestination(newDestination)
+                    .UpdateFlightNumber(newFlightNumber)
+                    .SaveAsync(eventStore)
+                    .ConfigureAwait(false);
 
-            firstRehydration.UpdateDestination(newDestination);
-            firstRehydration.UpdateFlightNumber(newFlightNumber);
-
-            await eventStore.SaveAsync(firstRehydration);
-
-            var secondRehydration = await eventStore.GetByIdAsync<Flight>(newFlight.Id);
+            var secondRehydration = await eventStore.GetByIdAsync<Flight>(newFlight.Id).ConfigureAwait(false);
 
             // Assert
             secondRehydration.State.Destination.Should().Be(newDestination);
@@ -242,8 +233,10 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             var streamName = StreamName(flight);
 
             // Act
-            flight.SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(23));
-            await eventStore.SaveAsync(flight);
+            await flight
+                    .SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(23))
+                    .SaveAsync(eventStore)
+                    .ConfigureAwait(false);
 
             // use the eventstore connection directly
             await eventStore.Connection.DeleteStreamAsync(streamName, ExpectedVersion.Any);
@@ -261,10 +254,13 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             var streamName = StreamName(flight);
 
             // Act
-            flight.SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(23));
-            await eventStore.SaveAsync(flight);
-            await
-                eventStore.Connection.DeleteStreamAsync(streamName, ExpectedVersion.Any, hardDelete);
+            await flight.SetEstimatedDepartureTime(DateTime.UtcNow.AddMinutes(23))
+                        .SaveAsync(eventStore)
+                        .ConfigureAwait(false);
+
+            await eventStore.Connection
+                            .DeleteStreamAsync(streamName, ExpectedVersion.Any, hardDelete)
+                            .ConfigureAwait(false);
 
             await
                 Assert.ThrowsAsync<AggregateDeletedException>(

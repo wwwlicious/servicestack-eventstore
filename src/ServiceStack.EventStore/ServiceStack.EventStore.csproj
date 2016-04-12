@@ -88,6 +88,7 @@
     <Compile Include="Extensions\AssemblyExtensions.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Extensions\Disposable.cs" />
+    <Compile Include="Extensions\RepositoryExtensions.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Factories\ReadModelWriterFactory.cs" />
     <Compile Include="Projections\StorageType.cs" />

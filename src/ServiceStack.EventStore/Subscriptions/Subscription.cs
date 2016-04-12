@@ -5,7 +5,6 @@ namespace ServiceStack.EventStore.Subscriptions
 {
     using Resilience;
     using System;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Represents a subscription to EventStore incl. StreamId, SubscriptionGroup and RetryPolicy

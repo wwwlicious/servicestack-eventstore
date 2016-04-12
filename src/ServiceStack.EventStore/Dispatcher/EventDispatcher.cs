@@ -32,8 +32,7 @@ namespace ServiceStack.EventStore.Dispatcher
 
         public async Task<bool> Dispatch(ResolvedEvent @event)
         {
-            var headers = JsonObject.Parse(@event.Event.Metadata.FromAsciiBytes())
-                                    .ToNameValueCollection();
+            var headers = JsonObject.Parse(@event.Event.Metadata.FromAsciiBytes()).ToNameValueCollection();
             var clrEventType = headers.Get(EventClrTypeHeader);
 
             Type type;
@@ -46,6 +45,7 @@ namespace ServiceStack.EventStore.Dispatcher
                 {
                     var request = new BasicRequest();
                     request.Headers.AddAll(headers);
+
                     await HostContext.ServiceController.ExecuteAsync(typedEvent, request);
                 }
                 catch (Exception e)
