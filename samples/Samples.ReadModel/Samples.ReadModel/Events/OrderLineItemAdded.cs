@@ -1,6 +1,7 @@
-﻿namespace Sample.AReadModel.ServiceModel.Types
+﻿namespace Samples.ReadModel.Events
 {
     using System;
+    using Types;
     using System.Collections.Generic;
 
     public class OrderLineItemsAdded {

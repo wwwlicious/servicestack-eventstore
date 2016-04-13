@@ -1,4 +1,4 @@
-﻿namespace Sample.AReadModel.ServiceModel.Types
+﻿namespace Samples.ReadModel.Events
 {
     using System;
 
