@@ -29,6 +29,6 @@ namespace ServiceStack.EventStore.Events
         public static void ScanForEvents(IReadOnlyList<Assembly> assembliesWithEvents) => 
                 assembliesWithEvents
                     .GetVisibleClasses()
-                    .Each(t => eventTypes.Add(t.Name, t));
+                    .Each(type => eventTypes.Add(type.Name, type));
     }
 }

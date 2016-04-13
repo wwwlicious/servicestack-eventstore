@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Sample.AReadModel.ServiceModel")]
+[assembly: AssemblyTitle("Samples.ReadModel")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("MacLean Electrical Ltd")]
-[assembly: AssemblyProduct("Sample.AReadModel.ServiceModel")]
-[assembly: AssemblyCopyright("Copyright © 2014")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("Samples.ReadModel")]
+[assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("2bd73aa1-0cdd-4bc0-82af-97627c7e28fb")]
+[assembly: Guid("54aa34dc-4784-422c-a87f-6bbde87a2b87")]
 
 // Version information for an assembly consists of the following four values:
 //

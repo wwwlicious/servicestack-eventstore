@@ -1,14 +1,13 @@
-﻿namespace Sample.AReadModel.ServiceInterface
+﻿namespace Samples.ReadModel.Service
 {
     using System;
-    using ServiceStack;
-    using ServiceModel.Types;
+    using Sample.AReadModel.ServiceModel.Types;
     using ServiceStack.EventStore.Factories;
     using ServiceStack.EventStore.Projections;
 
-    public class PurchaseOrderService : Service
+    public class PurchaseOrderService : ServiceStack.Service
     {
-        private readonly IReadModelWriter<Guid, OrderViewModel> writer = 
+        private readonly IReadModelWriter<Guid, OrderViewModel> writer =
                         ReadModelWriterFactory.GetRedisWriter<Guid, OrderViewModel>();
 
         public object Any(PurchaseOrderCreated @event)
@@ -18,7 +17,7 @@
 
         public object Any(OrderLineItemsAdded @event)
         {
-            return writer.Update(@event.OrderId, 
+            return writer.Update(@event.OrderId,
                     vm => vm.LineItemCount += @event.OrderLineItems.Count);
         }
 
