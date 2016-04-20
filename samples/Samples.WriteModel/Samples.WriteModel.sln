@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.WriteModel", "Samples.WriteModel\Samples.WriteModel.csproj", "{6C366CA3-988C-4A18-ADFC-F4B98109F323}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.EventStore", "..\..\src\ServiceStack.EventStore\ServiceStack.EventStore.csproj", "{4F92796A-4DB7-4DF7-BEAE-DECC5602ECB9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{6C366CA3-988C-4A18-ADFC-F4B98109F323}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C366CA3-988C-4A18-ADFC-F4B98109F323}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C366CA3-988C-4A18-ADFC-F4B98109F323}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F92796A-4DB7-4DF7-BEAE-DECC5602ECB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F92796A-4DB7-4DF7-BEAE-DECC5602ECB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F92796A-4DB7-4DF7-BEAE-DECC5602ECB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F92796A-4DB7-4DF7-BEAE-DECC5602ECB9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

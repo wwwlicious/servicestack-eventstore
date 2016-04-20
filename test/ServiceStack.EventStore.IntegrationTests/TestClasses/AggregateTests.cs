@@ -149,7 +149,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
         public async Task CanSaveAndRehydrateLargeNumberOfEvents()
         {
             const int noOfEvents = 5000;
-
+            
             var newFlight = new Flight();
 
             do
