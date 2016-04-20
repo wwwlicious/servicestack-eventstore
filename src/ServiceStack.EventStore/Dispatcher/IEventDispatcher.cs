@@ -8,6 +8,6 @@ namespace ServiceStack.EventStore.Dispatcher
 
     internal interface IEventDispatcher
     {
-        Task<bool> Dispatch(ResolvedEvent @event);
+        Task Dispatch(ResolvedEvent @event);
     }
 }

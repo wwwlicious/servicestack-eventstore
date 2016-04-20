@@ -32,8 +32,8 @@ namespace ServiceStack.EventStore.Idempotency
         /// <remarks>See <a href="http://code.logos.com/blog/2011/04/generating_a_deterministic_guid.html">Generating a deterministic GUID</a>.</remarks>
         public static Guid Create(Guid namespaceId, string name, int version)
         {
-            if (name == null)
-                throw new ArgumentNullException(nameof(name));
+            name.ThrowIfNull(nameof(name));
+
             if (version != 3 && version != 5)
                 throw new ArgumentOutOfRangeException(nameof(version), "version must be either 3 or 5.");
 

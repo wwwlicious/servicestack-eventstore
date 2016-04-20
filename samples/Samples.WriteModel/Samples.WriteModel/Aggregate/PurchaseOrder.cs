@@ -15,16 +15,18 @@ namespace Samples.WriteModel.Aggregate
             Causes(new PurchaseOrderCreated(Id));
         }
 
-        public void AddLineItems(List<OrderLineItem> orderLineItems)
+        public PurchaseOrder AddLineItems(List<OrderLineItem> orderLineItems)
         {
             if (orderLineItems.Count > 0)
                 Causes(new OrderLineItemsAdded(orderLineItems));
+            return this;
         }
 
-        public void UpdateStatus(string newStatus)
+        public PurchaseOrder UpdateStatus(string newStatus)
         {
             if (!string.IsNullOrEmpty(newStatus))
                 Causes(new OrderStatusUpdated(newStatus));
+            return this;
         }
     }
 }

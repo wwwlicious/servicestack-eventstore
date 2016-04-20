@@ -30,7 +30,7 @@ namespace ServiceStack.EventStore.Dispatcher
             log = LogManager.GetLogger(GetType());
         }
 
-        public async Task<bool> Dispatch(ResolvedEvent @event)
+        public async Task Dispatch(ResolvedEvent @event)
         {
             var headers = JsonObject.Parse(@event.Event.Metadata.FromAsciiBytes()).ToNameValueCollection();
             var clrEventType = headers.Get(EventClrTypeHeader);
@@ -52,9 +52,8 @@ namespace ServiceStack.EventStore.Dispatcher
                 {
                     log.Error(e);
                 }
-                return true;
+                return;
             }
-            return false;
         }
     }
 }

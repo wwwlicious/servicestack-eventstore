@@ -15,11 +15,10 @@ namespace Samples.WriteModel.Services
 
             public async Task<object> Any(CreatePurchaseOrder cmd)
             {
-                var order = new PurchaseOrder();
-
-                order.AddLineItems(cmd.OrderLineItems);
-
-                await EventStore.SaveAsync(order).ConfigureAwait(false);
+                await new PurchaseOrder()
+                            .AddLineItems(cmd.OrderLineItems)
+                            .SaveAsync(EventStore)
+                            .ConfigureAwait(false);
 
                 return Task.FromResult(true);
             }

@@ -87,7 +87,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Service\Class1.cs" />
+    <Compile Include="Service\PurchaseOrderService.cs" />
     <Compile Include="Types\OrderLineItem.cs" />
     <Compile Include="Events\OrderLineItemAdded.cs" />
     <Compile Include="Events\OrderStatusUpdated.cs" />

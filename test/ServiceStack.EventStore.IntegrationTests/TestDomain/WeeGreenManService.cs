@@ -22,12 +22,12 @@ namespace ServiceStack.EventStore.IntegrationTests.TestDomain
             Console.WriteLine("here");
         }
 
-        public async Task DoSomething()
+        public Task DoSomething()
         {
-            await _repo.PublishAsync(new SomethingHappened(), "targetstream", headers =>
-            {
+            return _repo.PublishAsync(new SomethingHappened(), "targetstream", headers =>
+             {
 
-            });
+             });
         }
     }
 

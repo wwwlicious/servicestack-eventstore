@@ -25,7 +25,7 @@
         public object Any(PurchaseOrderCreated @event) => writer.Add(new OrderViewModel(@event.Id));
 
         //we update the read model by passing a delegate
-        //which updates the properties of the view model proxy
+        //which updates the properties of our view model proxy
         public object Any(OrderLineItemsAdded @event) => writer.Update(@event.OrderId,
             vm => vm.LineItemCount += @event.OrderLineItems.Count);
 

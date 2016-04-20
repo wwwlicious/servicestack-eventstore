@@ -29,9 +29,9 @@ namespace ServiceStack.EventStore.Consumers
                              async (sub) => await LiveProcessingStarted(sub),
                              async (sub, reason, exception) => await SubscriptionDropped(sub, reason, exception)));
             }
-            catch (Exception exception)
+            catch (AggregateException exception)
             {
-                log.Error(exception);
+                exception.InnerExceptions.Each(e => log.Error(e));
             }
         }
 
