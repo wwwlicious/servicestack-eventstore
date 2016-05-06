@@ -127,17 +127,12 @@ By adding the ServiceStack.EventStore package to your project we can access the 
 
 public class FlightService: ServiceStack.Service
 {
-	private readonly IEventStoreRepository repository;
-	
-	public void FlightService(IEventStoreRepository repo)
-	{
-	    this.repository = repo;    
-	}   
+       public IEventStoreRepository EventStore { get; set; }
 	
 	public async Task DoSomething()
 	{
 	    ...
-	    await repository.PublishAsync(new SomethingHappened(), "targetstream");
+	    await EventStore.PublishAsync(new SomethingHappened(), "targetstream");
 	}
 }
 
