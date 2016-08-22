@@ -8,6 +8,8 @@
     {
         public Guid CustomerId { get; set; }
 
+        public Guid OrderId { get; set; }
+
         public List<OrderLineItem> OrderLineItems { get; set; }
     }
 }

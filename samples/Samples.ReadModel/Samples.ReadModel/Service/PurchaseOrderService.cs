@@ -22,14 +22,15 @@
         //a new record in the read model and pass in a new instance 
         //of the view model to represent that record with a unique Id
         //in this case the OrderId is being used
-        public object Any(PurchaseOrderCreated @event) => writer.Add(new OrderViewModel(@event.Id));
+        public object Any(PurchaseOrderCreated @event) => 
+            writer.Add(new OrderViewModel(@event.Id));
 
         //we update the read model by passing a delegate
         //which updates the properties of our view model proxy
-        public object Any(OrderLineItemsAdded @event) => writer.Update(@event.OrderId,
-            vm => vm.LineItemCount += @event.OrderLineItems.Count);
+        public object Any(OrderLineItemsAdded @event) => 
+            writer.Update(@event.OrderId, vm => vm.LineItemCount += @event.OrderLineItems.Count);
 
-        public object Any(OrderStatusUpdated @event) => writer.Update(@event.OrderId,
-            vm => vm.OrderStatus = @event.NewStatus);
+        public object Any(OrderStatusUpdated @event) => 
+            writer.Update(@event.OrderId, vm => vm.OrderStatus = @event.NewStatus);
     }
 }

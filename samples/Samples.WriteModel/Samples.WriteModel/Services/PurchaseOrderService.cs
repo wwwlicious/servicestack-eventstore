@@ -1,5 +1,6 @@
 ﻿using Samples.WriteModel.Aggregate;
 using Samples.WriteModel.Commands;
+using ServiceStack.EventStore.Extensions;
 
 namespace Samples.WriteModel.Services
 {
@@ -25,7 +26,8 @@ namespace Samples.WriteModel.Services
 
             public async Task<object> Any(UpdateOrderStatus cmd)
             {
-                var order = await EventStore.GetByIdAsync<PurchaseOrder>(cmd.OrderId).ConfigureAwait(false);
+                var order = await EventStore.GetByIdAsync<PurchaseOrder>(cmd.OrderId)
+                                            .ConfigureAwait(false);
 
                 order.UpdateStatus(cmd.NewStatus);
 

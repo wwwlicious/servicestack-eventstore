@@ -23,15 +23,17 @@ namespace Samples.WriteModel
         private static void ImitateClient()
         {
             var customerId = Guid.NewGuid();
+            var orderId = Guid.NewGuid();
             //Simulate an external client sending a command to create a purchase order
             ServiceStackHost.Instance.ExecuteService(new CreatePurchaseOrder
             {
                 CustomerId = customerId,
+                OrderId = orderId,
                 OrderLineItems = GetOrderLineItems()
             });
 
             //Simulate an external client sending a command to update the order status
-            ServiceStackHost.Instance.ExecuteService(new UpdateOrderStatus {NewStatus = "Cancelled"});
+            ServiceStackHost.Instance.ExecuteService(new UpdateOrderStatus {NewStatus = "Cancelled", OrderId = orderId});
         }
 
         private static List<OrderLineItem> GetOrderLineItems() => 
