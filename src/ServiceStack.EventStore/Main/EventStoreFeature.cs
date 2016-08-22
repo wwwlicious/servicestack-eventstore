@@ -108,10 +108,6 @@ namespace ServiceStack.EventStore.Main
 
             if (readModel != null)
                 readModelDelegates[readModel.StorageType]?.Invoke(readModel.ConnectionString);
-            else
-            {
-                throw new ArgumentException("No storage was set for the read model");
-            }
         }
     }
 }

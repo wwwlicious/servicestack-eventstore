@@ -15,10 +15,7 @@ namespace ServiceStack.EventStore.HelperClasses
     {
         public static readonly Func<TClass> Instance = Expression.Lambda<Func<TClass>>(Expression.New(typeof(TClass))).Compile();
 
-        public static Func<TClass> GetInstance(TClass type)
-        {
-            return Instance;
-        }
+        public static Func<TClass> GetInstance(TClass type) => Instance;
 
         /// <summary>
         /// Allows a class to be instantiated using a parameterised constructor
