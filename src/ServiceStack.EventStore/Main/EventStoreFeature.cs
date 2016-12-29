@@ -19,13 +19,13 @@ namespace ServiceStack.EventStore.Main
     using Events;
     using Projections;
     using System.Reflection;
+    using Configuration;
 
     public class EventStoreFeature: IPlugin
     {
         private readonly SubscriptionSettings subscriptionSettings;
         private Container container;
         private readonly ILog log;
-        private readonly EventStoreConnectionSettings connectionSettings;
         private readonly Assembly[] assembliesWithEvents;
 
         private readonly Dictionary<string, Type> consumers = new Dictionary<string, Type>
@@ -36,24 +36,28 @@ namespace ServiceStack.EventStore.Main
             {"ReadModelSubscription", typeof(ReadModelConsumer)}
         };
 
-        public EventStoreFeature(EventStoreConnectionSettings connectionSettings, params Assembly[] assembliesWithEvents) : 
-            this(connectionSettings, new SubscriptionSettings(), assembliesWithEvents) { }
+        private IAppSettings appSettings;
 
-        public EventStoreFeature(EventStoreConnectionSettings connectionSettings, SubscriptionSettings subscriptionSettings, params Assembly[] assembliesWithEvents)
+        public EventStoreFeature(params Assembly[] assembliesWithEvents) : 
+            this(new SubscriptionSettings(), assembliesWithEvents) { }
+
+        public EventStoreFeature(SubscriptionSettings subscriptionSettings, params Assembly[] assembliesWithEvents)
         {
-            this.assembliesWithEvents = assembliesWithEvents ?? new[] {Assembly.GetExecutingAssembly()};
+            this.assembliesWithEvents = assembliesWithEvents ?? new[] { Assembly.GetExecutingAssembly() };
             this.subscriptionSettings = subscriptionSettings;
-            this.connectionSettings = connectionSettings;
             EventTypes.ScanForEvents(assembliesWithEvents);
             log = LogManager.GetLogger(GetType());
         }
 
         public async void Register(IAppHost appHost)
         {
+            appSettings = appHost.AppSettings ?? new AppSettings();
+
+            var connectionSettings = GetConnectionSettings();
             var connection = EventStoreConnection.Create(connectionSettings.GetConnectionString());
 
             await connection.ConnectAsync().ConfigureAwait(false); //no need for the initial synchronisation context 
-                                                                   //to be reused when executing the rest of the method
+            //to be reused when executing the rest of the method
 
             new ConnectionMonitor(connection, connectionSettings.MonitorSettings)
                     .AddHandlers();
@@ -77,6 +81,18 @@ namespace ServiceStack.EventStore.Main
             {
                 log.Error(e);
             }
+        }
+
+        private EventStoreConnectionSettings GetConnectionSettings()
+        {
+            var connectionSettings = new EventStoreConnectionSettings();
+
+            connectionSettings.TcpEndpoint(appSettings.GetString("EventStore.TcpEndPoint"));
+            connectionSettings.HttpEndpoint(appSettings.GetString("EventStore.HttpEndPoint"));
+            connectionSettings.UserName(appSettings.GetString("EventStore.UserName"));
+            connectionSettings.Password(appSettings.GetString("EventStore.Password"));
+
+            return connectionSettings;
         }
 
         private void RegisterTypesForIoc(IEventStoreConnection connection)

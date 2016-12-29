@@ -4,18 +4,11 @@
 
 namespace ServiceStack.EventStore.IntegrationTests
 {
-    using ConnectionManagement;
-
     using FluentAssertions;
-
     using Funq;
-
     using Logging;
-
     using Main;
-
     using Projections;
-
     using Subscriptions;
 
     public class TestAppHost : AppHostHttpListenerBase
@@ -32,22 +25,14 @@ namespace ServiceStack.EventStore.IntegrationTests
                 .SubscribeToStreams(streams =>
                 {
                     streams.Add(new ReadModelSubscription()
-                        .SetRetryPolicy(new[] {1.Seconds(), 3.Seconds()})
+                        .SetRetryPolicy(1.Seconds(), 3.Seconds())
                         .WithStorage(new ReadModelStorage(StorageType.Redis, "localhost:6379")));
                 });
-
-            var connection = new EventStoreConnectionSettings()
-                                    .UserName("admin")
-                                    .Password("changeit")
-                                    .TcpEndpoint("localhost:1113")
-                                    .HttpEndpoint("localhost:2113");
 
             LogManager.LogFactory = new ConsoleLogFactory();
 
             Plugins.Add(new MetadataFeature());
-            Plugins.Add(new EventStoreFeature(connection, settings, typeof(TestAppHost).Assembly));
+            Plugins.Add(new EventStoreFeature(settings, typeof(TestAppHost).Assembly));
         }
     }
-
-
 }
