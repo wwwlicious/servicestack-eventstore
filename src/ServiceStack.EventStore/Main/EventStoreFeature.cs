@@ -87,10 +87,10 @@ namespace ServiceStack.EventStore.Main
         {
             var connectionSettings = new EventStoreConnectionSettings();
 
-            connectionSettings.TcpEndpoint(appSettings.GetString("EventStore.TcpEndPoint"));
-            connectionSettings.HttpEndpoint(appSettings.GetString("EventStore.HttpEndPoint"));
-            connectionSettings.UserName(appSettings.GetString("EventStore.UserName"));
-            connectionSettings.Password(appSettings.GetString("EventStore.Password"));
+            connectionSettings.TcpEndpoint(appSettings.GetString("ServiceStack.Plugins.EventStore.TcpEndPoint"));
+            connectionSettings.HttpEndpoint(appSettings.GetString("ServiceStack.Plugins.EventStore.HttpEndPoint"));
+            connectionSettings.UserName(appSettings.GetString("ServiceStack.Plugins.EventStore.UserName"));
+            connectionSettings.Password(appSettings.GetString("ServiceStack.Plugins.EventStore.Password"));
 
             return connectionSettings;
         }
