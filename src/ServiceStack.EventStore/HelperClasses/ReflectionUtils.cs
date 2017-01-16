@@ -19,17 +19,11 @@ namespace ServiceStack.EventStore.HelperClasses
     /// </summary>
     internal static class ReflectionUtils
     {
-        /// <summary>
-        /// Gets a dictionary of event types and a delegate to their handlers
-        /// </summary>
-        /// <typeparam name="TState"></typeparam>
-        /// <returns></returns>
         public static Dictionary<string, Action<TState, object>> GetStateEventMutators<TState>()
             where TState : IState
         {
             var stateType = typeof(TState);
 
-            //todo what happens when the return type of the method is Task?
             var mutateMethods = stateType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                                          .Where(m => m.Name.Length >= 2 && m.Name.StartsWith("On") && m.GetParameters().Length == 1 && m.ReturnType == typeof(void))
                                          .ToArray();
@@ -45,20 +39,13 @@ namespace ServiceStack.EventStore.HelperClasses
             return stateEventMutators.ToDictionary(m => m.Name, m => m.Handler);
         }
 
-        /// <summary>
-        /// Creates a delegate method to call the event handler for an aggregate event type
-        /// </summary>
-        /// <typeparam name="TState"></typeparam>
-        /// <param name="eventType"></param>
-        /// <param name="method"></param>
-        /// <returns></returns>
         private static Action<TState, object> BuildStateEventMutatorHandler<TState>(Type eventType, MethodInfo method)
             where TState : IState
         {
             var stateParam = Expression.Parameter(typeof(TState), "state");
-            var eventParam = Expression.Parameter(eventType, "ev");
+            var eventParam = Expression.Parameter(typeof(object), "ev");
 
-            var methodCallExpr = Expression.Call(stateParam, method, eventParam);
+            var methodCallExpr = Expression.Call(stateParam, method, Expression.Convert(eventParam, eventType));
             var lambda = Expression.Lambda<Action<TState, object>>(methodCallExpr, stateParam, eventParam);
 
             return lambda.Compile();
