@@ -28,25 +28,26 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
         }
 
         [Fact]
-        public void SameEventIsWrittenOnlyOnce()
+        public async Task SameEventIsIdempotent()
         {
             var streamName = $"IdempotentTestStream-{Guid.NewGuid()}";
             var timeStamp = DateTime.UtcNow;
             var evt = new ServiceHasReachedWarningState(timeStamp);
 
-            eventStore.PublishAsync(evt, streamName);
-            eventStore.PublishAsync(evt, streamName);
+            await eventStore.PublishAsync(evt, streamName).ConfigureAwait(false);
+            await eventStore.PublishAsync(evt, streamName).ConfigureAwait(false);
 
             var streamEvents = new List<ResolvedEvent>();
 
             StreamEventsSlice currentSlice;
             var nextSliceStart = StreamPosition.Start;
+
             do
             {
-                currentSlice = eventStore
-                                    .Connection
-                                    .ReadStreamEventsForwardAsync(streamName, nextSliceStart, 200, false)
-                                    .Result;
+                currentSlice = await eventStore
+                                        .Connection
+                                        .ReadStreamEventsForwardAsync(streamName, nextSliceStart, 200, false)
+                                        .ConfigureAwait(false);
 
                 nextSliceStart = currentSlice.NextEventNumber;
 
@@ -55,6 +56,45 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             while (!currentSlice.IsEndOfStream);
 
             streamEvents.Count.Should().Be(1);
+
+            testOutput.WriteLine($"1 event idempotently written to {streamName}");
+        }
+
+        [Fact]
+        public async Task SimilarEventWithDifferentTimeStampIsNotIdempotent()
+        {
+            var product = new Product {ProductCode = "MN2400" };
+            var customer = new Customer {CustomerCode = "0000010367" };
+            var firstOccurrence = DateTime.UtcNow.Subtract(new TimeSpan(3, 0, 0));
+            var secondOccurrence = DateTime.UtcNow.Subtract(new TimeSpan(2, 0, 0));
+            var evt1 = new PriceChanged {Product = product, Customer = customer, TimeStamp = firstOccurrence};
+            var evt2 = new PriceChanged {Product = product, Customer = customer, TimeStamp = secondOccurrence};
+            var streamName = $"IdempotentTestStream-{Guid.NewGuid()}";
+
+            await eventStore.PublishAsync(evt1, streamName).ConfigureAwait(false);
+            await eventStore.PublishAsync(evt2, streamName).ConfigureAwait(false);
+
+            var streamEvents = new List<ResolvedEvent>();
+
+            StreamEventsSlice currentSlice;
+            var nextSliceStart = StreamPosition.Start;
+
+            do
+            {
+                currentSlice = await eventStore
+                                    .Connection
+                                    .ReadStreamEventsForwardAsync(streamName, nextSliceStart, 200, false)
+                                    .ConfigureAwait(false);
+
+                nextSliceStart = currentSlice.NextEventNumber;
+
+                streamEvents.AddRange(currentSlice.Events);
+            }
+            while (!currentSlice.IsEndOfStream);
+
+            streamEvents.Count.Should().Be(2);
+
+            testOutput.WriteLine($"2 events succesfully written to {streamName}");
         }
     }
 }

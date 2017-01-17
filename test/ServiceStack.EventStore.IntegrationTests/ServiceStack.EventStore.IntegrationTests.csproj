@@ -107,6 +107,7 @@
     <Compile Include="TestClasses\ServiceHasReachedWarningState.cs" />
     <Compile Include="TestClasses\ServiceStackHostFixture.cs" />
     <Compile Include="TestClasses\ServiceStackHostCollection.cs" />
+    <Compile Include="TestClasses\TestEvent.cs" />
     <Compile Include="TestDomain\OrderItem.cs" />
     <Compile Include="TestDomain\OrderLineItemAdded.cs" />
     <Compile Include="TestDomain\PurchaseOrderCreated.cs" />
