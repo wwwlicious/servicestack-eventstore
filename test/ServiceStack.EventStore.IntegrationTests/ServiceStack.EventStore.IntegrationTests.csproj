@@ -101,6 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TestClasses\EventHandlerTests.cs" />
+    <Compile Include="TestClasses\IdempotencyTests.cs" />
     <Compile Include="TestClasses\ProjectionTests.cs" />
     <Compile Include="TestClasses\PublisherTests.cs" />
     <Compile Include="TestClasses\ServiceHasReachedWarningState.cs" />
@@ -131,6 +132,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
