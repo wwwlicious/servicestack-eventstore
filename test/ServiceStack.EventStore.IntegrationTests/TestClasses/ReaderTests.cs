@@ -5,6 +5,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 {
     using System;
     using System.Threading.Tasks;
+    using Exceptions;
     using FluentAssertions;
     using Repository;
     using TestDomain;
@@ -41,6 +42,16 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 
             var middleEvent = await eventStore.ReadEventAsync<LastPolled>(streamName, 1).ConfigureAwait(false);
             middleEvent.Sequence.Should().Be("Middle");
+        }
+
+        [Fact]
+        public async Task ReadSingleEventThrowsEventNotFoundException()
+        {
+            var streamName = $"ReaderTestStream-{Guid.NewGuid()}";
+
+            //try to read from the stream when no events have been published to it yet
+            await Assert.ThrowsAsync<EventNotFoundException>(async () => 
+                    await eventStore.ReadEventAsync<LastPolled>(streamName, WhereInStream.Start).ConfigureAwait(false));
         }
 
         [Fact(Skip = "Stream reading not yet implemented")]
