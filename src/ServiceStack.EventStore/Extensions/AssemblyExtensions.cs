@@ -9,7 +9,7 @@
     {
         public static IEnumerable<Type> GetVisibleClasses(this IEnumerable<Assembly> @this) => 
                         @this.SelectMany(a => Assembly.Load(a.GetName()).GetTypes()
-                              .Where(t => t.IsClass && t.IsVisible));
+                              .Where(t => t.IsClass && t.IsVisible && !t.IsAbstract));
      
     }
 }
