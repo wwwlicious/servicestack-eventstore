@@ -20,5 +20,9 @@ namespace ServiceStack.EventStore.Repository
         Task<TAggregate> GetByIdAsync<TAggregate>(Guid id) where TAggregate : Aggregate;
 
         IEventStoreConnection Connection { get; }
+
+        Task<IEnumerable<TEvent>> ReadFromStreamAsync<TEvent>(string streamName, ReadDirection forwards);
+
+        Task<TEvent> ReadEventAsync<TEvent>(string streamName, int postition) where TEvent: class;
     }
 }

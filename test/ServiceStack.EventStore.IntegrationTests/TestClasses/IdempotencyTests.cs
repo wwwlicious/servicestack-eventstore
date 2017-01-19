@@ -5,11 +5,11 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using FluentAssertions;
     using global::EventStore.ClientAPI;
     using Repository;
+    using TestDomain;
     using Xunit;
     using Xunit.Abstractions;
 

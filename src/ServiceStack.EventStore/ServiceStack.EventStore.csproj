@@ -85,6 +85,7 @@
     <Compile Include="ConnectionManagement\MonitorSettings.cs" />
     <Compile Include="ConnectionManagement\IMonitorSettings.cs" />
     <Compile Include="Consumers\ReadModelConsumer.cs" />
+    <Compile Include="Exceptions\EventNotFoundException.cs" />
     <Compile Include="Extensions\AssemblyExtensions.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Extensions\Disposable.cs" />
@@ -95,6 +96,8 @@
     <Compile Include="Projections\IReadModelWriter.cs" />
     <Compile Include="Projections\RedisReadModelWriter.cs" />
     <Compile Include="Projections\ReadModelStorage.cs" />
+    <Compile Include="Repository\ReadDirection.cs" />
+    <Compile Include="Repository\WhereInStream.cs" />
     <Compile Include="Resilience\RetryExtensions.cs" />
     <Compile Include="Resilience\RetryType.cs" />
     <Compile Include="Resilience\Retries.cs" />

@@ -6,6 +6,7 @@ namespace ServiceStack.EventStore.Repository
     using Types;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Eventing.Reader;
     using System.Linq;
     using Idempotency;
     using System.Runtime.InteropServices;
@@ -43,6 +44,25 @@ namespace ServiceStack.EventStore.Repository
         }
 
         public IEventStoreConnection Connection { get; }
+
+        public async Task<IEnumerable<TEvent>> ReadFromStreamAsync<TEvent>(string streamName, ReadDirection forwards)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<TEvent> ReadEventAsync<TEvent>(string streamName, int position) where TEvent: class
+        {
+            var result = await Connection.ReadEventAsync(streamName, position, resolveLinkTos: true).ConfigureAwait(false);
+           
+            if (!result.Event.HasValue)
+                throw new EventNotFoundException(streamName, position);
+
+            var originalEvent = result.Event.Value.OriginalEvent;
+
+            var evt = DeserializeEvent(originalEvent.Metadata, originalEvent.Data);
+
+            return evt as TEvent;
+        }
 
         public async Task PublishAsync<T>(T @event, string streamName, Action<IDictionary<string, object>> updateHeaders = null)
         {
