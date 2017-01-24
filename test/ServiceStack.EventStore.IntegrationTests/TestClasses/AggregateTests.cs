@@ -239,7 +239,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
                     .ConfigureAwait(false);
 
             // use the eventstore connection directly
-            await eventStore.Connection.DeleteStreamAsync(streamName, ExpectedVersion.Any);
+            await eventStore.DeleteStreamAsync(streamName, ExpectedVersion.Any);
 
             await
                 Assert.ThrowsAsync<AggregateNotFoundException>(
@@ -258,8 +258,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
                         .SaveAsync(eventStore)
                         .ConfigureAwait(false);
 
-            await eventStore.Connection
-                            .DeleteStreamAsync(streamName, ExpectedVersion.Any, hardDelete)
+            await eventStore.DeleteStreamAsync(streamName, ExpectedVersion.Any, hardDelete)
                             .ConfigureAwait(false);
 
             await

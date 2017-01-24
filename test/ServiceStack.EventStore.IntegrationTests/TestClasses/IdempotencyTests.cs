@@ -5,6 +5,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using FluentAssertions;
     using global::EventStore.ClientAPI;
@@ -12,6 +13,7 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
     using TestDomain;
     using Xunit;
     using Xunit.Abstractions;
+    using ReadDirection = Repository.ReadDirection;
 
     [Collection("ServiceStackHostCollection")]
     [Trait("Category", "Integration")]
@@ -37,25 +39,9 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             await eventStore.PublishAsync(evt, streamName).ConfigureAwait(false);
             await eventStore.PublishAsync(evt, streamName).ConfigureAwait(false);
 
-            var streamEvents = new List<ResolvedEvent>();
+            var streamEvents = await eventStore.ReadSliceFromStreamAsync(streamName, ReadDirection.Forwards, StreamPosition.Start, 200);
 
-            StreamEventsSlice currentSlice;
-            var nextSliceStart = StreamPosition.Start;
-
-            do
-            {
-                currentSlice = await eventStore
-                                        .Connection
-                                        .ReadStreamEventsForwardAsync(streamName, nextSliceStart, 200, false)
-                                        .ConfigureAwait(false);
-
-                nextSliceStart = currentSlice.NextEventNumber;
-
-                streamEvents.AddRange(currentSlice.Events);
-            }
-            while (!currentSlice.IsEndOfStream);
-
-            streamEvents.Count.Should().Be(1);
+            streamEvents.Count().Should().Be(1);
 
             testOutput.WriteLine($"1 event idempotently written to {streamName}");
         }
@@ -74,25 +60,9 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             await eventStore.PublishAsync(evt1, streamName).ConfigureAwait(false);
             await eventStore.PublishAsync(evt2, streamName).ConfigureAwait(false);
 
-            var streamEvents = new List<ResolvedEvent>();
+            var streamEvents = await eventStore.ReadSliceFromStreamAsync(streamName, ReadDirection.Forwards, StreamPosition.Start, 200).ConfigureAwait(false);
 
-            StreamEventsSlice currentSlice;
-            var nextSliceStart = StreamPosition.Start;
-
-            do
-            {
-                currentSlice = await eventStore
-                                    .Connection
-                                    .ReadStreamEventsForwardAsync(streamName, nextSliceStart, 200, false)
-                                    .ConfigureAwait(false);
-
-                nextSliceStart = currentSlice.NextEventNumber;
-
-                streamEvents.AddRange(currentSlice.Events);
-            }
-            while (!currentSlice.IsEndOfStream);
-
-            streamEvents.Count.Should().Be(2);
+            streamEvents.Count().Should().Be(2);
 
             testOutput.WriteLine($"2 events succesfully written to {streamName}");
         }

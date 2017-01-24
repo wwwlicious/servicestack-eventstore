@@ -97,6 +97,7 @@
     <Compile Include="Projections\RedisReadModelWriter.cs" />
     <Compile Include="Projections\ReadModelStorage.cs" />
     <Compile Include="Repository\ReadDirection.cs" />
+    <Compile Include="Repository\SliceSize.cs" />
     <Compile Include="Repository\WhereInStream.cs" />
     <Compile Include="Resilience\RetryExtensions.cs" />
     <Compile Include="Resilience\RetryType.cs" />

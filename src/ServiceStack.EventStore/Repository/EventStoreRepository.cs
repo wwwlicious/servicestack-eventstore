@@ -32,27 +32,60 @@ namespace ServiceStack.EventStore.Repository
         private const int WritePageSize = 500;
         private const int ReadPageSize = 500;
         private const int InitialVersion = 0;
+        private readonly IEventStoreConnection connection;
 
         private readonly GetStreamName getStreamName;
         private readonly ILog log;
+        private readonly Dictionary<ReadDirection, Func<string, int, int, Task<StreamEventsSlice>>> eventStreamReaders;
 
         public EventStoreRepository(IEventStoreConnection connection)
         {
-            Connection = connection;
+            this.connection = connection;
             getStreamName = (type, guid) => $"{type.Name}-{guid}"; // todo make this a delegate
             log = LogManager.GetLogger(GetType());
+            eventStreamReaders = new Dictionary<ReadDirection, Func<string, int, int, Task<StreamEventsSlice>>>()
+            {
+                [ReadDirection.Forwards] = async (s, i, c) => await connection.ReadStreamEventsForwardAsync(s, i, c, resolveLinkTos: true).ConfigureAwait(false),
+                [ReadDirection.Backwards] = async (s, i, c) => await connection.ReadStreamEventsBackwardAsync(s, i, c, true).ConfigureAwait(false)
+            };
         }
 
-        public IEventStoreConnection Connection { get; }
-
-        public async Task<IEnumerable<TEvent>> ReadFromStreamAsync<TEvent>(string streamName, ReadDirection forwards)
+        /// <summary>
+        /// Reads a slice of events from a named stream.
+        /// </summary>
+        /// <typeparam name="TEvent">The type of event to be returned.</typeparam>
+        /// <param name="streamName">The name of the stream name to read from.</param>
+        /// <param name="direction">The direction in which to read the stream - forward or backward. </param>
+        /// <param name="start">The position in the stream of the first event in the requested slice.</param>
+        /// <param name="count">The number of events to be included in the requested slice. The maximum number events that can be requested is 4,096.</param>
+        /// <returns>A Task of IEnumerable of TEvent</returns>
+        public async Task<IEnumerable<TEvent>> ReadSliceFromStreamAsync<TEvent>(string streamName, ReadDirection direction, int start, int count)
         {
-            throw new NotImplementedException();
+            var currentSlice = await eventStreamReaders[direction].Invoke(streamName, start, count).ConfigureAwait(false);
+            var events = currentSlice.Events;
+
+            return events.Select(e => DeserializeEvent(e.OriginalEvent.Metadata, e.OriginalEvent.Data).ConvertTo<TEvent>());
+        }
+
+        /// <summary>
+        /// Reads a slice of events from a named stream.
+        /// </summary>
+        /// <param name="streamName">The name of the stream name to read from.</param>
+        /// <param name="direction">The direction in which to read the stream - forward or backward. </param>
+        /// <param name="start">The position in the stream of the first event in the requested slice.</param>
+        /// <param name="count">The number of events to be included in the requested slice. The maximum number events that can be requested is 4,096.</param>
+        /// <returns>A Task of IEnumerable of object</returns>
+        public async Task<IEnumerable<object>> ReadSliceFromStreamAsync(string streamName, ReadDirection direction, int start, int count)
+        {
+            var currentSlice = await eventStreamReaders[direction].Invoke(streamName, start, count).ConfigureAwait(false);
+            var events = currentSlice.Events;
+
+            return events.Select(e => DeserializeEvent(e.OriginalEvent.Metadata, e.OriginalEvent.Data));
         }
 
         public async Task<TEvent> ReadEventAsync<TEvent>(string streamName, int position) where TEvent: class
         {
-            var result = await Connection.ReadEventAsync(streamName, position, resolveLinkTos: true).ConfigureAwait(false);
+            var result = await connection.ReadEventAsync(streamName, position, resolveLinkTos: true).ConfigureAwait(false);
            
             if (!result.Event.HasValue)
                 throw new EventNotFoundException(streamName, position);
@@ -64,6 +97,11 @@ namespace ServiceStack.EventStore.Repository
             return evt as TEvent;
         }
 
+        public async Task DeleteStreamAsync(string streamName, int expectedVersion, bool hardDelete = false)
+        {
+            await connection.DeleteStreamAsync(streamName, expectedVersion, hardDelete).ConfigureAwait(false);
+        }
+
         public async Task PublishAsync<T>(T @event, string streamName, Action<IDictionary<string, object>> updateHeaders = null)
         {
             var headers = new Dictionary<string, object>();
@@ -72,7 +110,7 @@ namespace ServiceStack.EventStore.Repository
 
             try
             {
-                await Connection.AppendToStreamAsync(streamName, ExpectedVersion.Any, ToEventData(@event, headers));
+                await connection.AppendToStreamAsync(streamName, ExpectedVersion.Any, ToEventData(@event, headers));
             }
             catch (Exception exception)
             {
@@ -102,7 +140,7 @@ namespace ServiceStack.EventStore.Repository
             {
                 try
                 {
-                    await Connection.AppendToStreamAsync(streamName, expectedVersion, eventToSave);
+                    await connection.AppendToStreamAsync(streamName, expectedVersion, eventToSave);
                 }
                 catch (Exception exception)
                 { 
@@ -113,7 +151,7 @@ namespace ServiceStack.EventStore.Repository
             {
                 try
                 {
-                    using (var transaction = await Connection.StartTransactionAsync(streamName, expectedVersion))
+                    using (var transaction = await connection.StartTransactionAsync(streamName, expectedVersion))
                     {
                         var position = 0;
 
@@ -167,7 +205,7 @@ namespace ServiceStack.EventStore.Repository
                                     ? ReadPageSize
                                     : version - sliceStart;
 
-                currentSlice = await Connection.ReadStreamEventsForwardAsync(streamName, sliceStart, sliceCount, false)
+                currentSlice = await connection.ReadStreamEventsForwardAsync(streamName, sliceStart, sliceCount, false)
                                                .ConfigureAwait(false);
 
                 switch (currentSlice.Status)

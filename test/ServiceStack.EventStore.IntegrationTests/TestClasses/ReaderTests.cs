@@ -4,13 +4,16 @@
 namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using Exceptions;
     using FluentAssertions;
+    using global::EventStore.ClientAPI;
     using Repository;
     using TestDomain;
     using Xunit;
     using Xunit.Abstractions;
+    using ReadDirection = Repository.ReadDirection;
 
     [Collection("ServiceStackHostCollection")]
     [Trait("Category", "Integration")]
@@ -54,13 +57,56 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
                     await eventStore.ReadEventAsync<LastPolled>(streamName, WhereInStream.Start).ConfigureAwait(false));
         }
 
-        [Fact(Skip = "Stream reading not yet implemented")]
-        public async Task CanReadStreamForwards()
+        [Fact]
+        public async Task CanReadStreamForwardsAsStronglyTypedObjects()
         {
             var streamName = $"ReaderTestStream-{Guid.NewGuid()}";
-            var publishedEvent = new LastPolled {Time = DateTime.UtcNow};
 
-            await eventStore.PublishAsync(publishedEvent, streamName).ConfigureAwait(false);
+            var firstDate = DateTime.UtcNow.AddDays(-3);
+            var secondDate = DateTime.UtcNow.AddDays(-2);
+            var thirdDate = DateTime.UtcNow.AddDays(-1);
+            var fourthDate = DateTime.UtcNow.AddDays(0);
+
+            await eventStore.PublishAsync(new LastPolled { Time = firstDate}, streamName).ConfigureAwait(false);
+            await eventStore.PublishAsync(new LastPolled { Time = secondDate}, streamName).ConfigureAwait(false);
+            await eventStore.PublishAsync(new LastPolled { Time = thirdDate }, streamName).ConfigureAwait(false);
+            await eventStore.PublishAsync(new LastPolled { Time = fourthDate}, streamName).ConfigureAwait(false);
+
+            var eventSlice = await eventStore.ReadSliceFromStreamAsync<LastPolled>(streamName, ReadDirection.Forwards, StreamPosition.Start, SliceSize.Max).ConfigureAwait(false);
+            var events = eventSlice.ToArray();
+
+            events.Should().HaveCount(4);
+            events.Should().BeOfType<LastPolled[]>();
+            events[0].Time.Should().BeSameDateAs(firstDate);
+            events[1].Time.Should().BeSameDateAs(secondDate);
+            events[2].Time.Should().BeSameDateAs(thirdDate);
+            events[3].Time.Should().BeSameDateAs(fourthDate);
+        }
+
+        [Fact]
+        public async Task CanReadEventBackwardFromStreamAsStronglyTypedObject()
+        {
+            var streamName = $"ReaderTestStream-{Guid.NewGuid()}";
+
+            var firstDate = DateTime.UtcNow.AddDays(-3);
+            var secondDate = DateTime.UtcNow.AddDays(-2);
+            var thirdDate = DateTime.UtcNow.AddDays(-1);
+            var fourthDate = DateTime.UtcNow.AddDays(0);
+
+            await eventStore.PublishAsync(new LastPolled { Time = firstDate }, streamName).ConfigureAwait(false);
+            await eventStore.PublishAsync(new LastPolled { Time = secondDate }, streamName).ConfigureAwait(false);
+            await eventStore.PublishAsync(new LastPolled { Time = thirdDate }, streamName).ConfigureAwait(false);
+            await eventStore.PublishAsync(new LastPolled { Time = fourthDate }, streamName).ConfigureAwait(false);
+
+            var eventSlice = await eventStore.ReadSliceFromStreamAsync<LastPolled>(streamName, ReadDirection.Backwards, StreamPosition.End, SliceSize.Max).ConfigureAwait(false);
+            var events = eventSlice.ToArray();
+
+            events.Should().HaveCount(4);
+            events.Should().BeOfType<LastPolled[]>();
+            events[0].Time.Should().BeSameDateAs(fourthDate);
+            events[1].Time.Should().BeSameDateAs(thirdDate);
+            events[2].Time.Should().BeSameDateAs(secondDate);
+            events[3].Time.Should().BeSameDateAs(firstDate);
         }
     }
 }

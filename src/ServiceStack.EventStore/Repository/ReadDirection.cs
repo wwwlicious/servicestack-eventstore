@@ -2,7 +2,7 @@
 {
     public enum ReadDirection
     {
-        Forward, 
-        Backward
+        Forwards, 
+        Backwards
     }
 }
