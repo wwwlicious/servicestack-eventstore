@@ -5,7 +5,11 @@
 
 A plugin for [ServiceStack](https://servicestack.net/) that provides a [message gateway](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessagingGateway.html) to [EventStore](https://geteventstore.com/) streams.
 
-By adding this plugin to an application, such as a Windows Service, the application is able to connect to EventStore; subscribe to and handle [events](http://www.enterpriseintegrationpatterns.com/patterns/messaging/EventMessage.html) from named [streams](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageChannel.html); persist an aggregate to, and rehydrate it from, a stream; as well as populating a read model.
+By adding this plugin to an application, such as a Windows Service, the application is able to:
+* Connect to a running instance (or cluster) of EventStore. 
+* Subscribe to and handle [events](http://www.enterpriseintegrationpatterns.com/patterns/messaging/EventMessage.html) from named [streams](http://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageChannel.html).
+* Persist an aggregate to, and rehydrate it from, an EventStore stream.
+* Populate a read model using events.
 
 ## Requirements ##
 
@@ -26,18 +30,27 @@ Add the following code to the `Configure` method in the `AppHost` class (this cl
 ```csharp
 public override void Configure(Container container)
 {
-	var connection = new EventStoreConnectionSettings()
-					.UserName("admin")
-					.Password("changeit")
-					.TcpEndpoint("localhost:1113")
-                    .HttpEndpoint("localhost:2113");
-                    
 	//Register the EventStore plugin with ServiceStack, passing in the connection 
 	//and the assembly that contains the CLR events (see below)
-	Plugins.Add(new EventStoreFeature(connection, typeof(ClrEvent).Assembly)); 
+	Plugins.Add(new EventStoreFeature(new EventStoreConnectionSettings(), typeof(ClrEvent).Assembly)); 
 	//Optionally register the Metadata plugin
     Plugins.Add(new MetadataFeature());
 }
+```
+Then, add the following settings to the `App.config` file of the root project:
+
+```xml
+<configuration>
+    <startup> 
+        <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.5" />
+    </startup>
+    <appSettings>
+      <add key="ServiceStack.Plugins.EventStore.TcpEndPoint" value="localhost:1113"/>
+      <add key="ServiceStack.Plugins.EventStore.HttpEndPoint" value="localhost:2113"/>
+      <add key="ServiceStack.Plugins.EventStore.UserName" value="admin"/>
+      <add key="ServiceStack.Plugins.EventStore.Password" value="changeit"/>
+    </appSettings>
+</configuration>
 ```
 
 **Please note** that this sample assumes that:
