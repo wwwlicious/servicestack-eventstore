@@ -32,7 +32,7 @@ public override void Configure(Container container)
 {
 	//Register the EventStore plugin with ServiceStack, passing in the connection 
 	//and the assembly that contains the CLR events (see below)
-	Plugins.Add(new EventStoreFeature(new EventStoreConnectionSettings(), typeof(ClrEvent).Assembly)); 
+	Plugins.Add(new EventStoreFeature(typeof(ClrEvent).Assembly)); 
 	//Optionally register the Metadata plugin
     Plugins.Add(new MetadataFeature());
 }
@@ -108,7 +108,7 @@ public override void Configure(Container container)
  	...connection set-up omitted
 
 	// Note the extra 'settings' parameter being used when creating an instance of the EventStoreFeature
-	Plugins.Add(new EventStoreFeature(connection, settings, typeof(ClrEvent).Assembly));
+	Plugins.Add(new EventStoreFeature(settings, typeof(ClrEvent).Assembly));
 }
 ```
 
@@ -128,7 +128,7 @@ There is no need for such a class to implement a particular interface or inherit
 public override void Configure(Container container)
 {
 	...
-	Plugins.Add(new EventStoreFeature(connection, settings, typeof(SomeEvent).Assembly, typeof(AnotherEvent).Assembly);
+	Plugins.Add(new EventStoreFeature(settings, typeof(SomeEvent).Assembly, typeof(AnotherEvent).Assembly);
 }
 ```
 
