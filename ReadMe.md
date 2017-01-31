@@ -30,8 +30,8 @@ Add the following code to the `Configure` method in the `AppHost` class (this cl
 ```csharp
 public override void Configure(Container container)
 {
-	//Register the EventStore plugin with ServiceStack, passing in the connection 
-	//and the assembly that contains the CLR events (see below)
+	//Register the EventStore plugin with ServiceStack, passing in 
+	//the assembly that contains the CLR events (see below)
 	Plugins.Add(new EventStoreFeature(typeof(ClrEvent).Assembly)); 
 	//Optionally register the Metadata plugin
     Plugins.Add(new MetadataFeature());
