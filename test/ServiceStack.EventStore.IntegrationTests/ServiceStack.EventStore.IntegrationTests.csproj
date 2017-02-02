@@ -30,8 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EventStore.ClientAPI, Version=3.5.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\src\packages\EventStore.Client.3.5.2\lib\net40\EventStore.ClientAPI.dll</HintPath>
+    <Reference Include="EventStore.ClientAPI, Version=3.9.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\src\packages\EventStore.Client.3.9.4\lib\net40\EventStore.ClientAPI.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="FluentAssertions, Version=4.3.2.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
