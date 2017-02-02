@@ -354,5 +354,5 @@ public class PurchaseOrderService : Service
 This project leans gratefully on the following OS projects:
 
 - [**NDomain**](https://github.com/mfelicio/NDomain) by Manuel Felício
-- [**EventSourcing**](https://github.com/gnschenker/EventSourcing) by Gabriel Shenker
+- [**EventSourcing**](https://github.com/gnschenker/EventSourcing) by Gabriel Schenker
 - [**Getting-Started-With-Event-Store**](https://github.com/EventStore/getting-started-with-event-store) by James Nugent 
