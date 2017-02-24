@@ -8,13 +8,13 @@ namespace ServiceStack.EventStore.Exceptions
     [Serializable]
     public class EventNotFoundException: Exception
     {
-        private readonly string stream;
-        private readonly int position;
+        public readonly string StreamId;
+        public readonly int Position;
 
-        public EventNotFoundException(string stream, int position)
+        public EventNotFoundException(string streamId, int position)
         {
-            this.stream = stream;
-            this.position = position;
+            StreamId = streamId;
+            Position = position;
         }
     }
 }
