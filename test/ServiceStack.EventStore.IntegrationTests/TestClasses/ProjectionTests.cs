@@ -21,14 +21,5 @@ namespace ServiceStack.EventStore.IntegrationTests.TestClasses
             eventStore = fixture.AppHost.Container.Resolve<IEventStoreRepository>();
             testOutput = output;
         }
-
-        [Fact]
-
-        public async Task CanPopulateViewModel()
-        {
-            //var builder = new ReadModelBuilder<PurchaseOrderViewModel>();
-
-        }
-
     }
 }
