@@ -22,15 +22,9 @@ namespace ServiceStack.EventStore.IntegrationTests
 
         public override void Configure(Container container)
         {
-            var settings = new SubscriptionSettings()
-                .SubscribeToStreams(streams =>
-                {
-                    streams.Add(new ReadModelSubscription()
-                        .SetRetryPolicy(1.Seconds(), 3.Seconds())
-                        .WithStorage(new ReadModelStorage(StorageType.Redis, "localhost:6379")));
-                });
 
             LogManager.LogFactory = new ConsoleLogFactory();
+
             var nodeBuilder = EmbeddedVNodeBuilder.AsSingleNode()
                            .OnDefaultEndpoints()
                            .RunInMemory();
@@ -39,7 +33,7 @@ namespace ServiceStack.EventStore.IntegrationTests
 
 
             Plugins.Add(new MetadataFeature());
-            Plugins.Add(new EventStoreFeature(node, settings, typeof(TestAppHost).Assembly));
+            Plugins.Add(new EventStoreFeature(node, typeof(TestAppHost).Assembly));
         }
     }
 }
