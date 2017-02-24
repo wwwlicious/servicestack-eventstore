@@ -25,15 +25,17 @@ namespace ServiceStack.EventStore.IntegrationTests
 
             LogManager.LogFactory = new ConsoleLogFactory();
 
-            var nodeBuilder = EmbeddedVNodeBuilder.AsSingleNode()
-                           .OnDefaultEndpoints()
-                           .RunInMemory();
+            var nodeBuilder = EmbeddedVNodeBuilder
+                                .AsSingleNode()
+                                .OnDefaultEndpoints()
+                                .RunInMemory();
             var node = nodeBuilder.Build();
-            node.StartAndWaitUntilReady().Wait();
 
+            node.StartAndWaitUntilReady().Wait();
+            var testConnection = EmbeddedEventStoreConnection.Create(node);
 
             Plugins.Add(new MetadataFeature());
-            Plugins.Add(new EventStoreFeature(node, typeof(TestAppHost).Assembly));
+            Plugins.Add(new EventStoreFeature(testConnection, typeof(TestAppHost).Assembly));
         }
     }
 }
