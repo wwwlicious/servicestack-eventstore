@@ -53,6 +53,8 @@ Then, add the following settings to the `App.config` file of the root project:
 </configuration>
 ```
 
+It is also possible to pass in a ready-made instance of `IEventStoreConnection` in the constructor of the `EventStoreFeature`. This has been made available to facilitate the integration test suite that now uses the EventStore [Embedded Client](http://docs.geteventstore.com/dotnet-api/4.0.0/embedded-client/) and which passes in an instance of `EmbeddedEventStoreConnection`. 
+
 **Please note** that this sample assumes that:
 
 - EventStore is running on your **local host**. **1113** is the TCP port at which you can listen for events and **2113** is the HTTP port. These are the default ports that EventStore uses.
