@@ -3,6 +3,8 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 namespace ServiceStack.EventStore.IntegrationTests.TestClasses
 {
+    using global::EventStore.ClientAPI.Embedded;
+
     public class ServiceStackHostFixture
     {
         private const string ListeningOn = "http://localhost:8088/";

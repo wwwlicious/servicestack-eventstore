@@ -6,6 +6,7 @@ namespace ServiceStack.EventStore.IntegrationTests
 {
     using FluentAssertions;
     using Funq;
+    using global::EventStore.ClientAPI.Embedded;
     using Logging;
     using Main;
     using Projections;
@@ -30,9 +31,15 @@ namespace ServiceStack.EventStore.IntegrationTests
                 });
 
             LogManager.LogFactory = new ConsoleLogFactory();
+            var nodeBuilder = EmbeddedVNodeBuilder.AsSingleNode()
+                           .OnDefaultEndpoints()
+                           .RunInMemory();
+            var node = nodeBuilder.Build();
+            node.StartAndWaitUntilReady().Wait();
+
 
             Plugins.Add(new MetadataFeature());
-            Plugins.Add(new EventStoreFeature(settings, typeof(TestAppHost).Assembly));
+            Plugins.Add(new EventStoreFeature(node, settings, typeof(TestAppHost).Assembly));
         }
     }
 }

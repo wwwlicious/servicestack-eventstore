@@ -20,6 +20,8 @@ namespace ServiceStack.EventStore.Main
     using Projections;
     using System.Reflection;
     using Configuration;
+    using global::EventStore.ClientAPI.Embedded;
+    using global::EventStore.Core;
 
     public class EventStoreFeature: IPlugin
     {
@@ -37,6 +39,7 @@ namespace ServiceStack.EventStore.Main
         };
 
         private IAppSettings appSettings;
+        private ClusterVNode clusterNode;
 
         public EventStoreFeature(params Assembly[] assembliesWithEvents) : 
             this(new SubscriptionSettings(), assembliesWithEvents) { }
@@ -49,12 +52,21 @@ namespace ServiceStack.EventStore.Main
             log = LogManager.GetLogger(GetType());
         }
 
+        public EventStoreFeature(ClusterVNode clusterNode, SubscriptionSettings subscriptionSettings, params Assembly[] assembliesWithEvents)
+            : this(subscriptionSettings, assembliesWithEvents)
+        {
+            this.clusterNode = clusterNode;
+        }
+
         public async void Register(IAppHost appHost)
         {
             appSettings = appHost.AppSettings ?? new AppSettings();
 
             var connectionSettings = GetConnectionSettings();
-            var connection = EventStoreConnection.Create(connectionSettings.GetConnectionString());
+
+            var connection = clusterNode != null 
+                                ? EventStoreConnection.Create(connectionSettings.GetConnectionString())
+                                : EmbeddedEventStoreConnection.Create(clusterNode);
 
             await connection.ConnectAsync().ConfigureAwait(false); //no need for the initial synchronisation context 
             //to be reused when executing the rest of the method
