@@ -8,6 +8,7 @@ namespace ServiceStack.EventStore.Exceptions
     /// <summary>
     /// An exception thrown when a requested (aggregate) stream has been deleted.
     /// </summary>
+    [Serializable]
     public class AggregateDeletedException : Exception
     {
         public readonly Guid Id;

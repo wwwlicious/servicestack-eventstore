@@ -5,6 +5,7 @@ namespace ServiceStack.EventStore.Exceptions
 {
     using System;
 
+    [Serializable]
     public class EventNotFoundException: Exception
     {
         private readonly string stream;

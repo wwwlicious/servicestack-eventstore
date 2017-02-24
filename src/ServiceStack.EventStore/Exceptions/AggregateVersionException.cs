@@ -9,6 +9,7 @@ namespace ServiceStack.EventStore.Exceptions
     /// An exception thrown when trying persist new events to an 
     /// (aggregate) stream but there have been other changes in the meantime.
     /// </summary>
+    [Serializable]
     public class AggregateVersionException : Exception
     {
         public readonly Guid Id;
