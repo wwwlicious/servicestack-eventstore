@@ -52,8 +52,8 @@ namespace ServiceStack.EventStore.Main
             log = LogManager.GetLogger(GetType());
         }
 
-        public EventStoreFeature(ClusterVNode clusterNode, SubscriptionSettings subscriptionSettings, params Assembly[] assembliesWithEvents)
-            : this(subscriptionSettings, assembliesWithEvents)
+        public EventStoreFeature(ClusterVNode clusterNode, params Assembly[] assembliesWithEvents)
+            : this(new SubscriptionSettings(), assembliesWithEvents)
         {
             this.clusterNode = clusterNode;
         }
