@@ -20,8 +20,6 @@ namespace ServiceStack.EventStore.Main
     using Projections;
     using System.Reflection;
     using Configuration;
-    using global::EventStore.ClientAPI.Embedded;
-    using global::EventStore.Core;
 
     public class EventStoreFeature: IPlugin
     {
@@ -29,6 +27,7 @@ namespace ServiceStack.EventStore.Main
         private Container container;
         private readonly ILog log;
         private readonly Assembly[] assembliesWithEvents;
+        private readonly IEventStoreConnection connection;
 
         private readonly Dictionary<string, Type> consumers = new Dictionary<string, Type>
         {
@@ -39,7 +38,6 @@ namespace ServiceStack.EventStore.Main
         };
 
         private IAppSettings appSettings;
-        private ClusterVNode clusterNode;
 
         public EventStoreFeature(params Assembly[] assembliesWithEvents) : 
             this(new SubscriptionSettings(), assembliesWithEvents) { }
@@ -52,10 +50,10 @@ namespace ServiceStack.EventStore.Main
             log = LogManager.GetLogger(GetType());
         }
 
-        public EventStoreFeature(ClusterVNode clusterNode, params Assembly[] assembliesWithEvents)
+        public EventStoreFeature(IEventStoreConnection connection, params Assembly[] assembliesWithEvents)
             : this(new SubscriptionSettings(), assembliesWithEvents)
         {
-            this.clusterNode = clusterNode;
+            this.connection = connection;
         }
 
         public async void Register(IAppHost appHost)
@@ -64,19 +62,17 @@ namespace ServiceStack.EventStore.Main
 
             var connectionSettings = GetConnectionSettings();
 
-            var connection = clusterNode != null 
-                                ? EventStoreConnection.Create(connectionSettings.GetConnectionString())
-                                : EmbeddedEventStoreConnection.Create(clusterNode);
+            var eventStoreConnection = connection ?? EventStoreConnection.Create(connectionSettings.GetConnectionString());
 
-            await connection.ConnectAsync().ConfigureAwait(false); //no need for the initial synchronisation context 
+            await eventStoreConnection.ConnectAsync().ConfigureAwait(false); //no need for the initial synchronisation context 
             //to be reused when executing the rest of the method
 
-            new ConnectionMonitor(connection, connectionSettings.MonitorSettings)
+            new ConnectionMonitor(eventStoreConnection, connectionSettings.MonitorSettings)
                     .AddHandlers();
 
             container = appHost.GetContainer();
 
-            RegisterTypesForIoc(connection);
+            RegisterTypesForIoc(eventStoreConnection);
 
             appHost.GetPlugin<MetadataFeature>()?
                    .AddPluginLink($"http://{connectionSettings.GetHttpEndpoint()}/", "EventStore");
