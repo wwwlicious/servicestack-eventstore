@@ -25,7 +25,7 @@ namespace ServiceStack.EventStore.Types
         public string OriginalMetadata { get; }
         public string OriginalEventStreamId { get;  }
         public Guid OriginalEventId { get; }
-        public int OriginalEventNumber { get; }
+        public long OriginalEventNumber { get; }
         public string InvalidityReason { get; }
     }
 }

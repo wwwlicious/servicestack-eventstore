@@ -6,7 +6,6 @@ namespace ServiceStack.EventStore.Repository
     using Types;
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Eventing.Reader;
     using System.Linq;
     using Idempotency;
     using System.Runtime.InteropServices;
@@ -196,7 +195,7 @@ namespace ServiceStack.EventStore.Repository
 
             var aggregate = ConstructAggregate<TAggregate>(id);
 
-            var sliceStart = 0; 
+            var sliceStart = 0L; 
             StreamEventsSlice currentSlice;
 
             do
@@ -205,7 +204,7 @@ namespace ServiceStack.EventStore.Repository
                                     ? ReadPageSize
                                     : version - sliceStart;
 
-                currentSlice = await connection.ReadStreamEventsForwardAsync(streamName, sliceStart, sliceCount, false)
+                currentSlice = await connection.ReadStreamEventsForwardAsync(streamName, sliceStart, (int) sliceCount, false)
                                                .ConfigureAwait(false);
 
                 switch (currentSlice.Status)
