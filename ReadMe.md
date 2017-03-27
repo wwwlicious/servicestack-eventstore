@@ -30,10 +30,10 @@ Add the following code to the `Configure` method in the `AppHost` class (this cl
 ```csharp
 public override void Configure(Container container)
 {
-	//Register the EventStore plugin with ServiceStack, passing in 
-	//the assembly that contains the CLR events (see below)
-	Plugins.Add(new EventStoreFeature(typeof(ClrEvent).Assembly)); 
-	//Optionally register the Metadata plugin
+    //Register the EventStore plugin with ServiceStack, passing in 
+    //the assembly that contains the CLR events (see below)
+    Plugins.Add(new EventStoreFeature(typeof(ClrEvent).Assembly)); 
+    //Optionally register the Metadata plugin
     Plugins.Add(new MetadataFeature());
 }
 ```
@@ -97,15 +97,15 @@ Subscriptions can be created as follows in the `Configure` method (we will cover
 public override void Configure(Container container)
 {
     var settings = new SubscriptionSettings()
-			        	.SubscribeToStreams(streams =>
+	        	.SubscribeToStreams(streams =>
             	    	{
-            	    		//read a stream from the first event
-                	    	streams.Add(new CatchUpSubscription("stream_name"));
+         	    	    //read a stream from the first event
+                	    streams.Add(new CatchUpSubscription("stream_name"));
                             //read a stream from this moment forward
                             streams.Add(new VolatileSubscription("stream_name"));
                             //receive events from a stream as a competing consumer
                             streams.Add(new PersistentSubscription("stream_name", "subscription_group_name"));
-                		});
+                	});
 
  	...connection set-up omitted
 
@@ -120,8 +120,8 @@ The content of events in EventStore is stored in JSON format. In a language base
 ```csharp
 public class OrderCreated
 {
-	public Guid OrderId {get; set;}
-   	public DateTime Created {get; set;}
+    public Guid OrderId {get; set;}
+    public DateTime Created {get; set;}
 }
 ```
 There is no need for such a class to implement a particular interface or inherit from a parent class. Rather, as you have seen, when registering the EventStore plugin we pass in a reference to the assembly (or assemblies) that contain the relevant classes:
@@ -129,8 +129,8 @@ There is no need for such a class to implement a particular interface or inherit
 ```csharp
 public override void Configure(Container container)
 {
-	...
-	Plugins.Add(new EventStoreFeature(settings, typeof(SomeEvent).Assembly, typeof(AnotherEvent).Assembly);
+    ...
+    Plugins.Add(new EventStoreFeature(settings, typeof(SomeEvent).Assembly, typeof(AnotherEvent).Assembly);
 }
 ```
 
@@ -142,13 +142,13 @@ By adding the ServiceStack.EventStore package to your project we can access the 
 
 public class FlightService: ServiceStack.Service
 {
-       public IEventStoreRepository EventStore { get; set; }
+    public IEventStoreRepository EventStore { get; set; }
 	
-	public async Task DoSomething()
-	{
-	    ...
-	    await EventStore.PublishAsync(new SomethingHappened(), "targetstream");
-	}
+    public async Task DoSomething()
+    {
+       ...
+	await EventStore.PublishAsync(new SomethingHappened(), "targetstream");
+    }
 }
 
 ```
@@ -168,12 +168,12 @@ public class PurchaseOrderService : Service
 {
     public object Any(PurchaseOrderCreated @event)
     {
-		//handle event
+	//handle event
     }
 
     public object Any(OrderLineItemsAdded @event)
     {
-		//handle event
+	//handle event
     }
 }
 ```
@@ -186,23 +186,22 @@ For example, in the `Configure` method we can specify a series of `TimeSpan`s th
 
 ```csharp
 var settings = new SubscriptionSettings()
-		            .SubscribeToStreams(streams =>
-        	        {
-                    	streams.Add(new VolatileSubscription("deadletterchannel")
-                        	.SetRetryPolicy(1.Seconds(), 3.Seconds(), 5.Seconds()));
-                	});
+	            .SubscribeToStreams(streams =>
+       	            {
+                    	streams
+			   .Add(new VolatileSubscription("deadletterchannel")
+                           .SetRetryPolicy(1.Seconds(), 3.Seconds(), 5.Seconds()));
+                    });
 ```
 Alternatively, we can also tell the plugin to use an <a href="https://en.wikipedia.org/wiki/Exponential_backoff">exponential back-off</a> to multiplicatively increase the time to wait, for a specified maximum number of retry attempts, before attempting to resubscribe:
 
 ```csharp
 var settings = new SubscriptionSettings()
-	                .SubscribeToStreams(streams =>
+	            .SubscribeToStreams(streams =>
     	            {
                     	streams.Add(new VolatileSubscription("deadletterchannel")
-                        			.SetRetryPolicy(
-                        				10.Retries(), 
-                                		retryCounter => TimeSpan.FromSeconds(Math.Pow(2, retryCounter)))
-                            		);
+                        			.SetRetryPolicy(10.Retries(), 
+                                		retryCounter => TimeSpan.FromSeconds(Math.Pow(2, retryCounter))));
                     });
 ```
 
@@ -221,26 +220,26 @@ An event is raised by using the `Causes<TEvent>` method:
 ```csharp
 public class Flight : Aggregate<FlightState>
 {
-	public Flight(Guid id) : base(id)
-	{
-	}
+    public Flight(Guid id) : base(id)
+    {
+    }
 	
-	public Flight(): base(Guid.NewGuid())
-	{
-	    Causes(new FlightCreated(Id));
-	}
+    public Flight(): base(Guid.NewGuid())
+    {
+       Causes(new FlightCreated(Id));
+    }
 	
-	public void UpdateFlightNumber(string newFlightNumber)
-	{
-		if (!string.IsNullOrEmpty(destination))
-			Causes(new FlightNumberUpdated(newFlightNumber));
-	}
+    public void UpdateFlightNumber(string newFlightNumber)
+    {
+	if (!string.IsNullOrEmpty(destination))
+		Causes(new FlightNumberUpdated(newFlightNumber));
+    }
 	
-	public void UpdateDestination(string destination)
-	{
-		if (!string.IsNullOrEmpty(destination))
-			Causes(new DestinationChanged(destination));
-	}
+    public void UpdateDestination(string destination)
+    {
+	if (!string.IsNullOrEmpty(destination))
+		Causes(new DestinationChanged(destination));
+    }
 }
 
 ```
@@ -250,22 +249,22 @@ And a class that inherits from `State` that encapsulates the state of the aggreg
 ```csharp
 public class FlightState : State
 {
-	public string FlightNumber { get; private set; }
-	public string Destination { get; private set; }
+    public string FlightNumber { get; private set; }
+    public string Destination { get; private set; }
 	
-	public void On(FlightCreated @event)
-	{
-	}
+    public void On(FlightCreated @event)
+    {
+    }
 	
-	public void On(FlightNumberUpdated @event)
-	{
-	    FlightNumber = @event.NewFlightNumber;
-	}
+    public void On(FlightNumberUpdated @event)
+    {
+       FlightNumber = @event.NewFlightNumber;
+    }
 	
-	public void On(DestinationChanged @event)
-	{
-	    Destination = @event.Destination;
-	}
+    public void On(DestinationChanged @event)
+    {
+       Destination = @event.Destination;
+    }
 }
 ```
 
@@ -274,21 +273,22 @@ public class FlightState : State
 
 public class FlightService
 {
-	private readonly IEventStoreRepository repo;
+    private readonly IEventStoreRepository repo;
 	
-	public void FlightService(IEventStoreRepository repo)
-	{
-		this.repo = repo;
-	}
+    public void FlightService(IEventStoreRepository repo)
+    {
+	this.repo = repo;
+    }
 	
-	public async Task CancelFlight(Guid flightId)
-	{
-		var flight = await repo.GetByIdAsync<Flight>(flightId)
-				       .ConfigureAwait(false);
+    public async Task CancelFlight(Guid flightId)
+    {
+        var flight = await repo
+			     .GetByIdAsync<Flight>(flightId)
+			     .ConfigureAwait(false);
 		
-		flight.UpdateDestination("Dingwall International Airport");
+	flight.UpdateDestination("Dingwall International Airport");
 		
-		await repo.SaveAsync(flight);
+	await repo.SaveAsync(flight);
 	}
 }
 ```
