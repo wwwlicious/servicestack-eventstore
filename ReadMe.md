@@ -153,13 +153,13 @@ public class FlightService: ServiceStack.Service
 
 ```
 
-For information about setting and reading the headers for an event, please refer to the [Wiki](https://github.com/MacLeanElectrical/servicestack-eventstore/wiki/Headers)
+For information about setting and reading the headers for an event, please refer to the [Wiki](https://github.com/wwwlicious/servicestack-eventstore/wiki/Headers)
 
 #### Handling Events ####
 
 This plugin makes use of ServiceStack's architecture to route events from EventStore streams to their handlers which are implemented as methods on a service class: 
 
-![Routing Events](https://github.com/MacLeanElectrical/servicestack-eventstore/blob/master/assets/RoutingEvents.png)
+![Routing Events](https://github.com/wwwlicious/servicestack-eventstore/blob/master/assets/RoutingEvents.png)
 
 To handle an event on a stream to which you have subscribed simply create a class that inherits from `ServiceStack.Service` and add an endpoint for each event you wish to handle:
 
@@ -211,7 +211,7 @@ This plugin supports the event-sourced [aggregates](http://martinfowler.com/blik
 
 When the aggregate is loaded (or 'rehydrated' in the parlance of event sourcing), again, it is not the state as such of the aggregate that is loaded but, rather, the events which were previously persisted to the event store. These events are re-applied to the aggregate (in exactly the same way they were when the original commands were executed) to reach the proper state of the aggregate. As Greg Young has reiterated "Current State is a [left fold](https://en.wikipedia.org/wiki/Fold_%28higher-order_function%29) of previous facts". 
 
-![Event Sourced Aggregate](https://github.com/MacLeanElectrical/servicestack-eventstore/blob/master/assets/Aggregate.png)
+![Event Sourced Aggregate](https://github.com/wwwlicious/servicestack-eventstore/blob/master/assets/Aggregate.png)
 
 In many implementations of the event-sourced aggregate pattern to be found on the internet (such as [here](https://lostechies.com/gabrielschenker/2015/06/06/event-sourcing-applied-the-aggregate/), [here](http://danielwhittaker.me/2014/11/15/aggregate-root-cqrs-event-sourcing/), and [here](http://bit.ly/1YhgPCR)) the aggregate is modelled as a **single** class exposing (1) API methods that raise events in response to commands, (2) event handlers that mutate state in response to these events being raised, and (3) fields that hold that state. ServiceStack.EventStore, however, supports the modelling of a (logical) aggregate as two distinct classes with single responsibilities: a class that inherits from `Aggregate<TState>` and exposes command methods that are responsible for validation of the commands and raising events in response to them.
 

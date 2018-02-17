@@ -7,7 +7,7 @@
     <authors>$author$</authors>
     <owners>$author$</owners>
     <licenseUrl>https://www.mozilla.org/en-US/MPL/2.0/</licenseUrl>
-	<projectUrl>https://github.com/MacLeanElectrical/servicestack-eventstore</projectUrl>
+	<projectUrl>https://github.com/wwwlicious/servicestack-eventstore</projectUrl>
 	<iconUrl>https://servicestack.net/img/logo-32.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>ServiceStack Plugin for event-sourced systems using EventStore</description>
